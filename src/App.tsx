@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { PdfViewer } from './components/PdfViewer/PdfViewer';
 import { Canvas } from './components/Canvas/Canvas';
 import { FramePanel } from './components/Frame/FramePanel';
@@ -7,6 +8,7 @@ function App() {
   const reset = useGraphStore((s) => s.reset);
   const count = useGraphStore((s) => s.nodes.length);
   const focusedId = useGraphStore((s) => s.focusedNodeId);
+  const [leftWidth, setLeftWidth] = useState(50);
 
   return (
     <div className="flex h-screen w-screen flex-col bg-[#07070a] text-neutral-100">
@@ -36,10 +38,29 @@ function App() {
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent" />
       </header>
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-1/2 border-r border-neutral-800/80">
+        <div style={{ width: `${leftWidth}%`, display: leftWidth === 0 ? 'none' : 'flex' }} className="border-r border-neutral-800/80 flex-col h-full overflow-hidden shrink-0">
           <PdfViewer />
         </div>
-        <div className="relative w-1/2">
+        <div
+          className="relative w-1 cursor-col-resize bg-neutral-800/80 hover:bg-indigo-500/80 active:bg-indigo-500 z-50 shrink-0"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            const startX = e.clientX;
+            const startWidth = leftWidth;
+            const onMouseMove = (e: MouseEvent) => {
+              const delta = e.clientX - startX;
+              const newWidth = startWidth + (delta / window.innerWidth) * 100;
+              setLeftWidth(Math.max(0, Math.min(100, newWidth)));
+            };
+            const onMouseUp = () => {
+              document.removeEventListener('mousemove', onMouseMove);
+              document.removeEventListener('mouseup', onMouseUp);
+            };
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+          }}
+        />
+        <div style={{ width: `${100 - leftWidth}%`, display: leftWidth === 100 ? 'none' : 'flex' }} className="relative flex-col h-full overflow-hidden shrink-0">
           <Canvas />
           {focusedId && <FramePanel />}
         </div>

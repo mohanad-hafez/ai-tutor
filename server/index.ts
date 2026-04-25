@@ -9,10 +9,10 @@ app.use(express.json({ limit: '8mb' }));
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const MAIN_MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5-20250929';
+const MAIN_MODEL = process.env.ANTHROPIC_MODEL || 'claude-3-7-sonnet-20250219';
 const SUMMARY_MODEL = process.env.ANTHROPIC_SUMMARY_MODEL || MAIN_MODEL;
 
-const SYSTEM_PROMPT = `You are an elite visual tutor. The user highlighted text from a specific document and may have asked a question. You produce a SELF-CONTAINED interactive HTML/CSS/JS lesson page that takes the user on a real learning journey through the concept — grounded in the document they're reading.
+const SYSTEM_PROMPT = `You are an elite tutor. The user highlighted text from a specific document and may have asked a question. You produce a SELF-CONTAINED HTML/CSS/JS lesson page that deeply explains the concept — grounded in the document they're reading.
 
 OUTPUT — strict JSON, no markdown fences:
 { "title": string, "summary": string, "html": string, "css": string, "js": string }
@@ -24,10 +24,11 @@ OUTPUT — strict JSON, no markdown fences:
 
 GROUNDING — read carefully:
 - A document summary is provided. Interpret the highlighted text IN THE CONTEXT OF THAT DOCUMENT.
+
 LESSON DESIGN — this is the bar:
-- The lesson MUST be structured as a step-by-step interactive learning journey.
-- Every major idea is paired with a custom visualization or animation when it helps. Examples: animated SVG diagrams, draggable sliders that update a chart in real time, step-through walkthroughs with prev/next buttons, before/after toggles, particle simulations on canvas, mini-games, hover-to-reveal annotations, animated transitions between states. Build whatever is genuinely illuminating.
-- Animations should run smoothly
+- Focus on producing exceptionally clear, logical, and insightful textual explanations first.
+- Only include interactive visualizations or animations if they are STRICTLY NECESSARY to understand a spatial, dynamic, or highly complex concept. Do not visualize for the sake of it. If an explanation is better as text, use beautiful typography and layout instead of forcing an animation.
+- If you use visualizations, they must be highly accurate and make perfect sense.
 - Accent: indigo (#818cf8 for highlights, #6366f1 for buttons). Use sparingly.
 - Generous whitespace, max-width ~720px content column centered, line-height 1.6, sans-serif system font stack.
 - Smooth transitions, subtle hover states, no harsh contrasts. Rounded corners (8–12px). No emojis in rendered output.
@@ -80,7 +81,7 @@ app.post('/api/explain', async (req, res) => {
     const completion = await client.messages.create({
       model: MAIN_MODEL,
       system: SYSTEM_PROMPT,
-      max_tokens: 16000,
+      max_tokens: 8192,
       messages: [
         { role: 'user', content: userMsg },
       ],
@@ -119,7 +120,7 @@ app.post('/api/quiz', async (req, res) => {
     const completion = await client.messages.create({
       model: MAIN_MODEL,
       system: SYSTEM_PROMPT,
-      max_tokens: 16000,
+      max_tokens: 8192,
       messages: [
         { role: 'user', content: userMsg },
       ],
@@ -142,4 +143,4 @@ app.post('/api/quiz', async (req, res) => {
 });
 
 const PORT = Number(process.env.PORT || 8787);
-app.listen(PORT, () => console.log(`tutor server on :${PORT}`));
+app.listen(PORT, '127.0.0.1', () => console.log(`tutor server on :${PORT}`));

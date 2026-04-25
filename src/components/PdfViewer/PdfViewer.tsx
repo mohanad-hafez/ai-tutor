@@ -17,6 +17,7 @@ export function PdfViewer() {
   const { doc, setDoc, summary, summarizing, setSummary, setSummarizing } =
     useDocumentStore();
   const [numPages, setNumPages] = useState<number>(0);
+  const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const { selection, clear } = useTextSelection(containerRef);
 
@@ -123,6 +124,13 @@ export function PdfViewer() {
           <span className="truncate font-mono text-[11px] text-neutral-500">{doc.filename}</span>
         )}
         <div className="ml-auto flex items-center gap-2">
+          {doc && (
+            <div className="flex items-center gap-1 rounded-md border border-neutral-800 bg-[#111114] p-0.5 mr-2">
+              <button onClick={() => setScale(s => Math.max(0.5, s - 0.2))} className="px-2 py-0.5 text-neutral-400 hover:text-neutral-100">-</button>
+              <span className="text-[10px] font-mono w-8 text-center text-neutral-300">{Math.round(scale * 100)}%</span>
+              <button onClick={() => setScale(s => Math.min(3, s + 0.2))} className="px-2 py-0.5 text-neutral-400 hover:text-neutral-100">+</button>
+            </div>
+          )}
           {summarizing ? (
             <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-800 bg-[#111114] px-2 py-0.5 text-[10px] font-medium text-neutral-400">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-indigo-400" />
@@ -137,7 +145,7 @@ export function PdfViewer() {
         </div>
       </div>
 
-      <div className="p-6">
+      <div className="p-6 flex flex-col items-center">
         {doc ? (
           <Document
             file={doc.file}
@@ -152,7 +160,7 @@ export function PdfViewer() {
               >
                 <Page
                   pageNumber={i + 1}
-                  width={680}
+                  width={680 * scale}
                   renderTextLayer
                   renderAnnotationLayer={false}
                 />
