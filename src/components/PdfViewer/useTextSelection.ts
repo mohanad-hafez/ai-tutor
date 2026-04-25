@@ -30,10 +30,14 @@ export function useTextSelection(containerRef: React.RefObject<HTMLElement | nul
       }
       const rect = range.getBoundingClientRect();
       const containerRect = el.getBoundingClientRect();
+      const containerWidth = containerRect.width;
+      const xPos = rect.left + rect.width / 2 - containerRect.left + el.scrollLeft - 190;
+      const safeX = Math.max(el.scrollLeft + 10, Math.min(xPos, el.scrollLeft + containerWidth - 390));
+
       setSelection({
         text,
         rect: {
-          x: rect.right - containerRect.left + el.scrollLeft,
+          x: safeX,
           y: rect.top - containerRect.top + el.scrollTop,
           w: rect.width,
           h: rect.height,
