@@ -1,49 +1,37 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '8mb' }));
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const MAIN_MODEL = process.env.OPENAI_MODEL || 'gpt-5';
-const SUMMARY_MODEL = process.env.OPENAI_SUMMARY_MODEL || MAIN_MODEL;
+const MAIN_MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5-20250929';
+const SUMMARY_MODEL = process.env.ANTHROPIC_SUMMARY_MODEL || MAIN_MODEL;
 
 const SYSTEM_PROMPT = `You are an elite visual tutor. The user highlighted text from a specific document and may have asked a question. You produce a SELF-CONTAINED interactive HTML/CSS/JS lesson page that takes the user on a real learning journey through the concept — grounded in the document they're reading.
 
 OUTPUT — strict JSON, no markdown fences:
 { "title": string, "summary": string, "html": string, "css": string, "js": string }
-- title: max 8 words.
-- summary: one sentence, max 25 words.
+- title
+- summary
 - html: body content only — no <html>/<head>/<body>/<style>/<script> tags.
 - css: styles only.
 - js: vanilla JS only — no <script> tags. Page is fresh; you control everything.
 
 GROUNDING — read carefully:
-- A document summary is provided. Interpret the highlighted text IN THE CONTEXT OF THAT DOCUMENT. If the document is about tabular data, "downsampling" means row/sample reduction in tables, NOT signal processing. If it's about audio, then signals. Match the domain. Never explain a generic textbook meaning that contradicts the document's domain.
-- If the user asked a specific question, the lesson must directly and thoroughly answer it.
-
+- A document summary is provided. Interpret the highlighted text IN THE CONTEXT OF THAT DOCUMENT.
 LESSON DESIGN — this is the bar:
-- A real journey, not a single widget. 5–9 sections that build on each other: hook → intuition → mechanism → worked example → interactive exploration → edge cases / pitfalls → recap.
+- The lesson MUST be structured as a step-by-step interactive learning journey.
 - Every major idea is paired with a custom visualization or animation when it helps. Examples: animated SVG diagrams, draggable sliders that update a chart in real time, step-through walkthroughs with prev/next buttons, before/after toggles, particle simulations on canvas, mini-games, hover-to-reveal annotations, animated transitions between states. Build whatever is genuinely illuminating.
-- Animations should run smoothly (CSS transitions, requestAnimationFrame). Interactive controls should give immediate visual feedback.
-- Use real numbers and concrete examples drawn from the document's domain when possible.
-- Quality bar: feels like a polished explainer from 3blue1brown / Bartosz Ciechanowski — depth, craft, beauty. Not a toy.
-
-VISUAL DESIGN — DARK MODE, mandatory:
-- Background: #0a0a0a (page) with section cards on #141414 / #1a1a1a. Borders #262626. Text #e5e5e5, secondary #a3a3a3, muted #737373.
+- Animations should run smoothly
 - Accent: indigo (#818cf8 for highlights, #6366f1 for buttons). Use sparingly.
 - Generous whitespace, max-width ~720px content column centered, line-height 1.6, sans-serif system font stack.
 - Smooth transitions, subtle hover states, no harsh contrasts. Rounded corners (8–12px). No emojis in rendered output.
 - Charts/SVGs use the dark palette: dark backgrounds, light strokes, indigo accents.
-
-CONSTRAINTS:
-- No external scripts, no fetch, no remote images. SVG, CSS, canvas only.
-- Self-contained, runs offline.
-- Total size under ~60KB.
 
 Respond ONLY with the JSON object.`;
 
@@ -56,14 +44,15 @@ app.post('/api/summarize', async (req, res) => {
   }
   const trimmed = text.length > 80000 ? text.slice(0, 80000) : text;
   try {
-    const completion = await client.chat.completions.create({
+    const completion = await client.messages.create({
       model: SUMMARY_MODEL,
+      system: SUMMARY_PROMPT,
+      max_tokens: 1024,
       messages: [
-        { role: 'system', content: SUMMARY_PROMPT },
         { role: 'user', content: trimmed },
       ],
     });
-    const summary = completion.choices[0]?.message?.content?.trim() || '';
+    const summary = (completion.content[0] as any).text.trim() || '';
     res.json({ summary });
   } catch (err) {
     console.error('summarize error:', err);
@@ -88,17 +77,18 @@ app.post('/api/explain', async (req, res) => {
     .join('\n\n');
 
   try {
-    const completion = await client.chat.completions.create({
+    const completion = await client.messages.create({
       model: MAIN_MODEL,
+      system: SYSTEM_PROMPT,
+      max_tokens: 16000,
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: userMsg },
       ],
-      response_format: { type: 'json_object' },
     });
 
-    const raw = completion.choices[0]?.message?.content || '{}';
-    const parsed = JSON.parse(raw);
+    const raw = (completion.content[0] as any).text || '{}';
+    const cleaned = raw.replace(/```json\n?|```/g, '').trim();
+    const parsed = JSON.parse(cleaned);
     res.json({
       title: parsed.title || 'Concept',
       summary: parsed.summary || '',
@@ -126,15 +116,17 @@ app.post('/api/quiz', async (req, res) => {
     .filter(Boolean)
     .join('\n\n');
   try {
-    const completion = await client.chat.completions.create({
+    const completion = await client.messages.create({
       model: MAIN_MODEL,
+      system: SYSTEM_PROMPT,
+      max_tokens: 16000,
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: userMsg },
       ],
-      response_format: { type: 'json_object' },
     });
-    const parsed = JSON.parse(completion.choices[0]?.message?.content || '{}');
+    const raw = (completion.content[0] as any).text || '{}';
+    const cleaned = raw.replace(/```json\n?|```/g, '').trim();
+    const parsed = JSON.parse(cleaned);
     res.json({
       title: parsed.title || 'Quiz',
       summary: parsed.summary || '',

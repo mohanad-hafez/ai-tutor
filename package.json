@@ -12,11 +12,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.91.1",
     "cors": "^2.8.6",
     "dagre": "^0.8.5",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "openai": "^6.34.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-pdf": "^10.4.1",
