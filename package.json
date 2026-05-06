@@ -17,6 +17,7 @@
     "dagre": "^0.8.5",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "partial-json": "^0.1.7",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-pdf": "^10.4.1",

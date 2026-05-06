@@ -13,6 +13,14 @@ dist-ssr
 *.local
 .env
 .env.local
+.env.save
+.env.*.local
+
+# server video pipeline artifacts
+server/tmp/
+server/cache/
+public/videos/
+docs/manim/
 
 # Editor directories and files
 .vscode/*

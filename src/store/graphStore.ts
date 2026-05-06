@@ -10,6 +10,7 @@ interface GraphState {
   setNodes: (nodes: Node<FrameData>[]) => void;
   setEdges: (edges: Edge[]) => void;
   addFrame: (frame: FrameData, parentId?: string, position?: { x: number; y: number }) => void;
+  addEdge: (source: string, target: string) => void;
   updateFrame: (id: string, patch: Partial<FrameData>) => void;
   setFocused: (id: string | null) => void;
   reset: () => void;
@@ -49,6 +50,12 @@ export const useGraphStore = create<GraphState>()(
               ]
             : state.edges;
           return { nodes: [...state.nodes, node], edges: newEdges };
+        }),
+      addEdge: (source, target) =>
+        set((state) => {
+          const id = `${source}->${target}`;
+          if (state.edges.some((e) => e.id === id)) return {};
+          return { edges: [...state.edges, { id, source, target }] };
         }),
       updateFrame: (id, patch) =>
         set((state) => ({

@@ -5,8 +5,9 @@ import 'react-pdf/dist/Page/TextLayer.css';
 import { useDocumentStore } from '../../store/documentStore';
 import { useTextSelection } from './useTextSelection';
 import { SelectionPopover } from './SelectionPopover';
-import { useGraphStore } from '../../store/graphStore';
-import { explain, summarizeDoc } from '../../agent/tutor';
+import { HighlightOverlays } from './HighlightOverlays';
+import { summarizeDoc } from '../../agent/tutor';
+import { startLesson, startVideoDirect } from '../../lib/lessonFlow';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -20,10 +21,6 @@ export function PdfViewer() {
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const { selection, clear } = useTextSelection(containerRef);
-
-  const addFrame = useGraphStore((s) => s.addFrame);
-  const updateFrame = useGraphStore((s) => s.updateFrame);
-  const setFocused = useGraphStore((s) => s.setFocused);
 
   const onFile = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,44 +65,56 @@ export function PdfViewer() {
     [summary, summarizing, setSummary, setSummarizing]
   );
 
-  const handleAsk = useCallback(
-    async (question: string) => {
-      if (!selection) return;
-      const text = selection.text;
-      const id = crypto.randomUUID();
-      addFrame({
-        id,
-        type: 'root',
-        title: text.slice(0, 40) + (text.length > 40 ? '…' : ''),
-        summary: question || 'Generating lesson…',
-        sourceText: text,
-        parentIds: [],
-        childIds: [],
-        loading: true,
-      });
-      clear();
-      setFocused(id);
+  const addHighlight = useDocumentStore((s) => s.addHighlight);
 
-      try {
-        const res = await explain({
-          text,
-          question,
-          docSummary: summary || undefined,
-        });
-        updateFrame(id, {
-          title: res.title,
-          summary: res.summary,
-          content: res.content,
-          loading: false,
-        });
-      } catch (err) {
-        updateFrame(id, {
-          summary: 'Error: ' + (err as Error).message,
-          loading: false,
-        });
-      }
+  const recordHighlight = useCallback(
+    (frameId: string) => {
+      if (!selection) return;
+      if (
+        selection.pdfPageIndex == null ||
+        !selection.pdfPageRects ||
+        selection.pdfPageRects.length === 0 ||
+        !selection.pdfCaptureScale
+      )
+        return;
+      addHighlight({
+        id: crypto.randomUUID(),
+        frameId,
+        pageIndex: selection.pdfPageIndex,
+        captureScale: selection.pdfCaptureScale,
+        rects: selection.pdfPageRects,
+        text: selection.text,
+      });
     },
-    [selection, addFrame, updateFrame, clear, setFocused, summary]
+    [selection, addHighlight]
+  );
+
+  const handleAsk = useCallback(
+    (question: string) => {
+      if (!selection) return;
+      const id = startLesson({
+        sourceText: selection.text,
+        question,
+        docSummary: summary,
+      });
+      recordHighlight(id);
+      clear();
+    },
+    [selection, clear, summary, recordHighlight]
+  );
+
+  const handleVideo = useCallback(
+    (question: string) => {
+      if (!selection) return;
+      const id = startVideoDirect({
+        sourceText: selection.text,
+        question,
+        docSummary: summary,
+      });
+      recordHighlight(id);
+      clear();
+    },
+    [selection, clear, summary, recordHighlight]
   );
 
   return (
@@ -156,7 +165,7 @@ export function PdfViewer() {
             {Array.from({ length: numPages }, (_, i) => (
               <div
                 key={i}
-                className="mb-6 overflow-hidden rounded-lg bg-white shadow-[0_8px_30px_-8px_rgba(0,0,0,0.6)] ring-1 ring-neutral-800"
+                className="relative mb-6 overflow-hidden rounded-lg bg-white shadow-[0_8px_30px_-8px_rgba(0,0,0,0.6)] ring-1 ring-neutral-800"
               >
                 <Page
                   pageNumber={i + 1}
@@ -164,6 +173,7 @@ export function PdfViewer() {
                   renderTextLayer
                   renderAnnotationLayer={false}
                 />
+                <HighlightOverlays pageIndex={i} renderedWidth={680 * scale} />
               </div>
             ))}
           </Document>
@@ -178,6 +188,7 @@ export function PdfViewer() {
           y={selection.rect.y}
           text={selection.text}
           onAsk={handleAsk}
+          onVideo={handleVideo}
           onDismiss={clear}
         />
       )}
@@ -203,7 +214,7 @@ function EmptyPdf() {
         <div>
           <div className="text-sm font-medium text-neutral-200">Upload a PDF to begin</div>
           <div className="mt-1 text-xs leading-relaxed text-neutral-500">
-            Highlight any text, then ask a question or just press Enter to get an interactive lesson.
+            Highlight any text, then press <kbd className="rounded border border-neutral-700 bg-[#15151b] px-1 font-mono text-[10px] text-neutral-300">Enter</kbd> for an explanation, or <kbd className="rounded border border-neutral-700 bg-[#15151b] px-1 font-mono text-[10px] text-neutral-300">⌘ Enter</kbd> for an animation.
           </div>
         </div>
       </div>

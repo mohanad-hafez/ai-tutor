@@ -1,6 +1,16 @@
 import { useEffect, useState } from 'react';
 import type { SelectionInfo } from '../../types';
 
+function findPdfPage(node: Node | null): HTMLElement | null {
+  let cur: Node | null = node;
+  while (cur && cur.nodeType !== 1) cur = cur.parentNode;
+  let el = cur as HTMLElement | null;
+  while (el && !(el.classList && el.classList.contains('react-pdf__Page'))) {
+    el = el.parentElement;
+  }
+  return el;
+}
+
 export function useTextSelection(containerRef: React.RefObject<HTMLElement | null>) {
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
 
@@ -34,6 +44,25 @@ export function useTextSelection(containerRef: React.RefObject<HTMLElement | nul
       const xPos = rect.left + rect.width / 2 - containerRect.left + el.scrollLeft - 190;
       const safeX = Math.max(el.scrollLeft + 10, Math.min(xPos, el.scrollLeft + containerWidth - 390));
 
+      // Capture page-local rects so we can persist a stable highlight overlay.
+      let pdfPageIndex: number | undefined;
+      let pdfPageRects: { x: number; y: number; w: number; h: number }[] | undefined;
+      let pdfCaptureScale: number | undefined;
+      const pageEl = findPdfPage(range.startContainer);
+      if (pageEl) {
+        const pageNum = Number(pageEl.dataset.pageNumber || pageEl.getAttribute('data-page-number') || NaN);
+        if (Number.isFinite(pageNum)) pdfPageIndex = pageNum - 1;
+        const pageRect = pageEl.getBoundingClientRect();
+        const list = Array.from(range.getClientRects()).filter((r) => r.width > 1 && r.height > 1);
+        pdfPageRects = list.map((r) => ({
+          x: r.left - pageRect.left,
+          y: r.top - pageRect.top,
+          w: r.width,
+          h: r.height,
+        }));
+        pdfCaptureScale = pageRect.width;
+      }
+
       setSelection({
         text,
         rect: {
@@ -42,6 +71,9 @@ export function useTextSelection(containerRef: React.RefObject<HTMLElement | nul
           w: rect.width,
           h: rect.height,
         },
+        pdfPageIndex,
+        pdfPageRects,
+        pdfCaptureScale,
       });
     };
 
