@@ -278,24 +278,21 @@ const PLANNER_TOOL = {
   },
 };
 
-const PLANNER_SYSTEM = `You are a pedagogical planner. Given a chosen lesson mode (text / visual_html / video_manim) plus retrieved document context, you emit a structured plan that a downstream Author agent will turn into the actual lesson.
+const PLANNER_SYSTEM = `You are a pedagogical planner. Given a chosen lesson mode plus retrieved document context, emit a structured plan a downstream Author will turn into the lesson.
 
-Your job is to:
-1. Identify the title and one-sentence summary.
-2. Decompose the concept into 3–5 ordered teaching beats. Each beat is a micro-lesson on its own and they MUST build on each other.
-3. For visual_html and video_manim, every beat needs a concrete viz idea (what the learner sees, not just what they're told).
-4. List up to 2 genuine prerequisites the learner might lack. Empty array if the concept is self-contained.
-5. Explain the approach in 1–2 sentences — why this structure teaches it.
-6. For video_manim ONLY: write a manim_brief — 2–4 sentences describing what the Manim animation should show, in pedagogical order. The video pipeline turns this into a Scene.
+Your job:
+1. Title (≤ 60 chars) and one-sentence summary (≤ 140 chars).
+2. 3–4 ordered teaching beats that build on each other. Each beat: short label + one-sentence intent.
+3. For visual_html / video_manim ONLY: each beat ALSO needs a concrete viz idea (what the learner sees). Skip viz field entirely for text mode.
+4. Up to 2 genuine prerequisites the learner might lack. Empty array if self-contained.
+5. Approach: 1 sentence on why this structure works.
+6. video_manim ONLY: manim_brief — 2–3 sentences describing what the animation shows, in order.
 
 GROUNDING:
-- Document summary anchors the domain.
-- Retrieved chunks are verbatim passages from the document. Cite them implicitly — your plan should be consistent with what the document actually says.
-- If recently-explored concepts are listed, build on them when natural ("you've already seen X; this extends it to Y").
+- Document summary anchors domain. Retrieved chunks are verbatim passages — be consistent with them.
+- If recently-explored concepts are listed, build on them when natural.
 
-Be concrete. Avoid generic advice like "use diagrams" — say what the diagram shows.
-
-Call emit_plan exactly once.`;
+Be concrete and BRIEF. The plan is scaffolding, not the lesson. Call emit_plan once.`;
 
 export async function runPlanner(
   input: OrchestrateInput,
@@ -304,7 +301,9 @@ export async function runPlanner(
   chunks: RetrievedChunk[],
   emit: EmitFn,
 ): Promise<PlannerOutput> {
-  const trace = startTrace('planner', 'Plan teaching beats', MAIN_MODEL);
+  // Use Haiku for the simpler text-mode plan (no viz, no manim_brief).
+  const plannerModel = mode === 'text' ? FAST_MODEL : MAIN_MODEL;
+  const trace = startTrace('planner', 'Plan teaching beats', plannerModel);
   emit(trace);
 
   const userMsg = [
@@ -321,9 +320,9 @@ export async function runPlanner(
 
   try {
     const completion = await client.messages.create({
-      model: MAIN_MODEL,
+      model: plannerModel,
       system: [{ type: 'text', text: PLANNER_SYSTEM, cache_control: { type: 'ephemeral' } }],
-      max_tokens: 2048,
+      max_tokens: 1024,
       tools: [PLANNER_TOOL],
       tool_choice: { type: 'tool', name: 'emit_plan' },
       messages: [{ role: 'user', content: userMsg }],
@@ -359,29 +358,46 @@ const AUTHOR_TOOL = {
   },
 };
 
-const AUTHOR_SYSTEM = `You are an elite tutor writing the final body of a lesson. The Planner has already chosen the title, summary, beats, and approach. Your only job is to turn the plan into beautiful, accurate, dark-mode HTML/CSS/JS.
+const AUTHOR_TEXT_SYSTEM = `You write the prose body of a text-mode lesson. The Planner has chosen the title, summary, and beats. Convert the plan into clean semantic HTML.
 
-CONSTRAINTS:
-- Output via the emit_content tool.
+OUTPUT via emit_content:
+- html: body fragment ONLY. Use <h2> for beat labels, <p> for prose, <ul>/<ol> where needed, <strong>/<em> for emphasis. NO <h1> (the parent owns the title).
+- css: empty string OR a few lines of small overrides. Do NOT re-style the page — the iframe shell already provides typography, max-width, code blocks, and dark theme. Adding > 30 lines of CSS is wrong for text mode.
+- js: empty string. Pure prose lessons run no JavaScript.
+
+For math: use $...$ inline and $$...$$ display. KaTeX auto-renders.
+
+CONTENT RULES:
+- One <h2> per beat from the plan, in order.
+- 1–3 short paragraphs per beat. Be concise and load-bearing — every sentence should teach.
+- Avoid filler ("In this section we will explore…"). Get to the point.
+- Total length: aim for 400–800 words of body text, not more.
+
+Call emit_content once.`;
+
+const AUTHOR_VISUAL_SYSTEM = `You write the body of an interactive visual_html lesson. The Planner chose title, summary, beats, and viz ideas. Convert the plan into accurate, dark-mode HTML/CSS/JS.
+
+OUTPUT via emit_content:
 - html: body fragment only — no <html>/<head>/<body>/<style>/<script> tags.
 - css: styles only.
-- js: vanilla JS only, no <script> tags. For 'text' mode, leave js as an empty string.
+- js: vanilla JS only, no <script> tags.
 - DO NOT redefine the title or summary; the parent already has them.
-- Each beat in the plan should map to a section in the lesson. Use semantic HTML (h2 for beats, p for prose, ul/ol where appropriate).
+- Each beat = one section. h2 per beat, viz inside.
 
-LIBRARIES AVAILABLE in the iframe runtime:
+LIBRARIES available in the iframe runtime:
 - D3 v7 (window.d3)
-- KaTeX 0.16 with auto-render — use $...$ for inline math, $$...$$ for display
+- KaTeX 0.16 with auto-render — use $...$ inline, $$...$$ display
 - p5.js v1.10 (window.p5)
 
 DESIGN:
 - Dark palette. Backgrounds #0a0a0d / #0e0e12. Indigo accents #818cf8 / #6366f1.
-- Generous whitespace. Max-width 720px content column. Line-height 1.6.
-- Rounded corners 8–12px. No emojis. No harsh contrasts.
+- Generous whitespace. Max-width 720px content column. Rounded corners 8–12px. No emojis.
 - Visualizations must be ACCURATE. Label axes. Use real numbers where they matter.
-- For interactive widgets: name buttons clearly. Provide reset functionality. Don't leave the user stuck.
+- For interactive widgets: name buttons clearly, provide reset, don't leave the user stuck.
 
-If you write inline event handlers like onclick="foo()", make sure foo is declared at top-level scope in the js field.`;
+If you write inline onclick="foo()" handlers, declare foo at top-level scope in the js field.
+
+Call emit_content once.`;
 
 export async function runAuthor(
   input: OrchestrateInput,
@@ -391,7 +407,14 @@ export async function runAuthor(
   emit: EmitFn,
   partialContent: PartialFn,
 ): Promise<AuthoredContent> {
-  const trace = startTrace('author', 'Write lesson body', MAIN_MODEL);
+  // Text-mode authoring is fundamentally token-bound (~hundreds of words of
+  // prose); Sonnet's reasoning is overkill and Haiku is ~3-4x faster.
+  // Visual lessons need Sonnet's spatial reasoning + accurate D3 code.
+  const isText = mode === 'text';
+  const authorModel = isText ? FAST_MODEL : MAIN_MODEL;
+  const authorSystem = isText ? AUTHOR_TEXT_SYSTEM : AUTHOR_VISUAL_SYSTEM;
+  const maxTokens = isText ? 3072 : 8192;
+  const trace = startTrace('author', 'Write lesson body', authorModel);
   emit(trace);
 
   const userMsg = [
@@ -409,9 +432,9 @@ export async function runAuthor(
 
   try {
     const stream = client.messages.stream({
-      model: MAIN_MODEL,
-      system: [{ type: 'text', text: AUTHOR_SYSTEM, cache_control: { type: 'ephemeral' } }],
-      max_tokens: 8192,
+      model: authorModel,
+      system: [{ type: 'text', text: authorSystem, cache_control: { type: 'ephemeral' } }],
+      max_tokens: maxTokens,
       tools: [AUTHOR_TOOL],
       tool_choice: { type: 'tool', name: 'emit_content' },
       messages: [{ role: 'user', content: userMsg }],
@@ -420,7 +443,9 @@ export async function runAuthor(
     let lastEmittedJson = '';
     stream.on('inputJson', (_partial: string, snapshot: unknown) => {
       const acc = typeof snapshot === 'string' ? snapshot : JSON.stringify(snapshot ?? '');
-      if (acc.length - lastEmittedJson.length < 96) return;
+      // Throttle so we don't re-render the iframe on every byte; 48 chars
+      // gives a smooth perceptual stream without thrashing the parser.
+      if (acc.length - lastEmittedJson.length < 48) return;
       lastEmittedJson = acc;
       try {
         const parsed = partialParse(acc, Allow.ALL) as Partial<AuthoredContent>;
