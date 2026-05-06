@@ -1,5 +1,6 @@
 import { useGraphStore } from '../store/graphStore';
-import type { FrameType, LessonMode } from '../types';
+import { useDocumentStore } from '../store/documentStore';
+import type { AgentTrace, FrameType, LessonMode } from '../types';
 import { explainStream, createVideo, subscribeVideo } from '../agent/tutor';
 
 interface StartLessonOpts {
@@ -114,16 +115,39 @@ export function startVideoDirect(opts: StartLessonOpts): string {
 }
 
 function runLesson(id: string, opts: StartLessonOpts) {
-  const { updateFrame } = useGraphStore.getState();
+  const { updateFrame, nodes } = useGraphStore.getState();
+  const { docId } = useDocumentStore.getState();
+
+  // Cross-lesson memory: send the last 5 lessons so the router and planner
+  // know what the learner has already seen (avoid repetition + enable
+  // back-references like "you saw X").
+  const recentLessons = nodes
+    .filter((n) => n.id !== id && (n.data.title || n.data.sourceText))
+    .slice(-5)
+    .map((n) => ({
+      title: n.data.title,
+      sourceText: n.data.sourceText?.slice(0, 240),
+    }));
+
   explainStream(
     {
       text: opts.sourceText,
       question: opts.question,
       parentTitle: opts.parentTitle,
       docSummary: opts.docSummary || undefined,
+      docId: docId || undefined,
       force: opts.force,
+      recentLessons,
     },
     {
+      onAgentStep: (step: AgentTrace) => {
+        const cur = useGraphStore.getState().nodes.find((n) => n.id === id)?.data.trace || [];
+        const idx = cur.findIndex((s) => s.id === step.id);
+        const next = idx >= 0
+          ? [...cur.slice(0, idx), step, ...cur.slice(idx + 1)]
+          : [...cur, step];
+        updateFrame(id, { trace: next });
+      },
       onPartial: (p) => {
         const patch: Record<string, unknown> = {};
         if (p.title) patch.title = p.title;

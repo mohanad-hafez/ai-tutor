@@ -1,11 +1,13 @@
-import type { FrameContent, LessonMode, LessonPrereq, VideoChapter, VideoStage } from '../types';
+import type { AgentTrace, FrameContent, LessonMode, LessonPrereq, VideoChapter, VideoStage } from '../types';
 
 export interface ExplainRequest {
   text: string;
   question?: string;
   docSummary?: string;
+  docId?: string;
   parentTitle?: string;
   force?: LessonMode;
+  recentLessons?: { title: string; sourceText?: string }[];
 }
 
 export type ExplainResponse =
@@ -62,6 +64,7 @@ export interface ExplainPartial {
 
 export interface ExplainHandlers {
   onPartial?: (p: ExplainPartial) => void;
+  onAgentStep?: (t: AgentTrace) => void;
   onComplete?: (r: ExplainResponse) => void;
   onError?: (msg: string) => void;
 }
@@ -101,6 +104,8 @@ export function explainStream(req: ExplainRequest, h: ExplainHandlers): () => vo
           if (!data) continue;
           if (event === 'partial') {
             try { h.onPartial?.(JSON.parse(data)); } catch { /* ignore */ }
+          } else if (event === 'agent_step') {
+            try { h.onAgentStep?.(JSON.parse(data)); } catch { /* ignore */ }
           } else if (event === 'complete') {
             try {
               h.onComplete?.(JSON.parse(data));
@@ -139,7 +144,7 @@ export async function quiz(req: {
   return r.json();
 }
 
-export async function summarizeDoc(text: string): Promise<{ summary: string }> {
+export async function summarizeDoc(text: string): Promise<{ summary: string; docId: string; chunkCount: number }> {
   const r = await fetch(`${API_BASE}/summarize`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

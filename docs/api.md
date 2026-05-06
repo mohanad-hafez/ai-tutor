@@ -112,6 +112,30 @@ sequenceDiagram
 
 ### Events
 
+#### `agent_step`
+
+Fired once per **agent state change** as the multi-agent pipeline executes. Each step emits a `running` event followed by a terminal `done` / `error` / `skipped` event with the same `id`. The frontend uses the id to upsert the trace by replacing the matching entry in place.
+
+```json
+{
+  "id": "step_3_qzxn72",
+  "agent": "planner",
+  "label": "Plan teaching beats",
+  "model": "claude-sonnet-4-6",
+  "status": "done",
+  "startedAt": 1778085162656,
+  "finishedAt": 1778085181064,
+  "durationMs": 18408,
+  "tokensIn": 1441,
+  "tokensOut": 940,
+  "cacheReadTokens": 0,
+  "preview": "5 beats — \"Binary Trees: Hierarchical Node Organization\"",
+  "detail": "Starting from the smallest possible unit (a single node)…\n\n1. What is a Node? — …\n2. Parent–Child Relationship — …"
+}
+```
+
+Agent values: `router | retriever | planner | author | critic | refiner`. Statuses: `pending | running | done | error | skipped`. See [architecture.md](architecture.md#agents) for what each agent does.
+
 #### `partial`
 
 Best-effort snapshot of the tool input parsed so far. Fields appear as the model emits them, in roughly this order: `mode`, `title`, `summary`, `prerequisites`, `html`, `css`, `js`. The client should treat each `partial` as a patch to apply.
