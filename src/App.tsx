@@ -3,9 +3,11 @@ import { PdfViewer } from './components/PdfViewer/PdfViewer';
 import { Canvas } from './components/Canvas/Canvas';
 import { FramePanel } from './components/Frame/FramePanel';
 import { useGraphStore } from './store/graphStore';
+import { useDocumentStore } from './store/documentStore';
 
 function App() {
   const reset = useGraphStore((s) => s.reset);
+  const clearHighlights = useDocumentStore((s) => s.clearHighlights);
   const count = useGraphStore((s) => s.nodes.length);
   const focusedId = useGraphStore((s) => s.focusedNodeId);
   const [leftWidth, setLeftWidth] = useState(50);
@@ -29,7 +31,10 @@ function App() {
         </div>
         <button
           onClick={() => {
-            if (confirm('Clear all lessons?')) reset();
+            if (confirm('Clear all lessons?')) {
+              reset();
+              clearHighlights();
+            }
           }}
           className="rounded-md border border-neutral-800 bg-[#111114] px-2.5 py-1 text-[11px] font-medium text-neutral-400 transition hover:border-neutral-700 hover:text-neutral-200"
         >

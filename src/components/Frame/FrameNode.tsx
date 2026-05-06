@@ -1,6 +1,7 @@
 import { Handle, Position, useStore, type NodeProps } from 'reactflow';
 import type { FrameData } from '../../types';
 import { useGraphStore } from '../../store/graphStore';
+import { buildLessonHtml, LESSON_SANDBOX } from '../../lib/lessonShell';
 
 const typeBadge: Record<FrameData['type'], { label: string; cls: string; bar: string }> = {
   root:        { label: 'Lesson',      cls: 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20',  bar: 'bg-indigo-500' },
@@ -8,6 +9,7 @@ const typeBadge: Record<FrameData['type'], { label: string; cls: string; bar: st
   quiz:        { label: 'Quiz',        cls: 'bg-amber-500/10 text-amber-300 border-amber-500/20',     bar: 'bg-amber-500' },
   remediation: { label: 'Review',      cls: 'bg-rose-500/10 text-rose-300 border-rose-500/20',        bar: 'bg-rose-500' },
   summary:     { label: 'Summary',     cls: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20', bar: 'bg-emerald-500' },
+  video:       { label: 'Animation',   cls: 'bg-violet-500/10 text-violet-300 border-violet-500/20',  bar: 'bg-violet-500' },
 };
 
 const zoomSelector = (s: { transform: number[] }) => s.transform[2];
@@ -19,6 +21,9 @@ export function FrameNode({ data, id }: NodeProps<FrameData>) {
   const isFocused = focusedId === id;
   const showPreview = zoom >= 0.35;
   const badge = typeBadge[data.type];
+  const isVideo = data.type === 'video' || !!data.content?.videoUrl;
+  const videoStage = data.videoStage;
+  const videoReady = !!data.content?.videoUrl;
 
   return (
     <div
@@ -41,7 +46,7 @@ export function FrameNode({ data, id }: NodeProps<FrameData>) {
           {data.loading && (
             <span className="inline-flex items-center gap-1 text-[10px] text-neutral-500">
               <span className="h-1 w-1 animate-pulse rounded-full bg-indigo-400" />
-              generating
+              {isVideo && videoStage ? videoStage : 'generating'}
             </span>
           )}
         </div>
@@ -56,10 +61,33 @@ export function FrameNode({ data, id }: NodeProps<FrameData>) {
       {showPreview && (
         <div className="mx-4 mb-4 mt-3 overflow-hidden rounded-lg border border-neutral-800 bg-[#0a0a0d]">
           <div className="relative h-44 w-full">
-            {data.content?.html && !data.loading ? (
+            {isVideo ? (
+              videoReady ? (
+                <video
+                  src={data.content!.videoUrl!}
+                  muted
+                  loop
+                  autoPlay
+                  playsInline
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center gap-2 px-4">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-neutral-800 border-t-violet-500" />
+                  <div className="text-[11px] text-neutral-400">{data.videoMessage || 'Rendering animation'}</div>
+                  <div className="h-1 w-32 overflow-hidden rounded-full bg-neutral-800">
+                    <div
+                      className="h-full bg-violet-500 transition-all duration-500"
+                      style={{ width: `${data.videoProgress ?? 0}%` }}
+                    />
+                  </div>
+                </div>
+              )
+            ) : data.content?.html && !data.loading ? (
               <iframe
                 title={data.title}
-                srcDoc={buildSrcDoc(data.content)}
+                srcDoc={buildLessonHtml(data.content, { rich: false, bridge: false })}
+                sandbox={LESSON_SANDBOX}
                 className="pointer-events-none border-0"
                 style={{
                   transform: 'scale(0.42)',
@@ -87,9 +115,4 @@ export function FrameNode({ data, id }: NodeProps<FrameData>) {
       <Handle type="source" position={Position.Bottom} className="!h-2 !w-2 !border-2 !border-[#0e0e12] !bg-neutral-600" />
     </div>
   );
-}
-
-function buildSrcDoc(c: { html?: string; css?: string; js?: string }) {
-  const baseCss = `html,body{background:#0a0a0d;color:#e5e5e5;}body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:14px;line-height:1.55;}h1,h2,h3{color:#f5f5f5;}*{box-sizing:border-box;}`;
-  return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"/><style>${baseCss}${c.css ?? ''}</style></head><body>${c.html ?? ''}<script>${c.js ?? ''}<\/script></body></html>`;
 }

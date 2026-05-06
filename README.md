@@ -1,73 +1,30 @@
-# React + TypeScript + Vite
+# AI Visual Learning Tutor
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Highlight any text in a PDF and get an interactive lesson — text, HTML, or Manim animation — connected as a node on a learning graph. Highlight inside a lesson to spawn child lessons. Quiz yourself on any concept.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+cp .env.example .env   # fill in ANTHROPIC_API_KEY
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Then open <http://localhost:5173/>.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Documentation
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Full docs live in [`docs/`](docs/):
+
+- [Getting started](docs/getting-started.md) — prerequisites, install, env vars, first lesson
+- [Usage guide](docs/usage.md) — every feature, every keyboard shortcut
+- [Architecture](docs/architecture.md) — system overview, data flow, file map
+- [API reference](docs/api.md) — Express server endpoints
+- [Manim pipeline](docs/manim-pipeline.md) — how video generation works
+- [Extending](docs/extending.md) — customize prompts, add lesson types, swap models
+
+## Stack
+
+React 19 + Vite 8 + ReactFlow + Tailwind, Express 5 + Anthropic SDK + Manim Community.
+
+## Prerequisites
+
+Node 20.11+, Python 3.10+ with `manim` installed, FFmpeg, and (optional) LaTeX. See [getting-started.md](docs/getting-started.md#prerequisites) for the full list.
