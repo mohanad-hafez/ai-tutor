@@ -20,13 +20,52 @@ const SELECTION_BRIDGE = `
     parent.postMessage({type:'frame-selection',text:t,rect:{x:r?r.right:0,y:r?r.top:0}}, '*');
   }
   document.addEventListener('mouseup', function(){ setTimeout(send, 0); });
+
+  function report(msg) {
+    parent.postMessage({type:'frame-runtime-error', message: msg || 'unknown error'}, '*');
+  }
+  function format(err, extra) {
+    var parts = [];
+    if (err && typeof err === 'object') {
+      if (err.message) parts.push(err.message);
+      if (err.stack) {
+        var lines = String(err.stack).split('\\n').slice(0, 4).join(' · ');
+        parts.push(lines);
+      } else if (err.name) {
+        parts.push(err.name);
+      }
+    } else if (typeof err === 'string') {
+      parts.push(err);
+    }
+    if (extra) parts.push(extra);
+    return parts.join(' — ') || 'unknown error';
+  }
   window.addEventListener('error', function(e){
-    parent.postMessage({type:'frame-runtime-error', message:String(e && e.message || e), source:e && e.filename, line:e && e.lineno, col:e && e.colno}, '*');
+    var loc = e.filename ? ('@' + e.filename.replace(/^.*\\//, '') + ':' + e.lineno + ':' + e.colno) : '';
+    report(format(e.error || e.message, loc));
   });
   window.addEventListener('unhandledrejection', function(e){
-    var r = e && e.reason;
-    parent.postMessage({type:'frame-runtime-error', message:'Unhandled rejection: ' + (r && r.message || String(r))}, '*');
+    report('Unhandled rejection: ' + format(e && e.reason));
   });
+
+  // Wrap addEventListener so handlers throwing inside the iframe surface
+  // their full error to the parent. Sandboxed iframes can otherwise show
+  // a bare "Script error" with no message or stack.
+  var __origAdd = EventTarget.prototype.addEventListener;
+  EventTarget.prototype.addEventListener = function(type, listener, opts) {
+    if (typeof listener === 'function') {
+      var wrapped = function(ev) {
+        try { return listener.apply(this, arguments); }
+        catch (err) {
+          report(format(err, '@event:' + type));
+          throw err;
+        }
+      };
+      try { wrapped.__orig = listener; } catch (_) {}
+      return __origAdd.call(this, type, wrapped, opts);
+    }
+    return __origAdd.call(this, type, listener, opts);
+  };
 })();
 `;
 
@@ -83,11 +122,40 @@ h1,h2,h3{color:#f5f5f5;}
 *{box-sizing:border-box;}
 `;
 
+// Run the model-emitted JS at the top level of the document AFTER the
+// iframe has done one paint cycle AND deferred CDN libs (KaTeX) have
+// loaded. We inject a fresh <script> rather than wrapping inline so:
+//   - function declarations become globals (inline `onclick="foo()"`
+//     handlers in the model's HTML can find them)
+//   - by the time `load` fires, every deferred CDN script has executed
+//   - by the time RAF callbacks fire, layout is committed (D3 / canvas
+//     widgets that read clientWidth get the real size)
+// Errors thrown in the injected script propagate to window.onerror,
+// which the bridge in this same iframe forwards to the parent frame.
+function wrapUserJs(js: string): string {
+  if (!js || !js.trim()) return '';
+  const encoded = JSON.stringify(js);
+  return `
+(function(){
+  function __inject(){
+    var s = document.createElement('script');
+    s.text = ${encoded};
+    document.body.appendChild(s);
+  }
+  function __boot(){
+    requestAnimationFrame(function(){ requestAnimationFrame(__inject); });
+  }
+  if (document.readyState === 'complete') __boot();
+  else window.addEventListener('load', __boot, { once: true });
+})();`;
+}
+
 export function buildLessonHtml(content: FrameContent, opts: ShellOpts = {}): string {
   const rich = opts.rich !== false;
   const bridge = opts.bridge !== false;
   const css = rich ? BASE_CSS : PREVIEW_CSS;
   const libs = rich ? RICH_LIBS : '';
   const bridgeScript = bridge ? `<script>${SELECTION_BRIDGE}</script>` : '';
-  return `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>${libs}<style>${css}${content.css ?? ''}</style></head><body><div class="lesson-root">${content.html ?? ''}</div><script>${content.js ?? ''}<\/script>${bridgeScript}</body></html>`;
+  const wrappedJs = rich ? wrapUserJs(content.js ?? '') : (content.js ?? '');
+  return `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>${libs}<style>${css}${content.css ?? ''}</style></head><body><div class="lesson-root">${content.html ?? ''}</div><script>${wrappedJs}<\/script>${bridgeScript}</body></html>`;
 }

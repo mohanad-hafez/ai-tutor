@@ -16,10 +16,13 @@ function App() {
     <div className="flex h-screen w-screen flex-col bg-[#07070a] text-neutral-100">
       <header className="relative flex items-center justify-between border-b border-neutral-800/80 bg-[#0a0a0d] px-5 py-3">
         <div className="flex items-center gap-3">
-          <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 shadow-[0_4px_20px_-4px_rgba(99,102,241,0.6)]">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z" />
-              <path d="M9 12l2 2 4-4" />
+          <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-400 to-indigo-600 shadow-[0_4px_20px_-4px_rgba(99,102,241,0.6)]">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 7 L6.5 16" />
+              <path d="M13 7 L17.5 16" />
+              <circle cx="12" cy="5" r="2.4" fill="white" />
+              <circle cx="5.5" cy="18" r="2.4" fill="white" />
+              <circle cx="18.5" cy="18" r="2.4" fill="white" />
             </svg>
           </div>
           <div className="flex flex-col leading-tight">
