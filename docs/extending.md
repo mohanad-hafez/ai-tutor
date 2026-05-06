@@ -31,14 +31,35 @@ flowchart LR
 
 The summary task is large input (a whole document), small output (~200 words) — Haiku handles it well. Quizzes are templatey and benefit from Haiku's speed. Sonnet is reserved for HTML/CSS/JS authoring and Manim Python generation where reasoning matters.
 
+## Add a new agent to the pipeline
+
+All agents live in `server/agents.ts`. Each follows the same shape: takes orchestrator input + previous agents' output, calls Anthropic with a forced tool, emits trace events, returns its structured output.
+
+To add a new agent (e.g. a `Verifier` that fact-checks the lesson against retrieved chunks):
+
+1. **Define the tool schema** at the top of `server/agents.ts`:
+   ```ts
+   const VERIFIER_TOOL = {
+     name: 'verify_lesson',
+     input_schema: { /* … */ },
+   };
+   ```
+2. **Define the system prompt** for the agent's role.
+3. **Write the runner**: `runVerifier(plan, content, chunks, emit) → VerifierOutput`. Use `startTrace` / `finishTrace` helpers; emit on both running and done states.
+4. **Add the agent name** to `AgentName` in `server/agents.ts` AND in `src/types/index.ts` (they're duplicated — keep them in sync).
+5. **Add a frontend label** in `AGENT_META` inside `src/components/Frame/AgentTracePanel.tsx`.
+6. **Wire it into the orchestrator** in `server/index.ts:/api/explain` between the existing steps.
+
+The trace UI auto-renders any step regardless of agent name; you only need the metadata entry for the colored dot and label.
+
 ## Add a new lesson type
 
-The lesson router lives in `server/lessonPrompts.ts` (`LESSON_SYSTEM` + `LESSON_TOOL`).
+The Router decides the mode in `server/agents.ts:ROUTER_TOOL`.
 
-1. **Extend the enum** in `LESSON_TOOL.input_schema.properties.mode`. E.g. add `'audio_explainer'`.
-2. **Document the new type** in `LESSON_SYSTEM` with the bias rules for when Claude should pick it.
+1. **Extend the enum** in `ROUTER_TOOL.input_schema.properties.mode`. E.g. add `'audio_explainer'`.
+2. **Document the new type** in `ROUTER_SYSTEM` with bias rules for when to pick it.
 3. **Update the response handler** in `server/index.ts:/api/explain` to branch on the new mode.
-4. **Update the type** `LessonMode` in `src/types/index.ts`.
+4. **Update the type** `LessonMode` in `src/types/index.ts` AND the matching union in `server/agents.ts`.
 5. **Render in the UI** — add a new component or branch in `FrameNode.tsx` and `FramePanel.tsx`. If it's async (like video), follow the SSE pattern in `server/video.ts` and `lessonFlow.attachVideoSubscription`.
 
 ## Customize the Manim system prompt

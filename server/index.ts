@@ -3,10 +3,14 @@ import cors from 'cors';
 import 'dotenv/config';
 import path from 'path';
 import { client, MAIN_MODEL, SUMMARY_MODEL, QUIZ_MODEL, findToolUse, parseJsonRelaxed, extractText } from './anthropic.js';
-import { LESSON_SYSTEM, LESSON_TOOL, QUIZ_SYSTEM, SUMMARY_PROMPT } from './lessonPrompts.js';
+import { QUIZ_SYSTEM, SUMMARY_PROMPT } from './lessonPrompts.js';
 import { createVideoJob, subscribe, streamVideo, cancelJob } from './video.js';
 import { cacheKey, readCache, writeCache } from './cache.js';
-import { parse as partialParse, Allow } from 'partial-json';
+import { buildIndex } from './retriever.js';
+import {
+  runRouter, runRetriever, runPlanner, runAuthor, runCritic, runRefiner, emitSkipped,
+  type AgentTrace, type RecentLesson,
+} from './agents.js';
 
 const app = express();
 app.use(cors());
@@ -31,9 +35,14 @@ app.post('/api/summarize', async (req, res) => {
     return;
   }
   const trimmed = text.length > 80000 ? text.slice(0, 80000) : text;
+
+  // Build the BM25 index up-front so future /api/explain calls can retrieve
+  // grounded chunks instead of relying on the 200-word summary alone.
+  const { docId, chunkCount } = buildIndex(trimmed);
+
   const key = cacheKey({ kind: 'summary', text: trimmed, model: SUMMARY_MODEL });
   const hit = await readCache<{ summary: string }>(key);
-  if (hit) { res.json(hit); return; }
+  if (hit) { res.json({ ...hit, docId, chunkCount }); return; }
   try {
     const completion = await client.messages.create({
       model: SUMMARY_MODEL,
@@ -43,7 +52,7 @@ app.post('/api/summarize', async (req, res) => {
     });
     const out = { summary: extractText(completion).trim() };
     await writeCache(key, out);
-    res.json(out);
+    res.json({ ...out, docId, chunkCount });
   } catch (err) {
     console.error('summarize error:', err);
     res.status(500).json({ error: (err as Error).message });
@@ -51,17 +60,6 @@ app.post('/api/summarize', async (req, res) => {
 });
 
 interface LessonPrereq { title: string; brief: string }
-
-interface LessonToolInput {
-  mode: 'text' | 'visual_html' | 'video_manim';
-  title: string;
-  summary: string;
-  html?: string;
-  css?: string;
-  js?: string;
-  manim_brief?: string;
-  prerequisites?: LessonPrereq[];
-}
 
 function jsSyntaxError(js: string): string | null {
   if (!js || !js.trim()) return null;
@@ -74,7 +72,7 @@ function jsSyntaxError(js: string): string | null {
 }
 
 app.post('/api/explain', async (req, res) => {
-  const { text, question, parentTitle, docSummary, force } = req.body || {};
+  const { text, question, parentTitle, docSummary, docId, force, recentLessons } = req.body || {};
   if (!text) {
     res.status(400).json({ error: 'text required' });
     return;
@@ -89,7 +87,11 @@ app.post('/api/explain', async (req, res) => {
   const send = (event: string, data: unknown) => {
     res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
   };
+  const emitTrace = (t: AgentTrace) => send('agent_step', t);
 
+  const recent: RecentLesson[] = Array.isArray(recentLessons) ? recentLessons.slice(0, 5) : [];
+
+  // Cache short-circuit: skip the whole pipeline if we've seen this exact request.
   const key = cacheKey({ kind: 'explain', text, question, docSummary, parentTitle, force, model: MAIN_MODEL });
   const hit = await readCache<{
     mode: 'text' | 'visual_html' | 'video_manim';
@@ -114,6 +116,7 @@ app.post('/api/explain', async (req, res) => {
         summary: hit.summary,
         jobId,
         prerequisites: hit.prerequisites || [],
+        cached: true,
       });
     } else {
       send('complete', {
@@ -122,102 +125,132 @@ app.post('/api/explain', async (req, res) => {
         summary: hit.summary,
         content: hit.content,
         prerequisites: hit.prerequisites || [],
+        cached: true,
       });
     }
     res.end();
     return;
   }
 
-  const userMsg = buildExplainUserMsg({ text, question, parentTitle, docSummary, force });
+  const orchInput = {
+    text,
+    question,
+    parentTitle,
+    docSummary,
+    docId,
+    recentLessons: recent,
+    force,
+  };
 
   try {
-    const stream = client.messages.stream({
-      model: MAIN_MODEL,
-      system: [{ type: 'text', text: LESSON_SYSTEM, cache_control: { type: 'ephemeral' } }],
-      max_tokens: 8192,
-      tools: [LESSON_TOOL],
-      tool_choice: { type: 'tool', name: 'emit_lesson' },
-      messages: [{ role: 'user', content: userMsg }],
+    // 1. Router — pick mode + intent
+    const route = await runRouter(orchInput, emitTrace);
+
+    // 2. Retriever — BM25 chunks (no LLM)
+    const chunks = runRetriever(orchInput, emitTrace);
+
+    // 3. Planner — pedagogical plan
+    const plan = await runPlanner(orchInput, route.mode, route.intent, chunks, emitTrace);
+    // Surface the plan-level title/summary/prereqs to the client immediately
+    send('partial', {
+      mode: route.mode,
+      title: plan.title,
+      summary: plan.summary,
+      prerequisites: plan.prerequisites ?? [],
     });
 
-    let lastEmittedJson = '';
-    stream.on('inputJson', (_partial: string, snapshot: unknown) => {
-      const acc = typeof snapshot === 'string' ? snapshot : JSON.stringify(snapshot ?? '');
-      // Throttle: only emit when the snapshot grew by ≥ 64 chars
-      if (acc.length - lastEmittedJson.length < 64) return;
-      lastEmittedJson = acc;
-      try {
-        const parsed = partialParse(acc, Allow.ALL);
-        send('partial', parsed);
-      } catch { /* not yet parseable */ }
-    });
+    // Branch: video_manim hands off to the dedicated video pipeline.
+    if (route.mode === 'video_manim') {
+      emitSkipped('author', 'Write lesson body', 'video mode — handled by manim pipeline', emitTrace);
+      emitSkipped('critic', 'Review lesson against plan', 'video mode', emitTrace);
+      emitSkipped('refiner', 'Apply Critic fixes', 'video mode', emitTrace);
 
-    const final = await stream.finalMessage();
-    let tool = findToolUse<LessonToolInput>(final, 'emit_lesson');
-    if (!tool) {
-      send('error', { message: 'Model did not call emit_lesson' });
-      res.end();
-      return;
-    }
-
-    if (tool.mode === 'visual_html' && tool.js) {
-      const synErr = jsSyntaxError(tool.js);
-      if (synErr) {
-        send('partial', { _repair: true, message: 'Repairing script…' });
-        const repairMsg = `${userMsg}\n\nA previous attempt produced JavaScript with this syntax error: ${synErr}\n\nPrevious JS:\n\`\`\`js\n${tool.js}\n\`\`\`\n\nProduce a corrected emit_lesson with the same teaching intent and clean JS.`;
-        const repair = await client.messages.create({
-          model: MAIN_MODEL,
-          system: [{ type: 'text', text: LESSON_SYSTEM, cache_control: { type: 'ephemeral' } }],
-          max_tokens: 8192,
-          tools: [LESSON_TOOL],
-          tool_choice: { type: 'tool', name: 'emit_lesson' },
-          messages: [{ role: 'user', content: repairMsg }],
-        });
-        const fixed = findToolUse<LessonToolInput>(repair, 'emit_lesson');
-        if (fixed) tool = fixed;
-      }
-    }
-
-    if (tool.mode === 'video_manim') {
+      const brief = plan.manim_brief || `${plan.title}. ${plan.summary}`;
       await writeCache(key, {
         mode: 'video_manim',
-        title: tool.title || 'Lesson',
-        summary: tool.summary || '',
-        manimBrief: tool.manim_brief || `${tool.title}. ${tool.summary}`,
-        prerequisites: tool.prerequisites || [],
+        title: plan.title,
+        summary: plan.summary,
+        manimBrief: brief,
+        prerequisites: plan.prerequisites ?? [],
       });
       const { jobId } = createVideoJob({
         text,
         question,
         docSummary,
         parentTitle,
-        brief: tool.manim_brief || `${tool.title}. ${tool.summary}`,
+        brief,
       });
       send('complete', {
         mode: 'video_manim',
-        title: tool.title || 'Lesson',
-        summary: tool.summary || '',
-        prerequisites: tool.prerequisites || [],
+        title: plan.title,
+        summary: plan.summary,
+        prerequisites: plan.prerequisites ?? [],
         jobId,
       });
       res.end();
       return;
     }
 
-    const content = { html: tool.html || '', css: tool.css || '', js: tool.js || '' };
+    // 4. Author — write the body (streams partial HTML/CSS to the client)
+    const authored = await runAuthor(
+      orchInput,
+      route.mode,
+      plan,
+      chunks,
+      emitTrace,
+      (p) => send('partial', { mode: route.mode, ...p }),
+    );
+
+    // Server-side JS syntax gate (deterministic — runs before Critic)
+    let content = authored;
+    const synErr = jsSyntaxError(content.js);
+    if (synErr) {
+      const repairTrace: AgentTrace = {
+        id: `step_synfix_${Math.random().toString(36).slice(2, 8)}`,
+        agent: 'refiner',
+        label: 'Fix JS syntax',
+        status: 'running',
+        startedAt: Date.now(),
+      };
+      send('agent_step', repairTrace);
+      const fixed = await runRefiner(
+        plan,
+        content,
+        { ok: false, severity: 'major', issues: [`Fix JS syntax error: ${synErr}`], praise: '' },
+        route.mode,
+        emitTrace,
+      );
+      content = fixed;
+    }
+
+    // 5. Critic — review against the plan (skip for pure text since there's no JS to verify)
+    let finalContent = content;
+    if (route.mode === 'text') {
+      emitSkipped('critic', 'Review lesson against plan', 'text mode — skipped', emitTrace);
+      emitSkipped('refiner', 'Apply Critic fixes', 'no critic — nothing to refine', emitTrace);
+    } else {
+      const critique = await runCritic(plan, content, route.mode, emitTrace);
+      // 6. Refiner — only if critic flagged something serious
+      if (!critique.ok && critique.severity !== 'none' && critique.issues.length > 0) {
+        finalContent = await runRefiner(plan, content, critique, route.mode, emitTrace);
+      } else {
+        emitSkipped('refiner', 'Apply Critic fixes', 'critic passed — no fix needed', emitTrace);
+      }
+    }
+
     await writeCache(key, {
-      mode: tool.mode,
-      title: tool.title || 'Concept',
-      summary: tool.summary || '',
-      content,
-      prerequisites: tool.prerequisites || [],
+      mode: route.mode,
+      title: plan.title,
+      summary: plan.summary,
+      content: finalContent,
+      prerequisites: plan.prerequisites ?? [],
     });
     send('complete', {
-      mode: tool.mode,
-      title: tool.title || 'Concept',
-      summary: tool.summary || '',
-      content,
-      prerequisites: tool.prerequisites || [],
+      mode: route.mode,
+      title: plan.title,
+      summary: plan.summary,
+      content: finalContent,
+      prerequisites: plan.prerequisites ?? [],
     });
     res.end();
   } catch (err) {
@@ -288,22 +321,6 @@ app.delete('/api/video/:jobId', (req, res) => {
   const ok = cancelJob(req.params.jobId);
   res.status(ok ? 200 : 404).json({ ok });
 });
-
-function buildExplainUserMsg(opts: {
-  text: string; question?: string; parentTitle?: string; docSummary?: string; force?: 'text' | 'visual_html' | 'video_manim';
-}): string {
-  const parts = [
-    opts.docSummary ? `DOCUMENT SUMMARY (anchor the domain):\n${opts.docSummary}` : null,
-    opts.parentTitle ? `Parent concept already explained: ${opts.parentTitle}` : null,
-    `Highlighted text from the document:\n"""${opts.text}"""`,
-    opts.question
-      ? `User's specific question: """${opts.question}"""`
-      : `The user did not ask a specific question — pick the best lesson type and produce a thorough explanation.`,
-    opts.force ? `User explicitly requested the lesson type: ${opts.force}. Honor that.` : null,
-    `Call emit_lesson now.`,
-  ].filter(Boolean);
-  return parts.join('\n\n');
-}
 
 const PORT = Number(process.env.PORT || 8787);
 app.listen(PORT, '127.0.0.1', () => console.log(`tutor server on :${PORT}`));

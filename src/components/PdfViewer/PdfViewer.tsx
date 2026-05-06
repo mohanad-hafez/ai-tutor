@@ -15,7 +15,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 export function PdfViewer() {
-  const { doc, setDoc, summary, summarizing, setSummary, setSummarizing } =
+  const { doc, setDoc, summary, summarizing, setSummary, setSummarizing, setDocId } =
     useDocumentStore();
   const [numPages, setNumPages] = useState<number>(0);
   const [scale, setScale] = useState(1);
@@ -54,15 +54,16 @@ export function PdfViewer() {
           full += pageText + '\n\n';
           if (full.length > 120000) break;
         }
-        const { summary: s } = await summarizeDoc(full);
+        const { summary: s, docId, chunkCount } = await summarizeDoc(full);
         setSummary(s);
+        setDocId(docId, chunkCount);
       } catch (err) {
         console.error('summarize failed', err);
       } finally {
         setSummarizing(false);
       }
     },
-    [summary, summarizing, setSummary, setSummarizing]
+    [summary, summarizing, setSummary, setSummarizing, setDocId]
   );
 
   const addHighlight = useDocumentStore((s) => s.addHighlight);

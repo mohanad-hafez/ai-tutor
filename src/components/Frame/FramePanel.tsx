@@ -5,6 +5,7 @@ import { quiz as quizApi } from '../../agent/tutor';
 import { startLesson, startPrereqLesson, startVideoDirect } from '../../lib/lessonFlow';
 import type { FrameContent } from '../../types';
 import { buildLessonHtml, LESSON_SANDBOX } from '../../lib/lessonShell';
+import { AgentTracePanel } from './AgentTracePanel';
 import { VideoFramePlayer } from './VideoFramePlayer';
 
 interface InlineSel {
@@ -86,6 +87,7 @@ export function FramePanel() {
     setInline(null);
     setAskQuestion('');
     setRuntimeErr(null);
+    setViewOverride(null);
   }, [focusedId]);
 
   if (!node) return null;
@@ -168,6 +170,14 @@ export function FramePanel() {
 
   const isVideo = data.type === 'video' || !!data.content?.videoUrl || !!data.videoJobId;
   const showLoadingMain = data.loading && !isVideo;
+  const trace = data.trace || [];
+  const hasTrace = trace.length > 0;
+  // Default to 'trace' view while loading so the live pipeline is visible during the demo.
+  // Manual override sticks until the frame is unfocused.
+  const [viewOverride, setViewOverride] = useState<'lesson' | 'trace' | null>(null);
+  const showTrace = viewOverride
+    ? viewOverride === 'trace'
+    : data.loading && hasTrace;
 
   return (
     <div ref={containerRef} className="absolute inset-0 z-30 flex flex-col bg-[#07070a]">
@@ -205,6 +215,29 @@ export function FramePanel() {
             {data.title}
           </div>
         </div>
+        {hasTrace && (
+          <div className="flex items-center gap-0.5 rounded-md border border-neutral-800 bg-[#0d0d11] p-0.5">
+            <button
+              onClick={() => setViewOverride('lesson')}
+              className={`rounded px-2.5 py-1 text-[11px] font-medium transition ${
+                !showTrace ? 'bg-indigo-500/15 text-indigo-200' : 'text-neutral-400 hover:text-neutral-100'
+              }`}
+              title="Show the lesson"
+            >
+              Lesson
+            </button>
+            <button
+              onClick={() => setViewOverride('trace')}
+              className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-medium transition ${
+                showTrace ? 'bg-indigo-500/15 text-indigo-200' : 'text-neutral-400 hover:text-neutral-100'
+              }`}
+              title="Show the agent pipeline"
+            >
+              <span className="font-mono text-[9px] uppercase tracking-[0.12em] opacity-70">{trace.length}</span>
+              Pipeline
+            </button>
+          </div>
+        )}
         {data.sourceText && data.type !== 'video' && (
           <button
             onClick={animateThis}
@@ -257,7 +290,9 @@ export function FramePanel() {
       )}
 
       <div className="relative flex-1 overflow-hidden bg-[#0a0a0d]">
-        {isVideo ? (
+        {showTrace ? (
+          <AgentTracePanel trace={trace} loading={!!data.loading} />
+        ) : isVideo ? (
           <VideoFramePlayer data={data} />
         ) : data.content?.html ? (
           <>

@@ -20,14 +20,30 @@ The local mirror of the Manim Community v0.19 docs lives at [`manim/`](manim/) (
 ## What this product does
 
 1. You upload a PDF.
-2. Anthropic Claude generates a dense summary that anchors the document's domain.
+2. The server generates a dense summary AND builds a BM25 chunk index over the document.
 3. You highlight text. A popover appears with two actions: **Explain** and **Animate**.
-4. Claude routes the request to the best lesson type:
+4. The request goes through a **multi-agent pipeline** — Router → Retriever → Planner → Author → Critic → Refiner — with each step visible live in the UI.
+5. The pipeline picks the best lesson type for the concept:
    - **text** — beautiful prose lesson
    - **visual\_html** — interactive HTML/CSS/JS lesson with D3, KaTeX, and p5 available
-   - **video\_manim** — short cinematic Manim animation with chapter markers
-5. The lesson appears as a node on a zoomable canvas. Click any node to enter focus mode. Highlight inside a lesson to spawn a child lesson, building a learning graph.
-6. From any frame you can generate a **Quiz** that tests the concept with multiple choice, short answer, and one interactive challenge.
+   - **video\_manim** — short narrated Manim animation with chapter markers
+6. The lesson appears as a node on a zoomable canvas. Click any node to enter focus mode. Highlight inside a lesson to spawn a child lesson, building a learning graph.
+7. From any frame you can generate a **Quiz** that tests the concept with multiple choice, short answer, and one interactive challenge.
+
+## Agent pipeline
+
+The system is built on the [ReAct](https://arxiv.org/abs/2210.03629) and [Reflexion](https://arxiv.org/abs/2303.11366) patterns: explicit, named agents with structured tool inputs, plus a self-critique loop for quality control.
+
+| Agent | Model | Role |
+|-------|-------|------|
+| Router | Haiku 4.5 | Pick lesson type + write a one-line intent |
+| Retriever | BM25 (local) | Fetch top-K chunks from the indexed PDF |
+| Planner | Sonnet 4.6 | Decompose the concept into 3–5 ordered teaching beats |
+| Author | Sonnet 4.6 (streaming) | Write the lesson body |
+| Critic | Haiku 4.5 | Review against the plan; flag concrete issues |
+| Refiner | Sonnet 4.6 | Apply the Critic's fixes (only if needed) |
+
+The pipeline is **visible from the app itself** — every focused frame has a "Pipeline" tab showing each step's model, latency, token usage, and expandable reasoning.
 
 ## Tech stack
 

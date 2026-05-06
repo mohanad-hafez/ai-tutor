@@ -15,10 +15,13 @@ interface DocState {
   doc: PdfDoc | null;
   summary: string | null;
   summarizing: boolean;
+  docId: string | null;
+  chunkCount: number;
   highlights: PdfHighlight[];
   setDoc: (doc: PdfDoc | null) => void;
   setSummary: (s: string | null) => void;
   setSummarizing: (v: boolean) => void;
+  setDocId: (docId: string | null, chunkCount?: number) => void;
   addHighlight: (h: PdfHighlight) => void;
   removeHighlight: (id: string) => void;
   clearHighlights: () => void;
@@ -30,10 +33,13 @@ export const useDocumentStore = create<DocState>()(
       doc: null,
       summary: null,
       summarizing: false,
+      docId: null,
+      chunkCount: 0,
       highlights: [],
-      setDoc: (doc) => set({ doc, summary: null, summarizing: false }),
+      setDoc: (doc) => set({ doc, summary: null, summarizing: false, docId: null, chunkCount: 0 }),
       setSummary: (summary) => set({ summary }),
       setSummarizing: (summarizing) => set({ summarizing }),
+      setDocId: (docId, chunkCount = 0) => set({ docId, chunkCount }),
       addHighlight: (h) => set((s) => ({ highlights: [...s.highlights, h] })),
       removeHighlight: (id) => set((s) => ({ highlights: s.highlights.filter((h) => h.id !== id) })),
       clearHighlights: () => set({ highlights: [] }),

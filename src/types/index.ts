@@ -20,6 +20,35 @@ export interface LessonPrereq {
   brief: string;
 }
 
+export type AgentName =
+  | 'router'
+  | 'retriever'
+  | 'planner'
+  | 'author'
+  | 'critic'
+  | 'refiner'
+  | 'video_planner'
+  | 'video_renderer';
+
+export type AgentStatus = 'pending' | 'running' | 'done' | 'error' | 'skipped';
+
+export interface AgentTrace {
+  id: string;
+  agent: AgentName;
+  label: string;
+  model?: string;
+  status: AgentStatus;
+  startedAt?: number;
+  finishedAt?: number;
+  durationMs?: number;
+  tokensIn?: number;
+  tokensOut?: number;
+  cacheReadTokens?: number;
+  preview?: string;
+  detail?: string;
+  error?: string;
+}
+
 export interface FrameContent {
   html?: string;
   css?: string;
@@ -48,6 +77,7 @@ export interface FrameData {
   videoEtaSec?: number;
   videoError?: string;
   prerequisites?: LessonPrereq[];
+  trace?: AgentTrace[];
 }
 
 export interface PdfDoc {
