@@ -135,20 +135,42 @@ h1,h2,h3{color:#f5f5f5;}
 // Errors thrown in the injected script propagate to window.onerror,
 // which the bridge in this same iframe forwards to the parent frame.
 function wrapUserJs(js: string): string {
-  if (!js || !js.trim()) return '';
+  // Even if there's no user JS (text-mode lesson), we still want to fire
+  // the ready signal so the parent's loading overlay clears.
+  if (!js || !js.trim()) {
+    return `
+(function(){
+  function __notifyReady(){
+    try { parent.postMessage({type:'frame-ready'}, '*'); } catch (_) {}
+  }
+  if (document.readyState === 'complete') __notifyReady();
+  else window.addEventListener('load', __notifyReady, { once: true });
+})();`;
+  }
   const encoded = JSON.stringify(js);
   return `
 (function(){
+  function __notifyReady(){
+    try { parent.postMessage({type:'frame-ready'}, '*'); } catch (_) {}
+  }
   function __inject(){
     var s = document.createElement('script');
     s.text = ${encoded};
     document.body.appendChild(s);
+    // User code finished synchronously by the time appendChild returns.
+    // Charts/widgets that draw async (Plotly, p5) will paint shortly after.
+    // Tell the parent we're done so it can hide the loading overlay.
+    requestAnimationFrame(__notifyReady);
   }
   function __boot(){
     requestAnimationFrame(function(){ requestAnimationFrame(__inject); });
   }
   if (document.readyState === 'complete') __boot();
   else window.addEventListener('load', __boot, { once: true });
+  // Even if there's no user JS or it fails before posting, fire a ready
+  // signal after a generous timeout so the parent doesn't hang on the
+  // loading overlay forever.
+  setTimeout(__notifyReady, 4000);
 })();`;
 }
 
