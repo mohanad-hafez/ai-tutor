@@ -290,18 +290,26 @@ app.post('/api/explain', async (req, res) => {
       content = fixed;
     }
 
-    // 5. Critic — review against the plan (skip for pure text since there's no JS to verify)
+    // 5. Critic — review against the plan. Off by default because it adds
+    //    ~10s plus a full Refiner pass (~30s) on every visual_html lesson,
+    //    nearly doubling wall-clock. The deterministic JS-syntax gate above
+    //    already catches the worst breakage. Set CRITIC=on to enable for
+    //    quality-tuned demos.
+    const criticEnabled = process.env.CRITIC === 'on';
     let finalContent = content;
     if (route.mode === 'text') {
       emitSkipped('critic', 'Review lesson against plan', 'text mode — skipped', emitTrace);
       emitSkipped('refiner', 'Apply Critic fixes', 'no critic — nothing to refine', emitTrace);
+    } else if (!criticEnabled) {
+      emitSkipped('critic', 'Review lesson against plan', 'disabled (set CRITIC=on)', emitTrace);
+      emitSkipped('refiner', 'Apply Critic fixes', 'critic disabled', emitTrace);
     } else {
       const critique = await runCritic(plan, content, route.mode, emitTrace);
       // 6. Refiner — only if critic flagged something serious
-      if (!critique.ok && critique.severity !== 'none' && critique.issues.length > 0) {
+      if (!critique.ok && critique.severity === 'major' && critique.issues.length > 0) {
         finalContent = await runRefiner(plan, content, critique, route.mode, emitTrace);
       } else {
-        emitSkipped('refiner', 'Apply Critic fixes', 'critic passed — no fix needed', emitTrace);
+        emitSkipped('refiner', 'Apply Critic fixes', critique.ok ? 'critic passed — no fix needed' : 'minor issues only — skipped', emitTrace);
       }
     }
 
