@@ -8,79 +8,6 @@
 
 > **Figure 2.** Layered runtime view. The Browser issues a single SSE request and consumes three event types in return (`agent_step`, `partial`, `complete`). The Server hosts the agent orchestrator, a per-document BM25 index, a hash-keyed result cache, and an in-memory job queue for long-running renders. Anthropic's Messages API is used in two flavors — Sonnet 4.6 for reasoning-heavy steps (Planner, visual Author, Refiner), Haiku 4.5 for the lightweight ones (Router, Critic, Summary, Quiz). Manim renders happen out of band in a long-lived Python worker that pre-imports `manim` and `manim_voiceover` at boot to skip the cold-start cost.
 
-## High-level shape (mermaid source-of-truth)
-
-```mermaid
-flowchart LR
-    subgraph Browser["Browser · Vite dev / static build"]
-        PDF["PDF viewer<br/>(react-pdf)"]
-        Canvas["Lesson canvas<br/>(ReactFlow DAG)"]
-        Iframe["Lesson iframe<br/>D3 · KaTeX · p5"]
-        Trace["Agent Trace Panel<br/>(live pipeline view)"]
-        Bridge["postMessage bridge<br/>(selection · runtime errors)"]
-    end
-
-    subgraph Server["Express server · :8787"]
-        SUM["POST /api/summarize"]
-        EXP["POST /api/explain<br/>(SSE: agent_step + partial + complete)"]
-        QUIZ["POST /api/quiz"]
-        VID["POST /api/video<br/>DELETE /api/video/:id"]
-        EVT["GET /api/video/:id/events<br/>(SSE: stage + done)"]
-        Cache[("server/cache/<br/>SHA256 → JSON + mp4")]
-        BM25[("BM25 index<br/>per docId")]
-    end
-
-    subgraph Orchestrator["Multi-agent orchestrator (server/agents.ts)"]
-        Router["Router<br/>(Haiku · 1–2s)"]
-        Retriever["Retriever<br/>(BM25 · ~10ms)"]
-        Planner["Planner<br/>(Sonnet · 2–10s)"]
-        Author["Author<br/>(Sonnet · streaming · 3–8s)"]
-        Critic["Critic<br/>(Haiku · 1–2s)"]
-        Refiner["Refiner<br/>(Sonnet · only on flag)"]
-    end
-
-    subgraph Anthropic["Anthropic · Messages API"]
-        Sonnet["claude-sonnet-4-6<br/>planner · author · refiner"]
-        Haiku["claude-haiku-4-5<br/>router · critic · summary · quiz"]
-    end
-
-    subgraph Render["Manim render"]
-        Worker["manim_worker.py<br/>(warm Python)"]
-        FFmpeg
-        gTTS
-    end
-
-    PDF -->|highlight + question + recentLessons| EXP
-    Canvas -->|focused video| EVT
-    Iframe -.->|frame-selection| Bridge
-    Bridge --> Canvas
-    EXP --> Router
-    Router --> Retriever
-    Retriever --> Planner
-    Planner --> Author
-    Planner -->|video_manim mode| VID
-    Author --> Critic
-    Critic -->|fail| Refiner
-    Refiner --> Critic
-    Retriever <-.->|chunks| BM25
-    SUM -->|build index| BM25
-    Router --> Haiku
-    Critic --> Haiku
-    Planner --> Sonnet
-    Author --> Sonnet
-    Refiner --> Sonnet
-    SUM --> Haiku
-    QUIZ --> Haiku
-    EXP -->|partial / complete| Iframe
-    EXP -->|agent_step| Trace
-    EVT -->|stage / done| Canvas
-    EXP <-.->|hit| Cache
-    VID <-.->|hit| Cache
-    VID --> Worker
-    Worker --> FFmpeg
-    Worker -.-> gTTS
-```
-
 ## Agents
 
 The orchestrator (`server/agents.ts`) runs each `/api/explain` request through a sequence of named agents. Each step emits an `agent_step` SSE event so the UI can render the pipeline live.
@@ -229,25 +156,9 @@ Key points:
 
 ## Request flow: video pipeline
 
-```mermaid
-stateDiagram-v2
-    [*] --> queued
-    queued --> cache_lookup: runJob start
-    cache_lookup --> done: cache hit · copy mp4
-    cache_lookup --> planning: cache miss
-    planning --> generating: emit_manim returned
-    generating --> rendering: sandboxCheck pass
-    generating --> error: forbidden import / pattern
-    rendering --> done: mp4 produced<br/>writeCache
-    rendering --> repair: render exit ≠ 0
-    repair --> rendering: regen script with stderr
-    repair --> error: still failing
-    rendering --> error: cancelled by user
-    done --> [*]
-    error --> [*]
-```
+![Video pipeline state machine](figures/video-pipeline.svg)
 
-Stage progress percentages stream over SSE: `queued` (0) → `planning` (5) → `generating` (25) → `rendering` (40, with `etaSec` ticking every 2s) → `done` (100).
+> **Figure 3.** Stage transitions for a Manim video job. The pipeline forks on cache hit (~30 ms shortcut from `queued` straight to `done`) and on render failure (one self-repair pass before `error`). Stage events stream every 2 s during rendering with a live `etaSec` so the user can see remaining time. Three terminal events: `done`, `error`, or cancelled (`error` with message `"Cancelled by user"`).
 
 1. `createVideoJob` returns a jobId immediately. `runJob` runs detached in the background.
 2. Cache lookup keys on SHA256 of `(text, brief, docSummary, parentTitle, model)`. Hit → copy `server/cache/videos/<key>.mp4` to `public/videos/<jobId>.mp4`, emit `done`, exit.
@@ -283,68 +194,44 @@ The `sandbox` attribute is `allow-scripts allow-popups allow-popups-to-escape-sa
 
 ## File map
 
-```mermaid
-flowchart TB
-    subgraph S["server/"]
-        idx["index.ts<br/>routes · SSE · cache check"]
-        anth["anthropic.ts<br/>SDK + model defaults"]
-        prompts["lessonPrompts.ts<br/>system prompts + tool schemas"]
-        vid["video.ts<br/>job queue · sandboxCheck · self-repair"]
-        cache["cache.ts<br/>SHA256 cache read/write"]
-        worker_ts["manimWorker.ts<br/>warm Python worker client"]
-        worker_py["manim_worker.py<br/>render in pre-imported Python"]
-    end
-
-    subgraph A["src/agent/"]
-        tutor["tutor.ts<br/>fetch + EventSource + SSE parser"]
-    end
-
-    subgraph L["src/lib/"]
-        flow["lessonFlow.ts<br/>orchestration"]
-        shell["lessonShell.ts<br/>iframe builder"]
-        layout["layout.ts<br/>dagre"]
-    end
-
-    subgraph St["src/store/"]
-        graphSt["graphStore.ts<br/>nodes · edges · focus<br/>(persisted)"]
-        doc["documentStore.ts<br/>doc · summary · highlights<br/>(highlights persisted)"]
-    end
-
-    subgraph C["src/components/"]
-        pdf_view["PdfViewer/PdfViewer.tsx"]
-        sel_hook["PdfViewer/useTextSelection.ts"]
-        sel_pop["PdfViewer/SelectionPopover.tsx"]
-        hl_overlay["PdfViewer/HighlightOverlays.tsx"]
-        canvas["Canvas/Canvas.tsx<br/>(ReactFlow)"]
-        nodeCard["Frame/FrameNode.tsx<br/>(card preview)"]
-        panel["Frame/FramePanel.tsx<br/>(focus mode)"]
-        vid_pl["Frame/VideoFramePlayer.tsx"]
-    end
-
-    idx --> anth
-    idx --> prompts
-    idx --> vid
-    idx --> cache
-    vid --> prompts
-    vid --> cache
-    vid --> worker_ts
-    worker_ts --> worker_py
-
-    flow --> tutor
-    flow --> graphSt
-    pdf_view --> sel_hook
-    pdf_view --> sel_pop
-    pdf_view --> hl_overlay
-    pdf_view --> flow
-    pdf_view --> doc
-    canvas --> nodeCard
-    panel --> flow
-    panel --> vid_pl
-    panel --> shell
-    nodeCard --> shell
-    hl_overlay --> doc
-    hl_overlay --> graphSt
 ```
+server/
+├── index.ts          ── routes · SSE response · cache short-circuit
+├── anthropic.ts      ── SDK client · MAIN_MODEL / FAST_MODEL / SUMMARY_MODEL
+├── lessonPrompts.ts  ── QUIZ + SUMMARY + MANIM system prompts and tools
+├── agents.ts         ── orchestrator + Router · Retriever · Planner · Author · Critic · Refiner
+├── retriever.ts      ── BM25 index (tokenize · build · score · top-K)
+├── cache.ts          ── SHA256 cache read/write (per-mode keys)
+├── video.ts          ── job queue · sandboxCheck · self-repair · SSE subscribe
+├── manimWorker.ts    ── TS-side client of the long-lived Python worker
+└── manim_worker.py   ── pre-imports manim + manim_voiceover, renders on stdin
+
+src/
+├── agent/
+│   └── tutor.ts                  ── fetch + ReadableStream SSE parser · EventSource
+├── lib/
+│   ├── lessonFlow.ts             ── startLesson · attachVideoSubscription
+│   ├── lessonShell.ts            ── iframe HTML builder · CDN libs · runtime error bridge
+│   └── layout.ts                 ── dagre auto-layout
+├── store/
+│   ├── graphStore.ts             ── nodes · edges · focused id (persisted)
+│   └── documentStore.ts          ── doc · summary · docId · highlights (highlights persisted)
+└── components/
+    ├── PdfViewer/
+    │   ├── PdfViewer.tsx         ── react-pdf wrapper · summarize on load
+    │   ├── useTextSelection.ts   ── window.getSelection + page-local rects
+    │   ├── SelectionPopover.tsx  ── Explain / Animate (⌘+Enter)
+    │   └── HighlightOverlays.tsx ── persisted colored regions over the text layer
+    ├── Canvas/
+    │   └── Canvas.tsx            ── ReactFlow graph · auto-layout button
+    └── Frame/
+        ├── FrameNode.tsx         ── canvas card preview
+        ├── FramePanel.tsx        ── fullscreen focus mode (Lesson / Pipeline tabs)
+        ├── AgentTracePanel.tsx   ── live agent trace UI
+        └── VideoFramePlayer.tsx  ── progress + ETA + chapter buttons
+```
+
+Key dependencies (one-line summary): `index.ts` calls into `agents.ts` and `video.ts`; `agents.ts` consumes `retriever.ts` + `cache.ts` + `lessonPrompts.ts`. On the client, `lessonFlow.ts` is the only module that touches both `tutor.ts` and the stores; components import from `lessonFlow.ts` and the stores, never from `tutor.ts` directly.
 
 ## Choices worth knowing
 

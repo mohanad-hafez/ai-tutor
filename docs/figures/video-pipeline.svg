@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 580" font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0a10"/>
+      <stop offset="1" stop-color="#070710"/>
+    </linearGradient>
+    <linearGradient id="card3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10101a"/>
+      <stop offset="1" stop-color="#0a0a13"/>
+    </linearGradient>
+    <linearGradient id="cache-glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#064e3b" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#064e3b" stop-opacity="0.15"/>
+    </linearGradient>
+    <pattern id="grid3" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1" fill="#a1a1aa"/>
+    </pattern>
+    <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#a78bfa"/>
+    </marker>
+    <marker id="arr3-cache" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#34d399"/>
+    </marker>
+    <marker id="arr3-err" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#fb7185"/>
+    </marker>
+    <marker id="arr3-loop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#fbbf24"/>
+    </marker>
+  </defs>
+
+  <rect width="1240" height="580" fill="url(#bg3)"/>
+  <rect width="1240" height="580" fill="url(#grid3)" opacity="0.04"/>
+
+  <!-- Header -->
+  <text x="60" y="60" font-size="13" font-weight="500" letter-spacing="3" fill="#6366f1">FIGURE 3</text>
+  <text x="60" y="98" font-size="32" font-weight="700" fill="#f5f5f7" letter-spacing="-0.5">Video pipeline · state machine</text>
+  <text x="60" y="124" font-size="15" font-weight="400" fill="#a1a1aa">Manim renders run as a background job. Stage transitions stream over SSE with a live ETA. Cache short-circuits</text>
+  <text x="60" y="142" font-size="15" font-weight="400" fill="#a1a1aa">on identical requests. Render failures trigger one self-repair pass before erroring out.</text>
+
+  <!-- Stage cards along the bottom row -->
+  <!-- queued -->
+  <g transform="translate(60, 224)">
+    <rect width="140" height="80" rx="12" fill="url(#card3)" stroke="#52525b" stroke-width="1"/>
+    <rect width="140" height="3" rx="1.5" fill="#a1a1aa"/>
+    <text x="70" y="34" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">queued</text>
+    <text x="70" y="56" font-size="10" letter-spacing="1.5" fill="#71717a" text-anchor="middle">0%</text>
+    <text x="70" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">job created</text>
+  </g>
+
+  <!-- planning -->
+  <g transform="translate(220, 224)">
+    <rect width="140" height="80" rx="12" fill="url(#card3)" stroke="#818cf8" stroke-width="1"/>
+    <rect width="140" height="3" rx="1.5" fill="#818cf8"/>
+    <text x="70" y="34" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">planning</text>
+    <text x="70" y="56" font-size="10" letter-spacing="1.5" fill="#818cf8" text-anchor="middle">5%</text>
+    <text x="70" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">emit_manim · sonnet</text>
+  </g>
+
+  <!-- generating -->
+  <g transform="translate(380, 224)">
+    <rect width="140" height="80" rx="12" fill="url(#card3)" stroke="#34d399" stroke-width="1"/>
+    <rect width="140" height="3" rx="1.5" fill="#34d399"/>
+    <text x="70" y="34" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">generating</text>
+    <text x="70" y="56" font-size="10" letter-spacing="1.5" fill="#34d399" text-anchor="middle">25%</text>
+    <text x="70" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">AST sandboxCheck</text>
+  </g>
+
+  <!-- rendering -->
+  <g transform="translate(540, 224)">
+    <rect width="180" height="80" rx="12" fill="url(#card3)" stroke="#a78bfa" stroke-width="1"/>
+    <rect width="180" height="3" rx="1.5" fill="#a78bfa"/>
+    <text x="90" y="34" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">rendering</text>
+    <text x="90" y="56" font-size="10" letter-spacing="1.5" fill="#a78bfa" text-anchor="middle">40%</text>
+    <text x="90" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">manim_worker.py · ETA streams every 2 s</text>
+  </g>
+
+  <!-- repair (above rendering) -->
+  <g transform="translate(540, 100)">
+    <rect width="180" height="74" rx="12" fill="url(#card3)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4 4"/>
+    <rect width="180" height="3" rx="1.5" fill="#fbbf24"/>
+    <text x="90" y="32" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">repair</text>
+    <text x="90" y="50" font-size="10" letter-spacing="1.5" fill="#fbbf24" text-anchor="middle">CONDITIONAL</text>
+    <text x="90" y="64" font-size="10" fill="#a1a1aa" text-anchor="middle">stderr → regen script · 1× retry</text>
+  </g>
+
+  <!-- done -->
+  <g transform="translate(740, 224)">
+    <rect width="140" height="80" rx="12" fill="url(#card3)" stroke="#34d399" stroke-width="1.5"/>
+    <rect width="140" height="3" rx="1.5" fill="#34d399"/>
+    <text x="70" y="34" font-size="13" font-weight="700" fill="#bbf7d0" text-anchor="middle">done</text>
+    <text x="70" y="56" font-size="10" letter-spacing="1.5" fill="#34d399" text-anchor="middle">100%</text>
+    <text x="70" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">mp4 + chapters</text>
+  </g>
+
+  <!-- error -->
+  <g transform="translate(900, 224)">
+    <rect width="140" height="80" rx="12" fill="url(#card3)" stroke="#fb7185" stroke-width="1.5"/>
+    <rect width="140" height="3" rx="1.5" fill="#fb7185"/>
+    <text x="70" y="34" font-size="13" font-weight="700" fill="#fecdd3" text-anchor="middle">error</text>
+    <text x="70" y="56" font-size="10" letter-spacing="1.5" fill="#fb7185" text-anchor="middle">100%</text>
+    <text x="70" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">terminal · SSE closes</text>
+  </g>
+
+  <!-- cache shortcut path (top right) -->
+  <g transform="translate(1060, 100)">
+    <rect width="160" height="80" rx="12" fill="url(#cache-glow)" stroke="#34d399" stroke-width="1.5"/>
+    <rect width="160" height="3" rx="1.5" fill="#34d399"/>
+    <text x="80" y="32" font-size="13" font-weight="700" fill="#bbf7d0" text-anchor="middle">cache hit</text>
+    <text x="80" y="50" font-size="10" letter-spacing="1.5" fill="#34d399" text-anchor="middle">SHORTCUT</text>
+    <text x="80" y="64" font-size="10" fill="#a1a1aa" text-anchor="middle">SHA256 keyed</text>
+    <text x="80" y="76" font-size="10" fill="#a1a1aa" text-anchor="middle">~30 ms vs ~30 s</text>
+  </g>
+
+  <!-- Forward arrows -->
+  <g stroke="#a78bfa" stroke-width="2" fill="none">
+    <line x1="200" y1="264" x2="220" y2="264" marker-end="url(#arr3)"/>
+    <line x1="360" y1="264" x2="380" y2="264" marker-end="url(#arr3)"/>
+    <line x1="520" y1="264" x2="540" y2="264" marker-end="url(#arr3)"/>
+    <line x1="720" y1="264" x2="740" y2="264" marker-end="url(#arr3)"/>
+  </g>
+
+  <!-- rendering → repair (yellow, on render fail) -->
+  <g stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
+    <path d="M 630 224 C 630 200, 630 180, 630 174" marker-end="url(#arr3-loop)"/>
+  </g>
+  <text x="640" y="208" font-size="10" fill="#fbbf24" font-style="italic">render exit ≠ 0</text>
+
+  <!-- repair → rendering (back into rendering) -->
+  <g stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
+    <path d="M 700 174 C 700 200, 700 218, 700 224" marker-end="url(#arr3-loop)"/>
+  </g>
+  <text x="713" y="208" font-size="10" fill="#fbbf24">retry once</text>
+
+  <!-- generating → error (sandbox reject) -->
+  <g stroke="#fb7185" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
+    <path d="M 450 304 C 450 360, 970 360, 970 304" marker-end="url(#arr3-err)"/>
+  </g>
+  <text x="710" y="380" text-anchor="middle" font-size="11" fill="#fb7185" font-style="italic">sandbox reject · forbidden import or pattern</text>
+
+  <!-- rendering → error (cancelled) -->
+  <g stroke="#fb7185" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
+    <path d="M 630 304 C 630 410, 970 410, 970 304" marker-end="url(#arr3-err)"/>
+  </g>
+  <text x="800" y="430" text-anchor="middle" font-size="11" fill="#fb7185" font-style="italic">cancel · DELETE /api/video/:id (SIGTERM)</text>
+
+  <!-- repair → error (failed twice) -->
+  <g stroke="#fb7185" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
+    <path d="M 720 137 C 850 137, 970 180, 970 224" marker-end="url(#arr3-err)"/>
+  </g>
+  <text x="900" y="155" font-size="10" fill="#fb7185">failed twice</text>
+
+  <!-- queued → done (cache shortcut) -->
+  <g stroke="#34d399" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
+    <path d="M 130 224 C 130 140, 1140 140, 1140 180" marker-end="url(#arr3-cache)"/>
+  </g>
+  <text x="635" y="125" text-anchor="middle" font-size="11" fill="#34d399" font-style="italic">if cached: copy mp4, emit done immediately</text>
+
+  <!-- SSE side panel -->
+  <g transform="translate(60, 460)">
+    <text x="0" y="0" font-size="13" font-weight="600" letter-spacing="2" fill="#a1a1aa">SSE EVENTS</text>
+    <line x1="0" y1="14" x2="120" y2="14" stroke="#27272a"/>
+  </g>
+
+  <g transform="translate(60, 494)">
+    <rect x="-4" y="-14" width="58" height="22" rx="11" fill="#1e293b"/>
+    <text x="25" y="0" font-size="11" font-weight="700" fill="#94a3b8" text-anchor="middle">stage</text>
+    <text x="68" y="2" font-size="12" fill="#a1a1aa">on every state change AND every 2 s during rendering (carries live etaSec)</text>
+  </g>
+
+  <g transform="translate(60, 524)">
+    <rect x="-4" y="-14" width="48" height="22" rx="11" fill="#064e3b"/>
+    <text x="20" y="0" font-size="11" font-weight="700" fill="#86efac" text-anchor="middle">done</text>
+    <text x="58" y="2" font-size="12" fill="#a1a1aa">terminal · {videoUrl, durationSec, chapters, title, summary}</text>
+  </g>
+
+  <g transform="translate(60, 554)">
+    <rect x="-4" y="-14" width="50" height="22" rx="11" fill="#4c0519"/>
+    <text x="21" y="0" font-size="11" font-weight="700" fill="#fecdd3" text-anchor="middle">error</text>
+    <text x="60" y="2" font-size="12" fill="#a1a1aa">terminal · {message} · last 2000 chars of stderr</text>
+  </g>
+</svg>
