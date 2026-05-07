@@ -75,9 +75,8 @@ const RICH_LIBS = `
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/p5@1.10.0/lib/p5.min.js" crossorigin="anonymous"></script>
-<!-- High-level libraries for the Author: declarative API ⇒ fewer output tokens, fewer bugs. -->
+<!-- High-level chart library for the Author: declarative API ⇒ fewer output tokens, fewer bugs. -->
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/tweakpane@4.0.5/dist/tweakpane.min.js" crossorigin="anonymous"></script>
 <script>
   window.addEventListener('load', function(){
     if (window.renderMathInElement) {

@@ -516,8 +516,8 @@ LIBRARIES — prefer high-level, declarative APIs. Less code = fewer bugs and fa
 
 PRIMARY (use these first):
 - **Plotly** (window.Plotly) — ALL charts: line, scatter, bar, heatmap, contour, surface, histogram, box. Built-in pan/zoom/hover/legend. One call: \`Plotly.newPlot(div, traces, layout, {responsive:true})\`. Update with \`Plotly.react(div, traces, layout)\`. Don't write D3 axis chains.
-- **Tweakpane** (window.Tweakpane) — sliders / toggles / color pickers / numeric inputs. \`const pane = new Tweakpane.Pane({container}); pane.addBinding(state, 'lr', {min:0, max:1});\` Don't hand-style \`<input type="range">\`.
 - **KaTeX** auto-render — \`$inline$\` and \`$$display$$\` math.
+- For sliders / toggles / inputs, use plain HTML: \`<input type="range">\`, \`<input type="number">\`, \`<button>\`. Style them with the dark theme accent (#818cf8).
 
 ESCAPE HATCHES (use only when Primary can't express it):
 - D3 v7 (window.d3) — custom SVG, force-directed layouts, novel viz.
@@ -525,7 +525,7 @@ ESCAPE HATCHES (use only when Primary can't express it):
 
 WIDGETS — make them work:
 - Render an initial state on load. Don't make the user click before they see anything.
-- Hook events via the lib's API or \`addEventListener\`. (If using inline onclick, declare the function at top-level scope of the js field.)
+- Hook events with \`addEventListener\`. If using inline onclick, declare the function at top-level scope of the js field.
 - For Plotly use \`{responsive: true}\` — it auto-handles container sizing.
 - Reset / restart button if the widget has state.
 
@@ -533,18 +533,21 @@ EXAMPLE — a learning-rate slider that updates a live plot of \`y = x² - lr·x
 
 \`\`\`html
 <p class="setup">Drag the slider to see how learning rate scales the dip in the loss curve.</p>
-<div class="viz-row">
+<div class="viz">
   <div id="plot" style="height:340px"></div>
-  <div id="ctrl"></div>
+  <label class="row">
+    <span>learning rate <output id="lrv">0.40</output></span>
+    <input id="lr" type="range" min="0" max="2" step="0.01" value="0.4">
+  </label>
 </div>
 <p class="caption">As lr grows, the parabola shifts: the optimizer step gets bigger.</p>
 \`\`\`
 
 \`\`\`js
-const state = { lr: 0.4 };
+let lr = 0.4;
 function curve() {
-  const xs = []; const ys = [];
-  for (let x = -2; x <= 2; x += 0.05) { xs.push(x); ys.push(x*x - state.lr*x); }
+  const xs = [], ys = [];
+  for (let x = -2; x <= 2; x += 0.05) { xs.push(x); ys.push(x*x - lr*x); }
   return [{x: xs, y: ys, type: 'scatter', mode: 'lines', line: {color: '#818cf8', width: 3}}];
 }
 const layout = { paper_bgcolor: '#0a0a0d', plot_bgcolor: '#0a0a0d',
@@ -553,12 +556,16 @@ const layout = { paper_bgcolor: '#0a0a0d', plot_bgcolor: '#0a0a0d',
   yaxis: {gridcolor: '#222', zerolinecolor: '#444', title: 'loss'} };
 Plotly.newPlot('plot', curve(), layout, {responsive: true, displayModeBar: false});
 
-const pane = new Tweakpane.Pane({container: document.getElementById('ctrl')});
-pane.addBinding(state, 'lr', {min: 0, max: 2, step: 0.01, label: 'learning rate'})
-    .on('change', () => Plotly.react('plot', curve(), layout));
+const lrInput = document.getElementById('lr');
+const lrOut = document.getElementById('lrv');
+lrInput.addEventListener('input', () => {
+  lr = parseFloat(lrInput.value);
+  lrOut.textContent = lr.toFixed(2);
+  Plotly.react('plot', curve(), layout);
+});
 \`\`\`
 
-That's the entire interactive lesson. ~25 lines of JS, not 80. Match this density.
+That's the entire interactive lesson. ~20 lines of JS, not 80. Match this density.
 
 DESIGN:
 - Dark palette. Backgrounds #0a0a0d / #0e0e12. Indigo accents #818cf8 / #6366f1. Secondary accents OK (amber #fbbf24, emerald #34d399, rose #f87171) for contrast inside viz.
