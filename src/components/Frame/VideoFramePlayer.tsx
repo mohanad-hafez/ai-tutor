@@ -15,9 +15,17 @@ const STAGE_LABEL: Record<VideoStage, string> = {
 export function VideoFramePlayer({ data }: { data: FrameData }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
+  const [chatCollapsed, setChatCollapsed] = useState(false);
   const stage: VideoStage = data.videoStage ?? (data.content?.videoUrl ? 'done' : 'queued');
   const progress = data.videoProgress ?? 0;
   const message = data.videoMessage ?? STAGE_LABEL[stage];
+
+  const goNativeFullscreen = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (document.fullscreenElement) document.exitFullscreen?.();
+    else v.requestFullscreen?.();
+  };
 
   if (stage === 'error') {
     return (
@@ -90,8 +98,37 @@ export function VideoFramePlayer({ data }: { data: FrameData }) {
           onTimeUpdate={(e) => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
           className="max-h-full max-w-full"
         />
+        {/* Floating control cluster — top right of the video pane. */}
+        <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5">
+          <button
+            onClick={() => setChatCollapsed((v) => !v)}
+            title={chatCollapsed ? 'Show chat' : 'Hide chat — give the video full pane'}
+            className="flex items-center gap-1.5 rounded-md border border-white/10 bg-black/60 px-2.5 py-1 text-[10px] font-medium text-neutral-200 backdrop-blur-md transition hover:border-indigo-400/50 hover:text-indigo-200"
+          >
+            {chatCollapsed ? (
+              <>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Show chat
+              </>
+            ) : (
+              <>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7"/></svg>
+                Expand
+              </>
+            )}
+          </button>
+          <button
+            onClick={goNativeFullscreen}
+            title="Fullscreen video (F)"
+            className="flex items-center gap-1.5 rounded-md border border-white/10 bg-black/60 px-2.5 py-1 text-[10px] font-medium text-neutral-200 backdrop-blur-md transition hover:border-indigo-400/50 hover:text-indigo-200"
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+            Fullscreen
+          </button>
+        </div>
       </div>
-      {chapters.length > 0 && (
+
+      {!chatCollapsed && chapters.length > 0 && (
         <div className="shrink-0 border-t border-neutral-800/80 bg-[#0a0a0d] px-4 py-3">
           <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.12em] text-neutral-500">
             Chapters
@@ -120,9 +157,12 @@ export function VideoFramePlayer({ data }: { data: FrameData }) {
           </div>
         </div>
       )}
-      <div className="shrink-0">
-        <VideoChat data={data} />
-      </div>
+
+      {!chatCollapsed && (
+        <div className="shrink-0">
+          <VideoChat data={data} />
+        </div>
+      )}
     </div>
   );
 }
