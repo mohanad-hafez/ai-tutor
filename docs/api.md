@@ -66,6 +66,8 @@ The lesson router. **Always returns SSE** (`text/event-stream`). Claude picks th
 | `question` | string | no | optional user question |
 | `parentTitle` | string | no | parent concept title; helps with continuity |
 | `docSummary` | string | no | the summarize output |
+| `docId` | string | no | id returned by `/api/summarize`; lets the Retriever fetch BM25 chunks |
+| `recentLessons` | `{id, title, sourceText?}[]` | no | last 8 frames on the canvas; lets the Memory agent redirect to an existing frame instead of generating a duplicate |
 | `force` | `'text' \| 'visual_html' \| 'video_manim'` | no | bypass router and force a specific mode |
 
 ### Streaming flow
@@ -75,36 +77,47 @@ sequenceDiagram
     autonumber
     participant FE as Client (fetch + ReadableStream)
     participant API as /api/explain
+    participant Mem as Memory (MiniLM-L6)
     participant SDK as Anthropic SDK
     participant LLM as Claude
 
-    FE->>API: POST { text, question, ... }
-    API->>API: cacheKey + readCache
-    alt cache hit
+    FE->>API: POST { text, question, recentLessons[], ... }
+    API->>API: cacheKey + readCache (exact hash)
+    alt exact cache hit
         API-->>FE: event: complete (full lesson)
-    else cache miss
-        API->>SDK: messages.stream({tools, tool_choice})
-        SDK->>LLM: forward
-        loop input_json_delta
-            LLM-->>SDK: partial JSON
-            SDK-->>API: 'inputJson' event with snapshot
-            API->>API: partial-json parse (throttle: ≥64 char growth)
-            API-->>FE: event: partial { title?, summary?, html?, css?, prerequisites? }
-            FE->>FE: updateFrame(patch)
-        end
-        LLM-->>SDK: message_stop
-        SDK-->>API: finalMessage
-        opt visual_html with bad JS
-            API-->>FE: event: partial { _repair: true }
-            API->>LLM: regenerate with bug report
-            LLM-->>API: corrected tool input
-        end
-        API->>API: writeCache
-        alt mode == video_manim
-            API->>API: createVideoJob
-            API-->>FE: event: complete { jobId }
-        else
-            API-->>FE: event: complete { content }
+    else
+        API->>Mem: embed(text + question)
+        alt frame redirect (cosine ≥ 0.78)
+            Mem-->>API: { kind: redirect, frameId }
+            API-->>FE: event: complete { mode: "redirect", redirectFrameId }
+            Note over FE: tear down placeholder · focus existing frame
+        else semantic cache hit (cosine ≥ 0.82)
+            Mem-->>API: { kind: semantic_hit, cacheKey }
+            API->>API: readCache(matchedKey)
+            API-->>FE: event: complete { content, semanticHit: { matchedQuery, score } }
+        else miss
+            API->>SDK: messages.stream({tools, tool_choice})
+            SDK->>LLM: forward
+            loop input_json_delta
+                LLM-->>SDK: partial JSON
+                SDK-->>API: 'inputJson' event with snapshot
+                API->>API: partial-json parse (throttle: ≥48 char growth)
+                API-->>FE: event: partial { title?, summary?, html?, css?, prerequisites? }
+                FE->>FE: updateFrame(patch)
+            end
+            LLM-->>SDK: message_stop
+            SDK-->>API: finalMessage
+            opt visual_html with bad JS
+                API->>LLM: regenerate with bug report
+                LLM-->>API: corrected tool input
+            end
+            API->>API: writeCache + semanticInsert(embedding)
+            alt mode == video_manim
+                API->>API: createVideoJob
+                API-->>FE: event: complete { jobId }
+            else
+                API-->>FE: event: complete { content }
+            end
         end
     end
     Note over API,FE: stream closes after 'complete' or 'error'
@@ -134,7 +147,9 @@ Fired once per **agent state change** as the multi-agent pipeline executes. Each
 }
 ```
 
-Agent values: `router | retriever | planner | author | critic | refiner`. Statuses: `pending | running | done | error | skipped`. See [architecture.md](architecture.md#agents) for what each agent does.
+Agent values: `memory | router | retriever | planner | author | critic | refiner`. Statuses: `pending | running | done | error | skipped`. See [architecture.md](architecture.md#agents) for what each agent does.
+
+The **`memory`** agent runs first and may short-circuit the entire pipeline. Its `preview` and `detail` fields surface the cosine similarity score and matched query so the UI can show the user "reused 'Recurrent Neural Networks' lesson · cosine 0.87".
 
 #### `partial`
 
@@ -162,9 +177,13 @@ The `js` field is intentionally not streamed mid-flight (running half-written sc
   "content": { "html": "<div…>", "css": "…", "js": "…" },
   "prerequisites": [
     { "title": "Vectors", "brief": "Why understanding vectors helps with the current lesson." }
-  ]
+  ],
+  "cached": true,
+  "semanticHit": { "matchedQuery": "gradient descent…", "score": 0.875 }
 }
 ```
+
+`cached` is set when the exact-hash cache short-circuited the pipeline. `semanticHit` is set when the Memory agent matched a paraphrase and reused that prior generation — `matchedQuery` is the original phrasing that produced the cached lesson, `score` is the cosine similarity. Both fields are optional; absence means the lesson was generated fresh.
 
 #### `complete` — video kicked off
 
@@ -173,11 +192,27 @@ The `js` field is intentionally not streamed mid-flight (running half-written sc
   "mode": "video_manim",
   "title": "Concept title",
   "summary": "One-sentence preview",
-  "jobId": "5f3a…"
+  "jobId": "5f3a…",
+  "semanticHit": { "matchedQuery": "…", "score": 0.91 }
 }
 ```
 
 The client should subscribe to `GET /api/video/:jobId/events` to receive progress and the final video URL.
+
+#### `complete` — frame redirect (Memory short-circuit)
+
+When the Memory agent decides the new highlight is semantically equivalent to an existing lesson on the user's canvas, no new lesson is generated. Instead:
+
+```json
+{
+  "mode": "redirect",
+  "redirectFrameId": "f7c4-…",
+  "matchTitle": "Recurrent Neural Networks",
+  "score": 0.82
+}
+```
+
+The frontend should remove its placeholder frame and focus `redirectFrameId`.
 
 #### `error`
 
