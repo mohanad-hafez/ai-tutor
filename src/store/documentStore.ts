@@ -36,7 +36,11 @@ export const useDocumentStore = create<DocState>()(
       docId: null,
       chunkCount: 0,
       highlights: [],
-      setDoc: (doc) => set({ doc, summary: null, summarizing: false, docId: null, chunkCount: 0 }),
+      // Switching PDFs invalidates the highlight overlays (their page-local
+      // rects are meaningless against a different document). Clearing on
+      // doc change avoids ghost highlights bleeding across PDFs.
+      setDoc: (doc) =>
+        set({ doc, summary: null, summarizing: false, docId: null, chunkCount: 0, highlights: [] }),
       setSummary: (summary) => set({ summary }),
       setSummarizing: (summarizing) => set({ summarizing }),
       setDocId: (docId, chunkCount = 0) => set({ docId, chunkCount }),
