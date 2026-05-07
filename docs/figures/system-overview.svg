@@ -168,7 +168,7 @@
 
   <g transform="translate(346, 612)">
     <rect width="180" height="84" rx="10" fill="url(#card2)" stroke="#34d399" stroke-opacity="0.5"/>
-    <text x="14" y="26" font-size="13" font-weight="700" fill="#bbf7d0">AST sandbox</text>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#bbf7d0">Regex sandbox</text>
     <text x="14" y="46" font-size="11" fill="#a1a1aa">whitelist imports</text>
     <text x="14" y="62" font-size="11" fill="#a1a1aa">forbidden patterns</text>
     <text x="14" y="78" font-size="11" fill="#a1a1aa">self-repair on render fail</text>
@@ -201,26 +201,26 @@
   <g stroke="#6366f1" stroke-width="2" fill="none">
     <path d="M 376 280 C 376 308, 196 308, 196 338" marker-end="url(#arr2)"/>
   </g>
-  <text x="232" y="318" font-size="10" fill="#6366f1">POST /api/explain · {text, recentLessons}</text>
+  <text x="232" y="306" font-size="10" fill="#6366f1">POST /api/explain · {text, recentLessons}</text>
 
   <!-- Server → Browser (events back) -->
   <g stroke="#34d399" stroke-width="2" fill="none">
     <path d="M 416 338 C 416 308, 836 308, 836 280" marker-end="url(#arr2-back)"/>
   </g>
-  <text x="566" y="318" font-size="10" fill="#34d399">SSE: agent_step · partial · complete</text>
+  <text x="566" y="306" font-size="10" fill="#34d399">SSE: agent_step · partial · complete</text>
 
   <!-- Server → Anthropic -->
   <g stroke="#52525b" stroke-width="1.5" fill="none">
     <path d="M 196 422 L 196 484" marker-end="url(#arr2-dim)"/>
     <path d="M 416 422 L 416 484" marker-end="url(#arr2-dim)"/>
   </g>
-  <text x="220" y="464" font-size="10" fill="#71717a">tool-use streams</text>
+  <text x="220" y="456" font-size="10" fill="#71717a">tool-use streams</text>
 
   <!-- Server → Render -->
   <g stroke="#52525b" stroke-width="1.5" fill="none">
     <path d="M 1046 422 C 1046 480, 206 530, 206 612" marker-end="url(#arr2-dim)"/>
   </g>
-  <text x="1066" y="478" font-size="10" fill="#71717a">stdin: scene.py</text>
+  <text x="1066" y="450" font-size="10" fill="#71717a">stdin: scene.py</text>
 
   <!-- Render → Server (mp4 path) -->
   <g stroke="#34d399" stroke-width="1.5" fill="none" stroke-dasharray="4 4" opacity="0.7">

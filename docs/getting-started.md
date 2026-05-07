@@ -49,7 +49,7 @@ ANTHROPIC_SUMMARY_MODEL=          # optional, falls back to ANTHROPIC_MODEL
 PORT=8787                         # optional, server port
 ```
 
-`ANTHROPIC_API_KEY` is the only required value. Get one at <https://console.anthropic.com/>.
+`ANTHROPIC_API_KEY` is the only required value. Get one at [https://console.anthropic.com/](https://console.anthropic.com/).
 
 `.env` is gitignored. So is `.env.save`, `.env.*.local`, `server/tmp/`, `public/videos/`, and `docs/manim/`.
 
@@ -69,7 +69,7 @@ You should see:
 [api] tutor server on :8787
 ```
 
-Open <http://localhost:5173/>.
+Open [http://localhost:5173/](http://localhost:5173/).
 
 You can also run them separately:
 
