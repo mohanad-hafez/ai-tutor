@@ -90,8 +90,8 @@ export interface OrchestrateResult {
   manimBrief?: string;
 }
 
-const REDIRECT_THRESHOLD = Number(process.env.MEMORY_REDIRECT_THRESHOLD ?? 0.78);
-const SEMANTIC_THRESHOLD = Number(process.env.MEMORY_SEMANTIC_THRESHOLD ?? 0.82);
+const REDIRECT_THRESHOLD = Number(process.env.MEMORY_REDIRECT_THRESHOLD ?? 0.70);
+const SEMANTIC_THRESHOLD = Number(process.env.MEMORY_SEMANTIC_THRESHOLD ?? 0.72);
 
 export type MemoryResult =
   | { kind: 'redirect'; frameId: string; matchTitle: string; score: number; embedding: Float32Array }
