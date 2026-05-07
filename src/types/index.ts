@@ -20,6 +20,13 @@ export interface LessonPrereq {
   brief: string;
 }
 
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  text: string;
+  streaming?: boolean;
+}
+
 export type AgentName =
   | 'memory'
   | 'router'
@@ -79,6 +86,7 @@ export interface FrameData {
   videoError?: string;
   prerequisites?: LessonPrereq[];
   trace?: AgentTrace[];
+  chat?: ChatMessage[];
 }
 
 export interface PdfDoc {

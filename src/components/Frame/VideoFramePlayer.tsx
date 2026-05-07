@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { FrameData, VideoStage } from '../../types';
 import { cancelVideo } from '../../agent/tutor';
+import { VideoChat } from './VideoChat';
 
 const STAGE_LABEL: Record<VideoStage, string> = {
   queued: 'Queued',
@@ -80,7 +81,7 @@ export function VideoFramePlayer({ data }: { data: FrameData }) {
 
   return (
     <div className="flex h-full flex-col bg-black">
-      <div className="relative flex flex-1 items-center justify-center overflow-hidden">
+      <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden">
         <video
           ref={videoRef}
           src={data.content.videoUrl}
@@ -91,7 +92,7 @@ export function VideoFramePlayer({ data }: { data: FrameData }) {
         />
       </div>
       {chapters.length > 0 && (
-        <div className="border-t border-neutral-800/80 bg-[#0a0a0d] px-4 py-3">
+        <div className="shrink-0 border-t border-neutral-800/80 bg-[#0a0a0d] px-4 py-3">
           <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.12em] text-neutral-500">
             Chapters
           </div>
@@ -119,6 +120,9 @@ export function VideoFramePlayer({ data }: { data: FrameData }) {
           </div>
         </div>
       )}
+      <div className="shrink-0">
+        <VideoChat data={data} />
+      </div>
     </div>
   );
 }

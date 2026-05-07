@@ -380,6 +380,75 @@ app.post('/api/quiz', async (req, res) => {
   }
 });
 
+/**
+ * Chat endpoint — used by the prompt bar under video frames so the user can
+ * ask follow-ups about an animation without spawning a new lesson. Pure-text
+ * streaming response, no tools, conversational tone. Conditioned on the video
+ * brief, chapter labels, and prior chat history so answers reference what the
+ * user just watched.
+ */
+app.post('/api/chat', async (req, res) => {
+  const { contextTitle, contextSummary, videoBrief, videoChapters, docSummary, history, question } = req.body || {};
+  if (!question || typeof question !== 'string') {
+    res.status(400).json({ error: 'question required' });
+    return;
+  }
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders?.();
+
+  const send = (event: string, data: unknown) => {
+    res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+  };
+
+  const system = `You answer follow-up questions about an animation the learner just watched. Be conversational, accurate, and brief — usually 1–4 short paragraphs. Reference the video naturally when it helps ("In the animation you saw..."). When math is needed, use \\( inline \\) or $$ display $$ for KaTeX.
+
+If the question is off-topic from the animation, redirect briefly and offer to make a new lesson on the side topic.`;
+
+  const ctx = [
+    docSummary ? `Document context:\n${docSummary}` : null,
+    contextTitle ? `Animation title: ${contextTitle}` : null,
+    contextSummary ? `Animation summary: ${contextSummary}` : null,
+    videoBrief ? `Animation brief (what the video shows):\n${videoBrief}` : null,
+    Array.isArray(videoChapters) && videoChapters.length
+      ? `Chapter timestamps:\n${videoChapters.map((c: { t: number; label: string }) => `  ${c.t}s — ${c.label}`).join('\n')}`
+      : null,
+  ].filter(Boolean).join('\n\n');
+
+  const messages: { role: 'user' | 'assistant'; content: string }[] = [];
+  if (ctx) {
+    messages.push({ role: 'user', content: ctx });
+    messages.push({ role: 'assistant', content: 'Got it. I have the animation context — ask away.' });
+  }
+  if (Array.isArray(history)) {
+    for (const m of history) {
+      if (m && (m.role === 'user' || m.role === 'assistant') && typeof m.text === 'string') {
+        messages.push({ role: m.role, content: m.text });
+      }
+    }
+  }
+  messages.push({ role: 'user', content: question });
+
+  try {
+    const stream = client.messages.stream({
+      model: QUIZ_MODEL, // Haiku — chat answers don't need Sonnet's reasoning depth
+      system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
+      max_tokens: 1024,
+      messages,
+    });
+    stream.on('text', (delta: string) => send('delta', { text: delta }));
+    await stream.finalMessage();
+    send('done', {});
+    res.end();
+  } catch (err) {
+    console.error('chat error:', err);
+    send('error', { message: (err as Error).message });
+    res.end();
+  }
+});
+
 app.post('/api/video', (req, res) => {
   const { text, question, docSummary, parentTitle, brief } = req.body || {};
   if (!text && !brief) {

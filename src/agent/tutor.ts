@@ -166,6 +166,70 @@ export async function cancelVideo(jobId: string): Promise<void> {
   await fetch(`${API_BASE}/video/${jobId}`, { method: 'DELETE' });
 }
 
+export interface ChatRequest {
+  contextTitle?: string;
+  contextSummary?: string;
+  videoBrief?: string;
+  videoChapters?: { t: number; label: string }[];
+  docSummary?: string;
+  history?: { role: 'user' | 'assistant'; text: string }[];
+  question: string;
+}
+
+export interface ChatHandlers {
+  onDelta?: (text: string) => void;
+  onDone?: () => void;
+  onError?: (msg: string) => void;
+}
+
+export function chatStream(req: ChatRequest, h: ChatHandlers): () => void {
+  const ctrl = new AbortController();
+  (async () => {
+    try {
+      const r = await fetch(`${API_BASE}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
+        body: JSON.stringify(req),
+        signal: ctrl.signal,
+      });
+      if (!r.ok || !r.body) {
+        h.onError?.(`chat failed: ${r.status}`);
+        return;
+      }
+      const reader = r.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = '';
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        let idx;
+        while ((idx = buf.indexOf('\n\n')) >= 0) {
+          const block = buf.slice(0, idx);
+          buf = buf.slice(idx + 2);
+          let event = 'message';
+          let data = '';
+          for (const line of block.split('\n')) {
+            if (line.startsWith('event: ')) event = line.slice(7);
+            else if (line.startsWith('data: ')) data = line.slice(6);
+          }
+          if (!data) continue;
+          if (event === 'delta') {
+            try { h.onDelta?.(JSON.parse(data).text || ''); } catch { /* ignore */ }
+          } else if (event === 'done') {
+            h.onDone?.();
+          } else if (event === 'error') {
+            try { h.onError?.(JSON.parse(data).message || 'chat error'); } catch { h.onError?.('chat error'); }
+          }
+        }
+      }
+    } catch (err) {
+      if (!ctrl.signal.aborted) h.onError?.((err as Error).message);
+    }
+  })();
+  return () => ctrl.abort();
+}
+
 export async function createVideo(req: VideoRequest): Promise<{ jobId: string }> {
   const r = await fetch(`${API_BASE}/video`, {
     method: 'POST',
