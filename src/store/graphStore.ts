@@ -12,6 +12,7 @@ interface GraphState {
   addFrame: (frame: FrameData, parentId?: string, position?: { x: number; y: number }) => void;
   addEdge: (source: string, target: string) => void;
   updateFrame: (id: string, patch: Partial<FrameData>) => void;
+  removeFrame: (id: string) => void;
   setFocused: (id: string | null) => void;
   reset: () => void;
 }
@@ -62,6 +63,12 @@ export const useGraphStore = create<GraphState>()(
           nodes: state.nodes.map((n) =>
             n.id === id ? { ...n, data: { ...n.data, ...patch } } : n
           ),
+        })),
+      removeFrame: (id) =>
+        set((state) => ({
+          nodes: state.nodes.filter((n) => n.id !== id),
+          edges: state.edges.filter((e) => e.source !== id && e.target !== id),
+          focusedNodeId: state.focusedNodeId === id ? null : state.focusedNodeId,
         })),
       setFocused: (id) => set({ focusedNodeId: id }),
       reset: () => set({ nodes: [], edges: [], focusedNodeId: null }),

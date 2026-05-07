@@ -115,16 +115,18 @@ export function startVideoDirect(opts: StartLessonOpts): string {
 }
 
 function runLesson(id: string, opts: StartLessonOpts) {
-  const { updateFrame, nodes } = useGraphStore.getState();
+  const { updateFrame, nodes, setFocused } = useGraphStore.getState();
   const { docId } = useDocumentStore.getState();
 
   // Cross-lesson memory: send the last 5 lessons so the router and planner
   // know what the learner has already seen (avoid repetition + enable
-  // back-references like "you saw X").
+  // back-references like "you saw X"). Includes the frame id so the
+  // server-side Memory agent can emit a redirect to an existing frame.
   const recentLessons = nodes
     .filter((n) => n.id !== id && (n.data.title || n.data.sourceText))
-    .slice(-5)
+    .slice(-8)
     .map((n) => ({
+      id: n.id,
       title: n.data.title,
       sourceText: n.data.sourceText?.slice(0, 240),
     }));
@@ -165,6 +167,22 @@ function runLesson(id: string, opts: StartLessonOpts) {
         if (Object.keys(patch).length) updateFrame(id, patch);
       },
       onComplete: (res) => {
+        // Memory agent flagged this as a duplicate of an existing frame —
+        // throw away the placeholder we just created and focus the original.
+        if (res.mode === 'redirect') {
+          const target = useGraphStore.getState().nodes.find((n) => n.id === res.redirectFrameId);
+          if (target) {
+            useGraphStore.getState().removeFrame(id);
+            setFocused(res.redirectFrameId);
+            return;
+          }
+          // Fallback if the target somehow disappeared: show a friendly summary.
+          updateFrame(id, {
+            loading: false,
+            summary: `Already covered by "${res.matchTitle}".`,
+          });
+          return;
+        }
         if (res.mode === 'video_manim') {
           updateFrame(id, {
             type: 'video',

@@ -7,7 +7,7 @@ export interface ExplainRequest {
   docId?: string;
   parentTitle?: string;
   force?: LessonMode;
-  recentLessons?: { title: string; sourceText?: string }[];
+  recentLessons?: { id?: string; title: string; sourceText?: string }[];
 }
 
 export type ExplainResponse =
@@ -17,6 +17,7 @@ export type ExplainResponse =
       summary: string;
       content: FrameContent;
       prerequisites?: LessonPrereq[];
+      semanticHit?: { matchedQuery: string; score: number };
     }
   | {
       mode: 'video_manim';
@@ -24,6 +25,13 @@ export type ExplainResponse =
       summary: string;
       jobId: string;
       prerequisites?: LessonPrereq[];
+      semanticHit?: { matchedQuery: string; score: number };
+    }
+  | {
+      mode: 'redirect';
+      redirectFrameId: string;
+      matchTitle: string;
+      score: number;
     };
 
 export interface VideoRequest {

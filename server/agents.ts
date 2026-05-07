@@ -19,8 +19,11 @@ import { client, MAIN_MODEL, FAST_MODEL, findToolUse } from './anthropic.js';
 import type { RetrievedChunk } from './retriever.js';
 import { retrieve } from './retriever.js';
 import { parse as partialParse, Allow } from 'partial-json';
+import { embed, cosine } from './embeddings.js';
+import { semanticLookup } from './cache.js';
 
 export type AgentName =
+  | 'memory'
   | 'router'
   | 'retriever'
   | 'planner'
@@ -49,7 +52,7 @@ export interface AgentTrace {
 export type EmitFn = (trace: AgentTrace) => void;
 export type PartialFn = (data: Record<string, unknown>) => void;
 
-export interface RecentLesson { title: string; sourceText?: string }
+export interface RecentLesson { id?: string; title: string; sourceText?: string }
 
 export interface OrchestrateInput {
   text: string;
@@ -85,6 +88,107 @@ export interface OrchestrateResult {
   prerequisites: { title: string; brief: string }[];
   content?: AuthoredContent;
   manimBrief?: string;
+}
+
+const REDIRECT_THRESHOLD = Number(process.env.MEMORY_REDIRECT_THRESHOLD ?? 0.78);
+const SEMANTIC_THRESHOLD = Number(process.env.MEMORY_SEMANTIC_THRESHOLD ?? 0.82);
+
+export type MemoryResult =
+  | { kind: 'redirect'; frameId: string; matchTitle: string; score: number; embedding: Float32Array }
+  | { kind: 'semantic_hit'; cacheKey: string; matchedQuery: string; score: number; embedding: Float32Array }
+  | { kind: 'miss'; embedding: Float32Array };
+
+function fmtScore(s: number): string {
+  return s.toFixed(3);
+}
+
+/**
+ * Memory agent: embeds the current query and checks two reuse paths in
+ * parallel:
+ *   1. Frame-level redirect — does the highlight match an existing
+ *      lesson on the user's canvas? If yes, focus that frame instead
+ *      of generating a new one.
+ *   2. Semantic cache hit — has any prior generation (across sessions)
+ *      produced a lesson for a sufficiently similar query? Reuse it.
+ *
+ * Returns the embedding regardless so the caller can persist it into
+ * the semantic index after the pipeline completes.
+ */
+export async function runMemory(
+  input: OrchestrateInput,
+  emit: EmitFn,
+): Promise<MemoryResult> {
+  const trace = startTrace('memory', 'Check semantic memory', 'MiniLM-L6 (local)');
+  emit(trace);
+  try {
+    const query = `${input.text} ${input.question ?? ''}`.trim();
+    const queryEmb = await embed(query);
+
+    // 1. Frame redirect — embed each recent frame title and find max similarity.
+    let bestFrame: { id: string; title: string; score: number } | null = null;
+    if (input.recentLessons?.length) {
+      const candidates = input.recentLessons
+        .filter((r) => r.id && r.title)
+        .map((r) => ({ id: r.id!, title: r.title, source: r.sourceText ?? '' }));
+      const titleEmbs = await Promise.all(
+        candidates.map((c) => embed(`${c.title} ${c.source.slice(0, 200)}`)),
+      );
+      for (let i = 0; i < candidates.length; i++) {
+        const score = cosine(queryEmb, titleEmbs[i]);
+        if (score > (bestFrame?.score ?? -1)) {
+          bestFrame = { id: candidates[i].id, title: candidates[i].title, score };
+        }
+      }
+    }
+    if (bestFrame && bestFrame.score >= REDIRECT_THRESHOLD) {
+      finishTrace(trace, {
+        preview: `redirect → "${bestFrame.title}" · cosine ${fmtScore(bestFrame.score)}`,
+        detail: `Query: "${query.slice(0, 200)}"\nMatched existing frame: "${bestFrame.title}" (id ${bestFrame.id})\nCosine similarity: ${fmtScore(bestFrame.score)} (threshold ${REDIRECT_THRESHOLD})\nFocusing existing frame instead of generating a new lesson.`,
+      });
+      emit(trace);
+      return {
+        kind: 'redirect',
+        frameId: bestFrame.id,
+        matchTitle: bestFrame.title,
+        score: bestFrame.score,
+        embedding: queryEmb,
+      };
+    }
+
+    // 2. Semantic cache lookup — across all prior generations.
+    const semHit = await semanticLookup(queryEmb, SEMANTIC_THRESHOLD);
+    if (semHit) {
+      finishTrace(trace, {
+        preview: `semantic cache hit · cosine ${fmtScore(semHit.score)} → "${semHit.entry.query.slice(0, 60)}"`,
+        detail: `Query: "${query.slice(0, 200)}"\nMatched cached lesson: "${semHit.entry.query}"\nCosine similarity: ${fmtScore(semHit.score)} (threshold ${SEMANTIC_THRESHOLD})\nReusing cached content; pipeline short-circuits.`,
+      });
+      emit(trace);
+      return {
+        kind: 'semantic_hit',
+        cacheKey: semHit.entry.cacheKey,
+        matchedQuery: semHit.entry.query,
+        score: semHit.score,
+        embedding: queryEmb,
+      };
+    }
+
+    // No match.
+    const detail = bestFrame
+      ? `Best frame match was "${bestFrame.title}" at ${fmtScore(bestFrame.score)} (below redirect threshold ${REDIRECT_THRESHOLD}).\nNo semantic cache hit above ${SEMANTIC_THRESHOLD}.\nProceeding with full pipeline.`
+      : `No prior frames to compare. No semantic cache hit above ${SEMANTIC_THRESHOLD}.\nProceeding with full pipeline.`;
+    finishTrace(trace, {
+      preview: bestFrame ? `miss · best ${fmtScore(bestFrame.score)} below ${REDIRECT_THRESHOLD}` : 'miss · no priors',
+      detail,
+    });
+    emit(trace);
+    return { kind: 'miss', embedding: queryEmb };
+  } catch (err) {
+    finishTrace(trace, { status: 'error', error: (err as Error).message, preview: 'embedding failed — skipping memory' });
+    emit(trace);
+    // Return a degenerate "miss" with a zero vector so the caller can still
+    // proceed without crashing.
+    return { kind: 'miss', embedding: new Float32Array(384) };
+  }
 }
 
 let __id = 0;

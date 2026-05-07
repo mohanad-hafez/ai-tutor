@@ -7,6 +7,7 @@ interface Props {
 }
 
 const AGENT_META: Record<AgentName, { color: string; ring: string; label: string; role: string }> = {
+  memory:        { color: 'bg-cyan-400',    ring: 'ring-cyan-500/30',    label: 'Memory',        role: 'Semantic dedup · embeddings' },
   router:        { color: 'bg-sky-400',     ring: 'ring-sky-500/30',     label: 'Router',        role: 'Pick lesson type' },
   retriever:     { color: 'bg-emerald-400', ring: 'ring-emerald-500/30', label: 'Retriever',     role: 'BM25 over PDF' },
   planner:       { color: 'bg-indigo-400',  ring: 'ring-indigo-500/30',  label: 'Planner',       role: 'Pedagogical beats' },

@@ -21,6 +21,7 @@ export interface LessonPrereq {
 }
 
 export type AgentName =
+  | 'memory'
   | 'router'
   | 'retriever'
   | 'planner'
