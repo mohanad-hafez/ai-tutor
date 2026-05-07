@@ -17,7 +17,7 @@ An AI tutor that turns highlighted text into a living visual learning graph. Hig
 
 All diagrams are written in [Mermaid](https://mermaid.js.org/) and render natively on GitHub. If you're reading these in a markdown viewer that doesn't support Mermaid, the surrounding text is self-contained.
 
-The local mirror of the Manim Community v0.19 docs lives at [`manim/`](manim/) (555 pages, gitignored). It exists to ground the LLM when generating Manim scripts. See [extending.md](extending.md#refreshing-the-manim-docs-mirror) for how to refresh it.
+The local mirror of the Manim Community v0.19 docs lives at `manim/` (555 pages, gitignored). It exists to ground the LLM when generating Manim scripts. See [extending.md](extending.md#refreshing-the-manim-docs-mirror) for how to refresh it.
 
 ## What this product does
 
