@@ -34,18 +34,21 @@ The local mirror of the Manim Community v0.19 docs lives at `manim/` (555 pages,
 
 ## Agent pipeline
 
-The system is built on the [ReAct](https://arxiv.org/abs/2210.03629) and [Reflexion](https://arxiv.org/abs/2303.11366) patterns: explicit, named agents with structured tool inputs, plus a self-critique loop for quality control.
+The system is built on the [ReAct](https://arxiv.org/abs/2210.03629) and [Reflexion](https://arxiv.org/abs/2303.11366) patterns plus a vector-similarity short-circuit gate at the front: explicit, named agents with structured tool inputs, a self-critique loop for quality control, and a semantic memory layer that lets paraphrases reuse prior work.
 
 | Agent | Model | Role |
 |-------|-------|------|
+| Memory | MiniLM-L6-v2 (local embeddings) | Embed query, check for redirect to existing frame OR semantic-cache hit on prior generation |
 | Router | Haiku 4.5 | Pick lesson type + write a one-line intent |
 | Retriever | BM25 (local) | Fetch top-K chunks from the indexed PDF |
-| Planner | Sonnet 4.6 | Decompose the concept into 3–5 ordered teaching beats |
-| Author | Sonnet 4.6 (streaming) | Write the lesson body |
+| Planner | Sonnet 4.6 (Haiku for text) | Decompose the concept into 2–4 ordered teaching beats |
+| Author | Sonnet 4.6 streaming (Haiku for text) | Write the lesson body |
 | Critic | Haiku 4.5 | Review against the plan; flag concrete issues |
 | Refiner | Sonnet 4.6 | Apply the Critic's fixes (only if needed) |
 
 The pipeline is **visible from the app itself** — every focused frame has a "Pipeline" tab showing each step's model, latency, token usage, and expandable reasoning.
+
+A paraphrase cache hit (e.g. "Gradient descent walks downhill on the loss landscape" matching the cached "gradient descent optimizes by stepping downhill on the loss surface") returns in ~10 ms vs ~30–200 s for a fresh generation.
 
 ## Tech stack
 

@@ -31,6 +31,25 @@ flowchart LR
 
 The summary task is large input (a whole document), small output (~200 words) — Haiku handles it well. Quizzes are templatey and benefit from Haiku's speed. Sonnet is reserved for HTML/CSS/JS authoring and Manim Python generation where reasoning matters.
 
+## Memory agent thresholds
+
+Two cosine-similarity thresholds gate the semantic dedup paths:
+
+```env
+# Frame redirect — minimum cosine similarity between a new highlight and
+# an existing on-canvas frame for the system to skip generation and just
+# focus the existing frame. Higher = stricter (fewer false redirects).
+MEMORY_REDIRECT_THRESHOLD=0.78
+
+# Semantic cache hit — minimum cosine similarity for a new query to
+# reuse a prior cached generation. Higher = stricter.
+MEMORY_SEMANTIC_THRESHOLD=0.82
+```
+
+To tune: temporarily log the cosine score of every pair and run a few representative paraphrases through the system. The defaults (0.78 / 0.82) favor precision over recall — a wrong reuse is worse than a missed reuse. Drop to ~0.72 / 0.75 for more aggressive sharing.
+
+The embedding model is `Xenova/all-MiniLM-L6-v2` (384-dim, quantized ~30MB, runs locally). Swap it in `server/embeddings.ts` if you want a bigger model — `BAAI/bge-small-en-v1.5` is a popular upgrade with better English retrieval at the same dimension.
+
 ## Add a new agent to the pipeline
 
 All agents live in `server/agents.ts`. Each follows the same shape: takes orchestrator input + previous agents' output, calls Anthropic with a forced tool, emits trace events, returns its structured output.

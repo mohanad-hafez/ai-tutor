@@ -14,16 +14,44 @@ The orchestrator (`server/agents.ts`) runs each `/api/explain` request through a
 
 | Agent | Model | Role | Skipped when |
 |-------|-------|------|--------------|
-| **Router** | Haiku 4.5 | Pick lesson type (`text` / `visual_html` / `video_manim`) and write a one-sentence intent. | `force` parameter set |
+| **Memory** | MiniLM-L6-v2 (local) | Embeds the current query (~50ms after warmup) and checks two reuse paths in parallel: (1) **frame redirect** — does the query semantically match an existing lesson on the canvas (cosine ≥ `MEMORY_REDIRECT_THRESHOLD`, default 0.78)? If so, focus that frame instead of generating. (2) **Semantic cache** — does the query match any prior cached generation (cosine ≥ `MEMORY_SEMANTIC_THRESHOLD`, default 0.82)? If so, reuse the cached content. | `LESSON_CACHE=off` |
+| **Router** | Haiku 4.5 | Pick lesson type (`text` / `visual_html` / `video_manim`) and write a one-sentence intent. | `force` parameter set, OR Memory hit short-circuited the pipeline |
 | **Retriever** | local BM25 | Top-K chunks from the chunked PDF index built at upload. Zero LLM cost, ~10ms. | No `docId` (no PDF indexed) |
-| **Planner** | Sonnet 4.6 | Decompose the concept into 3–5 ordered teaching beats with concrete viz ideas. Lists prerequisites the lesson assumes. For `video_manim`, also writes a Manim brief. | never |
-| **Author** | Sonnet 4.6 (streaming) | Write the body HTML/CSS/JS following the plan. `partial` events stream HTML+CSS as they arrive (JS held back until complete). | `video_manim` mode (handed off to manim pipeline) |
+| **Planner** | Sonnet 4.6 (Haiku for `text` mode) | Decompose the concept into 2–4 ordered teaching beats with concrete viz ideas. Lists prerequisites the lesson assumes. For `video_manim`, also writes a Manim brief. | never |
+| **Author** | Sonnet 4.6 (streaming, Haiku for `text` mode) | Write the body HTML/CSS/JS following the plan. `partial` events stream HTML+CSS as they arrive (JS held back until complete). | `video_manim` mode (handed off to manim pipeline) |
 | **Critic** | Haiku 4.5 | Review the authored lesson against the plan. Returns severity + concrete issues + a one-line praise. | `text` mode (nothing dynamic to verify) |
 | **Refiner** | Sonnet 4.6 | Apply the Critic's fixes. Also runs as a deterministic JS-syntax fixer if the Author's JS doesn't parse. | Critic passes with `severity: "none"` |
 
-**Pattern lineage:** the orchestration is a direct application of [ReAct](https://arxiv.org/abs/2210.03629) (separate reasoning agents acting in sequence) and [Reflexion](https://arxiv.org/abs/2303.11366) (self-critique → revise loop). Forced tool-use on every step keeps the schema deterministic.
+**Pattern lineage:** the orchestration is a direct application of [ReAct](https://arxiv.org/abs/2210.03629) (separate reasoning agents acting in sequence) and [Reflexion](https://arxiv.org/abs/2303.11366) (self-critique → revise loop), with a vector-similarity short-circuit gate up front. Forced tool-use on every LLM step keeps the schema deterministic.
 
-**Cross-lesson memory.** The frontend sends the last 5 lesson titles + source snippets with each request. The Router and Planner see what's already been explored, so subsequent lessons can build on or reference prior ones rather than redefining concepts.
+**Cross-lesson memory.** The frontend sends the last 8 lesson `id`s + titles + source snippets with each request. The Memory agent uses them for the redirect check; the Router and Planner see them as context so subsequent lessons can build on or reference prior ones rather than redefining concepts.
+
+### Memory agent: how the math works
+
+Embeddings are produced by `Xenova/all-MiniLM-L6-v2` (sentence-BERT, 384-dim, L2-normalised) running locally in node via `@xenova/transformers`. The model is quantised to ~30MB and pre-warmed at server boot, so per-request embedding cost is single-digit milliseconds.
+
+Cosine similarity reduces to a dot product on normalised vectors:
+
+```
+sim(q, c) = Σᵢ q[i] · c[i]
+```
+
+For each `/api/explain`:
+
+1. Compute `e = embed(text + question)`.
+2. **Frame redirect** — embed each `recentLessons[i].title + sourceText` (also single-digit ms each), take `max_i sim(e, eᵢ)`. If above `MEMORY_REDIRECT_THRESHOLD`, emit a `complete` event with `mode: "redirect"` carrying the matched frame id. Frontend tears down its placeholder and focuses the existing frame.
+3. **Semantic cache** — linear scan over `server/cache/semantic-index.json` (a flat JSON array of `{cacheKey, query, embedding[384]}`), compute `sim(e, entry.embedding)` for each. If `max sim ≥ MEMORY_SEMANTIC_THRESHOLD`, load `cacheKey` from disk and return its content. Marked as `semanticHit: {matchedQuery, score}` in the `complete` event so the UI can surface it.
+4. Either way, `e` is preserved and inserted into the semantic index after the lesson completes — so the very next paraphrase becomes a hit.
+
+**Empirical thresholds.** With MiniLM-L6-v2:
+
+| Pair | Cosine | Note |
+|------|-------:|------|
+| "gradient descent optimizes by stepping downhill on the loss surface" ↔ "Gradient descent walks downhill on the loss landscape" | 0.87 | tight paraphrase, hits at 0.82 |
+| "Recurrent Neural Networks process sequences" ↔ "RNNs and how they work" | ~0.74 | abbreviation + question form, doesn't hit at 0.82 |
+| "softmax" ↔ "logits to probabilities" | ~0.55 | concept-related but not paraphrase |
+
+If you want more aggressive reuse, drop `MEMORY_SEMANTIC_THRESHOLD` to ~0.75. The current default favours precision over recall — a false-positive cache hit shows the wrong content, which is much worse than missing a hit.
 
 ## Data model
 
