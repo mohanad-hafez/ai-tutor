@@ -501,8 +501,8 @@ PHILOSOPHY:
 
 OUTPUT via emit_content:
 - html: body fragment only — no <html>/<head>/<body>/<style>/<script> tags.
-- css: styles only.
-- js: vanilla JS only, no <script> tags.
+- css: KEEP UNDER 800 CHARACTERS. The iframe shell already provides typography, max-width centering, dark theme, code blocks, and base button styles. Only add CSS that the specific viz NEEDS — usually just a few selectors for layout (e.g. \`.viz-row { display: flex; gap: 1rem }\`). Do NOT re-style headings, paragraphs, or the page background.
+- js: vanilla JS only, no <script> tags. Aim under 4000 chars unless the simulation genuinely needs more.
 - DO NOT redefine the title or summary; the parent already has them.
 
 STRUCTURE (typical):
@@ -512,17 +512,53 @@ STRUCTURE (typical):
 4. Optional: a final <p> with the formal definition or formula.
 You don't need an <h2> per beat — the plan's beats are guidance, not a section template. Collapse them naturally.
 
-LIBRARIES in the iframe runtime:
-- D3 v7 (window.d3) — preferred for SVG/data-driven viz
-- KaTeX 0.16 auto-render — \`$inline$\` and \`$$display$$\`
-- p5.js v1.10 (window.p5) — for canvas-based sketches
+LIBRARIES — prefer high-level, declarative APIs. Less code = fewer bugs and faster generation.
+
+PRIMARY (use these first):
+- **Plotly** (window.Plotly) — ALL charts: line, scatter, bar, heatmap, contour, surface, histogram, box. Built-in pan/zoom/hover/legend. One call: \`Plotly.newPlot(div, traces, layout, {responsive:true})\`. Update with \`Plotly.react(div, traces, layout)\`. Don't write D3 axis chains.
+- **Tweakpane** (window.Tweakpane) — sliders / toggles / color pickers / numeric inputs. \`const pane = new Tweakpane.Pane({container}); pane.addBinding(state, 'lr', {min:0, max:1});\` Don't hand-style \`<input type="range">\`.
+- **KaTeX** auto-render — \`$inline$\` and \`$$display$$\` math.
+
+ESCAPE HATCHES (use only when Primary can't express it):
+- D3 v7 (window.d3) — custom SVG, force-directed layouts, novel viz.
+- p5.js v1.10 (window.p5) — canvas / creative coding / sketches.
 
 WIDGETS — make them work:
-- Use \`<input type="range">\` sliders, \`<button>\` for actions, \`<svg>\` for diagrams.
-- Hook events with \`addEventListener\`, NOT inline onclick. (If you do use inline onclick, declare the function at top-level scope.)
-- Read parent container size via \`element.clientWidth\`, NOT a hardcoded pixel value, so the viz scales to the iframe.
 - Render an initial state on load. Don't make the user click before they see anything.
+- Hook events via the lib's API or \`addEventListener\`. (If using inline onclick, declare the function at top-level scope of the js field.)
+- For Plotly use \`{responsive: true}\` — it auto-handles container sizing.
 - Reset / restart button if the widget has state.
+
+EXAMPLE — a learning-rate slider that updates a live plot of \`y = x² - lr·x\`:
+
+\`\`\`html
+<p class="setup">Drag the slider to see how learning rate scales the dip in the loss curve.</p>
+<div class="viz-row">
+  <div id="plot" style="height:340px"></div>
+  <div id="ctrl"></div>
+</div>
+<p class="caption">As lr grows, the parabola shifts: the optimizer step gets bigger.</p>
+\`\`\`
+
+\`\`\`js
+const state = { lr: 0.4 };
+function curve() {
+  const xs = []; const ys = [];
+  for (let x = -2; x <= 2; x += 0.05) { xs.push(x); ys.push(x*x - state.lr*x); }
+  return [{x: xs, y: ys, type: 'scatter', mode: 'lines', line: {color: '#818cf8', width: 3}}];
+}
+const layout = { paper_bgcolor: '#0a0a0d', plot_bgcolor: '#0a0a0d',
+  font: {color: '#e5e5e5'}, margin: {t: 10, l: 40, r: 10, b: 30},
+  xaxis: {gridcolor: '#222', zerolinecolor: '#444', title: 'x'},
+  yaxis: {gridcolor: '#222', zerolinecolor: '#444', title: 'loss'} };
+Plotly.newPlot('plot', curve(), layout, {responsive: true, displayModeBar: false});
+
+const pane = new Tweakpane.Pane({container: document.getElementById('ctrl')});
+pane.addBinding(state, 'lr', {min: 0, max: 2, step: 0.01, label: 'learning rate'})
+    .on('change', () => Plotly.react('plot', curve(), layout));
+\`\`\`
+
+That's the entire interactive lesson. ~25 lines of JS, not 80. Match this density.
 
 DESIGN:
 - Dark palette. Backgrounds #0a0a0d / #0e0e12. Indigo accents #818cf8 / #6366f1. Secondary accents OK (amber #fbbf24, emerald #34d399, rose #f87171) for contrast inside viz.
