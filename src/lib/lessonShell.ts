@@ -69,14 +69,14 @@ const SELECTION_BRIDGE = `
 })();
 `;
 
-const RICH_LIBS = `
+// Per-lib script tags. We only inject the libs a given lesson actually
+// references — Plotly's bundle alone is ~3MB, and even from browser cache
+// the browser re-parses every iframe mount. Skipping libs the lesson
+// doesn't use cuts the cached-lesson load time from ~600ms to ~50ms.
+const LIB_KATEX = `
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous"/>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/p5@1.10.0/lib/p5.min.js" crossorigin="anonymous"></script>
-<!-- High-level chart library for the Author: declarative API ⇒ fewer output tokens, fewer bugs. -->
-<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" crossorigin="anonymous"></script>
 <script>
   window.addEventListener('load', function(){
     if (window.renderMathInElement) {
@@ -92,8 +92,24 @@ const RICH_LIBS = `
       } catch (e) { /* ignore */ }
     }
   });
-</script>
-`;
+</script>`;
+const LIB_D3 = `<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" crossorigin="anonymous"></script>`;
+const LIB_P5 = `<script src="https://cdn.jsdelivr.net/npm/p5@1.10.0/lib/p5.min.js" crossorigin="anonymous"></script>`;
+const LIB_PLOTLY = `<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" crossorigin="anonymous"></script>`;
+
+function detectLibs(content: FrameContent): { katex: boolean; d3: boolean; p5: boolean; plotly: boolean } {
+  const html = content.html ?? '';
+  const js = content.js ?? '';
+  const css = content.css ?? '';
+  // KaTeX: math delimiters anywhere in HTML, OR explicit calls in JS.
+  const hasMathDelimiters = /(^|[^\\$])\$[^\s$][^$]*\$/.test(html) || /\$\$[\s\S]+?\$\$/.test(html) || /\\\\\(.+?\\\\\)/.test(html);
+  return {
+    katex: hasMathDelimiters || /\bkatex\.|\brenderMathInElement\b/.test(js),
+    d3: /\bd3\./.test(js) || /\bd3\./.test(html) || /class=['"][^'"]*d3-/.test(html) || /\bd3\./.test(css),
+    p5: /\bp5\b|new p5\(|\bsetup\s*=\s*function|\bdraw\s*=\s*function/.test(js),
+    plotly: /\bPlotly\./.test(js) || /\bPlotly\./.test(html),
+  };
+}
 
 const BASE_CSS = `
 html,body{background:#0a0a0a;color:#e5e5e5;}
@@ -178,7 +194,14 @@ export function buildLessonHtml(content: FrameContent, opts: ShellOpts = {}): st
   const rich = opts.rich !== false;
   const bridge = opts.bridge !== false;
   const css = rich ? BASE_CSS : PREVIEW_CSS;
-  const libs = rich ? RICH_LIBS : '';
+  let libs = '';
+  if (rich) {
+    const need = detectLibs(content);
+    if (need.katex) libs += LIB_KATEX;
+    if (need.d3) libs += LIB_D3;
+    if (need.p5) libs += LIB_P5;
+    if (need.plotly) libs += LIB_PLOTLY;
+  }
   const bridgeScript = bridge ? `<script>${SELECTION_BRIDGE}</script>` : '';
   const wrappedJs = rich ? wrapUserJs(content.js ?? '') : (content.js ?? '');
   return `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>${libs}<style>${css}${content.css ?? ''}</style></head><body><div class="lesson-root">${content.html ?? ''}</div><script>${wrappedJs}<\/script>${bridgeScript}</body></html>`;
