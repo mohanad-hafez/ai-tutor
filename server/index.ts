@@ -5,12 +5,18 @@ import path from 'path';
 import { client, MAIN_MODEL, SUMMARY_MODEL, QUIZ_MODEL, findToolUse, parseJsonRelaxed, extractText } from './anthropic.js';
 import { QUIZ_SYSTEM, SUMMARY_PROMPT } from './lessonPrompts.js';
 import { createVideoJob, subscribe, streamVideo, cancelJob } from './video.js';
-import { cacheKey, readCache, writeCache } from './cache.js';
+import { cacheKey, readCache, writeCache, semanticInsert } from './cache.js';
 import { buildIndex } from './retriever.js';
+import { warmupEmbeddings } from './embeddings.js';
 import {
-  runRouter, runRetriever, runPlanner, runAuthor, runCritic, runRefiner, emitSkipped,
+  runMemory, runRouter, runRetriever, runPlanner, runAuthor, runCritic, runRefiner, emitSkipped,
   type AgentTrace, type RecentLesson,
 } from './agents.js';
+
+// Pre-load the sentence-BERT model so the first user request doesn't pay
+// the cold-start cost (~3s). Runs in the background; the orchestrator
+// awaits the same promise on first use if it isn't ready yet.
+void warmupEmbeddings().catch((err) => console.error('[embeddings] warmup failed:', err));
 
 const app = express();
 app.use(cors());
@@ -143,6 +149,65 @@ app.post('/api/explain', async (req, res) => {
   };
 
   try {
+    // 0. Memory — semantic dedup. Either redirect to an existing frame,
+    //    reuse a semantically-similar prior generation, or fall through
+    //    to the full pipeline. Returns the query embedding regardless so
+    //    we can persist it after the lesson completes.
+    const memory = await runMemory(orchInput, emitTrace);
+    if (memory.kind === 'redirect') {
+      // No new lesson — frontend focuses the existing frame.
+      send('complete', {
+        mode: 'redirect',
+        redirectFrameId: memory.frameId,
+        matchTitle: memory.matchTitle,
+        score: memory.score,
+      });
+      res.end();
+      return;
+    }
+    if (memory.kind === 'semantic_hit') {
+      // Reuse the prior cached generation.
+      const cached = await readCache<{
+        mode: 'text' | 'visual_html' | 'video_manim';
+        title: string;
+        summary: string;
+        content?: { html: string; css: string; js: string };
+        manimBrief?: string;
+        prerequisites?: LessonPrereq[];
+      }>(memory.cacheKey);
+      if (cached) {
+        if (cached.mode === 'video_manim') {
+          const { jobId } = createVideoJob({
+            text,
+            question,
+            docSummary,
+            parentTitle,
+            brief: cached.manimBrief || `${cached.title}. ${cached.summary}`,
+          });
+          send('complete', {
+            mode: 'video_manim',
+            title: cached.title,
+            summary: cached.summary,
+            jobId,
+            prerequisites: cached.prerequisites || [],
+            semanticHit: { matchedQuery: memory.matchedQuery, score: memory.score },
+          });
+        } else {
+          send('complete', {
+            mode: cached.mode,
+            title: cached.title,
+            summary: cached.summary,
+            content: cached.content,
+            prerequisites: cached.prerequisites || [],
+            semanticHit: { matchedQuery: memory.matchedQuery, score: memory.score },
+          });
+        }
+        res.end();
+        return;
+      }
+      // Cached entry missing on disk — fall through to full pipeline.
+    }
+
     // 1. Router — pick mode + intent
     const route = await runRouter(orchInput, emitTrace);
 
@@ -173,6 +238,8 @@ app.post('/api/explain', async (req, res) => {
         manimBrief: brief,
         prerequisites: plan.prerequisites ?? [],
       });
+      // Persist into the semantic index so paraphrases of this concept reuse it.
+      await semanticInsert(key, `${text} ${question ?? ''}`.trim(), memory.embedding);
       const { jobId } = createVideoJob({
         text,
         question,
@@ -245,6 +312,8 @@ app.post('/api/explain', async (req, res) => {
       content: finalContent,
       prerequisites: plan.prerequisites ?? [],
     });
+    // Persist into the semantic index so paraphrases of this concept reuse it.
+    await semanticInsert(key, `${text} ${question ?? ''}`.trim(), memory.embedding);
     send('complete', {
       mode: route.mode,
       title: plan.title,

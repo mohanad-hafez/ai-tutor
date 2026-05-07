@@ -141,7 +141,7 @@ export function FramePanel() {
         sourceText: data.sourceText,
         docSummary: docSummary || undefined,
       });
-      if (res.mode !== 'video_manim') {
+      if (res.mode === 'text' || res.mode === 'visual_html') {
         updateFrame(id, {
           title: res.title,
           summary: res.summary,
