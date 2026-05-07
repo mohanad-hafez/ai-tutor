@@ -2,6 +2,8 @@
 
 An AI tutor that turns highlighted text into a living visual learning graph. Highlight in a PDF, get an interactive lesson — text, interactive HTML, or a Manim animation — connected as a node on a canvas. Highlight inside a lesson to spawn child lessons. Quiz yourself on any concept.
 
+![Multi-agent lesson generation pipeline](figures/agent-pipeline.svg)
+
 ## Documentation map
 
 | Doc | What's in it |

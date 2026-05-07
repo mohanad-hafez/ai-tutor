@@ -1,0 +1,234 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 760" font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0a10"/>
+      <stop offset="1" stop-color="#070710"/>
+    </linearGradient>
+    <linearGradient id="lane-browser" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0c4a6e" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#0c4a6e" stop-opacity="0.04"/>
+    </linearGradient>
+    <linearGradient id="lane-server" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1e1b4b" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#1e1b4b" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="lane-llm" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3b0764" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#3b0764" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="lane-render" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#064e3b" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#064e3b" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="card2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10101a"/>
+      <stop offset="1" stop-color="#0a0a13"/>
+    </linearGradient>
+    <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#6366f1"/>
+    </marker>
+    <marker id="arr2-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#34d399"/>
+    </marker>
+    <marker id="arr2-dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#52525b"/>
+    </marker>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1" fill="#a1a1aa"/>
+    </pattern>
+  </defs>
+
+  <rect width="1240" height="760" fill="url(#bg2)"/>
+  <rect width="1240" height="760" fill="url(#grid)" opacity="0.04"/>
+
+  <!-- Header -->
+  <text x="60" y="60" font-size="13" font-weight="500" letter-spacing="3" fill="#6366f1">FIGURE 2</text>
+  <text x="60" y="98" font-size="32" font-weight="700" fill="#f5f5f7" letter-spacing="-0.5">System overview</text>
+  <text x="60" y="124" font-size="15" font-weight="400" fill="#a1a1aa">Four layers, two streams. The browser issues SSE requests; the server orchestrates agents and</text>
+  <text x="60" y="142" font-size="15" font-weight="400" fill="#a1a1aa">streams events back. Manim renders run out-of-band in a warm Python worker.</text>
+
+  <!-- Lane labels (left side) -->
+  <g font-size="11" font-weight="700" letter-spacing="2" text-anchor="end">
+    <text x="50" y="222" fill="#38bdf8">BROWSER</text>
+    <text x="50" y="368" fill="#818cf8">SERVER</text>
+    <text x="50" y="514" fill="#a78bfa">ANTHROPIC</text>
+    <text x="50" y="660" fill="#34d399">RENDER</text>
+  </g>
+
+  <!-- Lane backgrounds -->
+  <rect x="62" y="180" width="1130" height="118" rx="14" fill="url(#lane-browser)" stroke="#0c4a6e" stroke-opacity="0.4" stroke-width="1"/>
+  <rect x="62" y="318" width="1130" height="120" rx="14" fill="url(#lane-server)" stroke="#1e1b4b" stroke-opacity="0.4" stroke-width="1"/>
+  <rect x="62" y="464" width="1130" height="100" rx="14" fill="url(#lane-llm)" stroke="#3b0764" stroke-opacity="0.4" stroke-width="1"/>
+  <rect x="62" y="592" width="1130" height="120" rx="14" fill="url(#lane-render)" stroke="#064e3b" stroke-opacity="0.4" stroke-width="1"/>
+
+  <!-- BROWSER lane components -->
+  <g transform="translate(86, 200)">
+    <rect width="180" height="80" rx="10" fill="url(#card2)" stroke="#38bdf8" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#bae6fd">PDF Viewer</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">react-pdf · text layer ·</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">selection capture w/ rects</text>
+  </g>
+
+  <g transform="translate(286, 200)">
+    <rect width="180" height="80" rx="10" fill="url(#card2)" stroke="#38bdf8" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#bae6fd">Lesson Canvas</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">ReactFlow DAG · zoomable</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">frame nodes (text/visual/video)</text>
+  </g>
+
+  <g transform="translate(486, 200)">
+    <rect width="220" height="80" rx="10" fill="url(#card2)" stroke="#38bdf8" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#bae6fd">Sandboxed Iframe</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">D3 · KaTeX · p5 (CDN)</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">opaque-origin · postMessage bridge</text>
+  </g>
+
+  <g transform="translate(726, 200)">
+    <rect width="220" height="80" rx="10" fill="url(#card2)" stroke="#38bdf8" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#bae6fd">Agent Trace Panel</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">live pipeline view · per-step</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">latency · tokens · expandable</text>
+  </g>
+
+  <g transform="translate(966, 200)">
+    <rect width="180" height="80" rx="10" fill="url(#card2)" stroke="#38bdf8" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#bae6fd">Highlight Overlays</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">page-local rects ·</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">click → focus frame</text>
+  </g>
+
+  <!-- SERVER lane components -->
+  <g transform="translate(86, 338)">
+    <rect width="220" height="84" rx="10" fill="url(#card2)" stroke="#818cf8" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#c7d2fe">Multi-agent orchestrator</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">Router · Retriever · Planner ·</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">Author · Critic · Refiner</text>
+    <text x="14" y="78" font-size="10" font-family="ui-monospace, monospace" fill="#71717a">server/agents.ts</text>
+  </g>
+
+  <g transform="translate(326, 338)">
+    <rect width="180" height="84" rx="10" fill="url(#card2)" stroke="#818cf8" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#c7d2fe">SSE endpoints</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">/api/explain (events)</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">/api/video/:id/events</text>
+    <text x="14" y="78" font-size="11" fill="#a1a1aa">heartbeat every 15 s</text>
+  </g>
+
+  <g transform="translate(526, 338)">
+    <rect width="180" height="84" rx="10" fill="url(#card2)" stroke="#818cf8" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#c7d2fe">BM25 index</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">600-token windows ·</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">stride 520 · per-doc tf-idf</text>
+    <text x="14" y="78" font-size="11" fill="#a1a1aa">k1 = 1.5, b = 0.75</text>
+  </g>
+
+  <g transform="translate(726, 338)">
+    <rect width="200" height="84" rx="10" fill="url(#card2)" stroke="#818cf8" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#c7d2fe">Hash result cache</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">SHA256(input) → JSON + mp4</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">~ 30 ms hit vs ~ 30 s miss</text>
+    <text x="14" y="78" font-size="10" font-family="ui-monospace, monospace" fill="#71717a">server/cache/</text>
+  </g>
+
+  <g transform="translate(946, 338)">
+    <rect width="200" height="84" rx="10" fill="url(#card2)" stroke="#818cf8" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#c7d2fe">Manim job queue</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">in-mem · SSE subscribers ·</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">cancel via SIGTERM</text>
+    <text x="14" y="78" font-size="11" fill="#a1a1aa">stage transitions stream</text>
+  </g>
+
+  <!-- ANTHROPIC lane components -->
+  <g transform="translate(86, 484)">
+    <rect width="280" height="64" rx="10" fill="url(#card2)" stroke="#a78bfa" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#ddd6fe">claude-sonnet-4-6</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">Planner · Author (visual) · Refiner</text>
+  </g>
+
+  <g transform="translate(386, 484)">
+    <rect width="280" height="64" rx="10" fill="url(#card2)" stroke="#a78bfa" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#ddd6fe">claude-haiku-4-5</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">Router · Critic · Summary · Quiz</text>
+  </g>
+
+  <g transform="translate(686, 484)">
+    <rect width="460" height="64" rx="10" fill="url(#card2)" stroke="#a78bfa" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#ddd6fe">Streaming · Tool-use · Prompt caching</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">messages.stream(input_json_delta) · cache_control: ephemeral</text>
+  </g>
+
+  <!-- RENDER lane components -->
+  <g transform="translate(86, 612)">
+    <rect width="240" height="84" rx="10" fill="url(#card2)" stroke="#34d399" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#bbf7d0">manim_worker.py</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">long-lived Python · pre-imports</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">manim + manim_voiceover</text>
+    <text x="14" y="78" font-size="11" fill="#a1a1aa">tempconfig() per render</text>
+  </g>
+
+  <g transform="translate(346, 612)">
+    <rect width="180" height="84" rx="10" fill="url(#card2)" stroke="#34d399" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#bbf7d0">AST sandbox</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">whitelist imports</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">forbidden patterns</text>
+    <text x="14" y="78" font-size="11" fill="#a1a1aa">self-repair on render fail</text>
+  </g>
+
+  <g transform="translate(546, 612)">
+    <rect width="160" height="84" rx="10" fill="url(#card2)" stroke="#34d399" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#bbf7d0">gTTS</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">VoiceoverScene</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">narration per beat</text>
+  </g>
+
+  <g transform="translate(726, 612)">
+    <rect width="160" height="84" rx="10" fill="url(#card2)" stroke="#34d399" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#bbf7d0">FFmpeg</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">encode mp4 · 480p15</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">~ 1.0–1.4× realtime</text>
+  </g>
+
+  <g transform="translate(906, 612)">
+    <rect width="240" height="84" rx="10" fill="url(#card2)" stroke="#34d399" stroke-opacity="0.5"/>
+    <text x="14" y="26" font-size="13" font-weight="700" fill="#bbf7d0">public/videos/&lt;id&gt;.mp4</text>
+    <text x="14" y="46" font-size="11" fill="#a1a1aa">cached + served by Vite</text>
+    <text x="14" y="62" font-size="11" fill="#a1a1aa">duplicated to cache dir</text>
+    <text x="14" y="78" font-size="11" fill="#a1a1aa">for next identical request</text>
+  </g>
+
+  <!-- Cross-lane arrows -->
+  <!-- Browser → Server (request) -->
+  <g stroke="#6366f1" stroke-width="2" fill="none">
+    <path d="M 376 280 C 376 308, 196 308, 196 338" marker-end="url(#arr2)"/>
+  </g>
+  <text x="232" y="318" font-size="10" fill="#6366f1">POST /api/explain · {text, recentLessons}</text>
+
+  <!-- Server → Browser (events back) -->
+  <g stroke="#34d399" stroke-width="2" fill="none">
+    <path d="M 416 338 C 416 308, 836 308, 836 280" marker-end="url(#arr2-back)"/>
+  </g>
+  <text x="566" y="318" font-size="10" fill="#34d399">SSE: agent_step · partial · complete</text>
+
+  <!-- Server → Anthropic -->
+  <g stroke="#52525b" stroke-width="1.5" fill="none">
+    <path d="M 196 422 L 196 484" marker-end="url(#arr2-dim)"/>
+    <path d="M 416 422 L 416 484" marker-end="url(#arr2-dim)"/>
+  </g>
+  <text x="220" y="464" font-size="10" fill="#71717a">tool-use streams</text>
+
+  <!-- Server → Render -->
+  <g stroke="#52525b" stroke-width="1.5" fill="none">
+    <path d="M 1046 422 C 1046 480, 206 530, 206 612" marker-end="url(#arr2-dim)"/>
+  </g>
+  <text x="1066" y="478" font-size="10" fill="#71717a">stdin: scene.py</text>
+
+  <!-- Render → Server (mp4 path) -->
+  <g stroke="#34d399" stroke-width="1.5" fill="none" stroke-dasharray="4 4" opacity="0.7">
+    <path d="M 1026 612 C 1026 580, 1046 470, 1046 422" marker-end="url(#arr2-back)"/>
+  </g>
+
+  <!-- Footer note -->
+  <g transform="translate(60, 730)">
+    <text x="0" y="0" font-size="11" fill="#71717a" font-style="italic">Solid arrows: synchronous request/response. Dashed: result returned out of band. SSE streams stay open for the duration of the job.</text>
+  </g>
+</svg>
