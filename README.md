@@ -2,6 +2,8 @@
 
 Highlight any text in a PDF and get an interactive lesson — text, HTML, or Manim animation — connected as a node on a learning graph. Highlight inside a lesson to spawn child lessons. Quiz yourself on any concept.
 
+![Multi-agent lesson generation pipeline](docs/figures/agent-pipeline.svg)
+
 ```bash
 npm install
 cp .env.example .env   # fill in ANTHROPIC_API_KEY

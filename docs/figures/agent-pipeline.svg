@@ -1,0 +1,201 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 720" font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0a10"/>
+      <stop offset="1" stop-color="#070710"/>
+    </linearGradient>
+    <linearGradient id="card-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#101019"/>
+      <stop offset="1" stop-color="#0a0a13"/>
+    </linearGradient>
+    <filter id="soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#52525b"/>
+    </marker>
+    <marker id="arrow-loop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#fb7185"/>
+    </marker>
+    <marker id="arrow-skip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#3f3f46"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1240" height="720" fill="url(#bg-grad)"/>
+
+  <!-- Subtle grid pattern -->
+  <g opacity="0.04">
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1" fill="#a1a1aa"/>
+    </pattern>
+    <rect width="1240" height="720" fill="url(#dots)"/>
+  </g>
+
+  <!-- Header -->
+  <g>
+    <text x="60" y="62" font-size="13" font-weight="500" letter-spacing="3" fill="#6366f1">FIGURE 1</text>
+    <text x="60" y="100" font-size="32" font-weight="700" fill="#f5f5f7" letter-spacing="-0.5">Multi-agent lesson generation</text>
+    <text x="60" y="128" font-size="15" font-weight="400" fill="#a1a1aa">A six-agent pipeline based on the ReAct + Reflexion patterns. Each step has a structured tool input,</text>
+    <text x="60" y="146" font-size="15" font-weight="400" fill="#a1a1aa">a dedicated model, and emits live SSE events that surface in the user-facing trace panel.</text>
+  </g>
+
+  <!-- Step number circles + lines connecting them at top of cards -->
+  <!-- Pipeline track -->
+  <g transform="translate(60, 226)">
+    <line x1="80" y1="0" x2="1040" y2="0" stroke="#27272a" stroke-width="2" stroke-dasharray="2 6"/>
+  </g>
+
+  <!-- Cards row -->
+  <!-- Each card: 170 wide, 200 tall -->
+
+  <!-- Card 1: Router -->
+  <g transform="translate(60, 200)">
+    <rect width="170" height="220" rx="14" fill="url(#card-grad)" stroke="#1f2937" stroke-width="1"/>
+    <rect width="170" height="4" rx="2" fill="#38bdf8"/>
+    <circle cx="22" cy="32" r="11" fill="#0c4a6e" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="22" y="36" font-size="11" font-weight="700" fill="#bae6fd" text-anchor="middle">1</text>
+    <text x="44" y="36" font-size="15" font-weight="700" fill="#f5f5f7">Router</text>
+    <text x="16" y="60" font-size="11" font-weight="600" letter-spacing="1.5" fill="#71717a">PICK MODE</text>
+    <text x="16" y="92" font-size="12" fill="#d4d4d8">Reads highlight,</text>
+    <text x="16" y="108" font-size="12" fill="#d4d4d8">picks visual_html /</text>
+    <text x="16" y="124" font-size="12" fill="#d4d4d8">video_manim / text.</text>
+    <text x="16" y="140" font-size="12" fill="#d4d4d8">Writes intent.</text>
+    <line x1="16" y1="160" x2="154" y2="160" stroke="#1f2937"/>
+    <text x="16" y="180" font-size="10" font-family="ui-monospace, monospace" fill="#38bdf8">claude-haiku-4-5</text>
+    <text x="16" y="196" font-size="10" font-family="ui-monospace, monospace" fill="#71717a">~ 2 s · 1.4k in / 0.1k out</text>
+  </g>
+
+  <!-- Card 2: Retriever -->
+  <g transform="translate(252, 200)">
+    <rect width="170" height="220" rx="14" fill="url(#card-grad)" stroke="#1f2937" stroke-width="1"/>
+    <rect width="170" height="4" rx="2" fill="#34d399"/>
+    <circle cx="22" cy="32" r="11" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+    <text x="22" y="36" font-size="11" font-weight="700" fill="#bbf7d0" text-anchor="middle">2</text>
+    <text x="44" y="36" font-size="15" font-weight="700" fill="#f5f5f7">Retriever</text>
+    <text x="16" y="60" font-size="11" font-weight="600" letter-spacing="1.5" fill="#71717a">RAG · BM25</text>
+    <text x="16" y="92" font-size="12" fill="#d4d4d8">Top-K chunks from</text>
+    <text x="16" y="108" font-size="12" fill="#d4d4d8">the indexed PDF.</text>
+    <text x="16" y="124" font-size="12" fill="#d4d4d8">Zero LLM cost,</text>
+    <text x="16" y="140" font-size="12" fill="#d4d4d8">grounds the lesson.</text>
+    <line x1="16" y1="160" x2="154" y2="160" stroke="#1f2937"/>
+    <text x="16" y="180" font-size="10" font-family="ui-monospace, monospace" fill="#34d399">local · BM25</text>
+    <text x="16" y="196" font-size="10" font-family="ui-monospace, monospace" fill="#71717a">~ 10 ms · top-4</text>
+  </g>
+
+  <!-- Card 3: Planner -->
+  <g transform="translate(444, 200)">
+    <rect width="170" height="220" rx="14" fill="url(#card-grad)" stroke="#1f2937" stroke-width="1"/>
+    <rect width="170" height="4" rx="2" fill="#818cf8"/>
+    <circle cx="22" cy="32" r="11" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+    <text x="22" y="36" font-size="11" font-weight="700" fill="#c7d2fe" text-anchor="middle">3</text>
+    <text x="44" y="36" font-size="15" font-weight="700" fill="#f5f5f7">Planner</text>
+    <text x="16" y="60" font-size="11" font-weight="600" letter-spacing="1.5" fill="#71717a">PEDAGOGY</text>
+    <text x="16" y="92" font-size="12" fill="#d4d4d8">Decomposes concept</text>
+    <text x="16" y="108" font-size="12" fill="#d4d4d8">into 2–4 ordered</text>
+    <text x="16" y="124" font-size="12" fill="#d4d4d8">teaching beats with</text>
+    <text x="16" y="140" font-size="12" fill="#d4d4d8">concrete viz ideas.</text>
+    <line x1="16" y1="160" x2="154" y2="160" stroke="#1f2937"/>
+    <text x="16" y="180" font-size="10" font-family="ui-monospace, monospace" fill="#818cf8">sonnet-4-6 / haiku</text>
+    <text x="16" y="196" font-size="10" font-family="ui-monospace, monospace" fill="#71717a">~ 5–15 s · 4k in / 1k out</text>
+  </g>
+
+  <!-- Card 4: Author -->
+  <g transform="translate(636, 200)">
+    <rect width="170" height="220" rx="14" fill="url(#card-grad)" stroke="#1f2937" stroke-width="1"/>
+    <rect width="170" height="4" rx="2" fill="#a78bfa"/>
+    <circle cx="22" cy="32" r="11" fill="#2e1065" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="22" y="36" font-size="11" font-weight="700" fill="#ddd6fe" text-anchor="middle">4</text>
+    <text x="44" y="36" font-size="15" font-weight="700" fill="#f5f5f7">Author</text>
+    <text x="16" y="60" font-size="11" font-weight="600" letter-spacing="1.5" fill="#71717a">STREAMING</text>
+    <text x="16" y="92" font-size="12" fill="#d4d4d8">Writes HTML/CSS/JS</text>
+    <text x="16" y="108" font-size="12" fill="#d4d4d8">following the plan.</text>
+    <text x="16" y="124" font-size="12" fill="#d4d4d8">Partial-json snapshots</text>
+    <text x="16" y="140" font-size="12" fill="#d4d4d8">stream to the iframe.</text>
+    <line x1="16" y1="160" x2="154" y2="160" stroke="#1f2937"/>
+    <text x="16" y="180" font-size="10" font-family="ui-monospace, monospace" fill="#a78bfa">sonnet-4-6 / haiku</text>
+    <text x="16" y="196" font-size="10" font-family="ui-monospace, monospace" fill="#71717a">~ 10–30 s · streamed</text>
+  </g>
+
+  <!-- Card 5: Critic -->
+  <g transform="translate(828, 200)">
+    <rect width="170" height="220" rx="14" fill="url(#card-grad)" stroke="#1f2937" stroke-width="1"/>
+    <rect width="170" height="4" rx="2" fill="#fbbf24"/>
+    <circle cx="22" cy="32" r="11" fill="#451a03" stroke="#fbbf24" stroke-width="1.5"/>
+    <text x="22" y="36" font-size="11" font-weight="700" fill="#fef3c7" text-anchor="middle">5</text>
+    <text x="44" y="36" font-size="15" font-weight="700" fill="#f5f5f7">Critic</text>
+    <text x="16" y="60" font-size="11" font-weight="600" letter-spacing="1.5" fill="#71717a">REFLEXION</text>
+    <text x="16" y="92" font-size="12" fill="#d4d4d8">Reviews lesson against</text>
+    <text x="16" y="108" font-size="12" fill="#d4d4d8">plan + source. Flags</text>
+    <text x="16" y="124" font-size="12" fill="#d4d4d8">concrete issues with</text>
+    <text x="16" y="140" font-size="12" fill="#d4d4d8">severity rating.</text>
+    <line x1="16" y1="160" x2="154" y2="160" stroke="#1f2937"/>
+    <text x="16" y="180" font-size="10" font-family="ui-monospace, monospace" fill="#fbbf24">claude-haiku-4-5</text>
+    <text x="16" y="196" font-size="10" font-family="ui-monospace, monospace" fill="#71717a">~ 2 s · pass / flag</text>
+  </g>
+
+  <!-- Card 6: Refiner -->
+  <g transform="translate(1020, 200)">
+    <rect width="170" height="220" rx="14" fill="url(#card-grad)" stroke="#1f2937" stroke-width="1"/>
+    <rect width="170" height="4" rx="2" fill="#fb7185"/>
+    <circle cx="22" cy="32" r="11" fill="#4c0519" stroke="#fb7185" stroke-width="1.5"/>
+    <text x="22" y="36" font-size="11" font-weight="700" fill="#fecdd3" text-anchor="middle">6</text>
+    <text x="44" y="36" font-size="15" font-weight="700" fill="#f5f5f7">Refiner</text>
+    <text x="16" y="60" font-size="11" font-weight="600" letter-spacing="1.5" fill="#71717a">CONDITIONAL</text>
+    <text x="16" y="92" font-size="12" fill="#d4d4d8">Applies Critic's fixes</text>
+    <text x="16" y="108" font-size="12" fill="#d4d4d8">while preserving</text>
+    <text x="16" y="124" font-size="12" fill="#d4d4d8">working parts. Skipped</text>
+    <text x="16" y="140" font-size="12" fill="#d4d4d8">if Critic passes.</text>
+    <line x1="16" y1="160" x2="154" y2="160" stroke="#1f2937"/>
+    <text x="16" y="180" font-size="10" font-family="ui-monospace, monospace" fill="#fb7185">claude-sonnet-4-6</text>
+    <text x="16" y="196" font-size="10" font-family="ui-monospace, monospace" fill="#71717a">~ 5–10 s · only on flag</text>
+  </g>
+
+  <!-- Forward arrows between cards -->
+  <g stroke="#52525b" stroke-width="2" fill="none">
+    <line x1="234" y1="310" x2="248" y2="310" marker-end="url(#arrow)"/>
+    <line x1="426" y1="310" x2="440" y2="310" marker-end="url(#arrow)"/>
+    <line x1="618" y1="310" x2="632" y2="310" marker-end="url(#arrow)"/>
+    <line x1="810" y1="310" x2="824" y2="310" marker-end="url(#arrow)"/>
+    <line x1="1002" y1="310" x2="1016" y2="310" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- Self-revision loop (Critic <- Refiner) shown as dashed curve below -->
+  <g fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.85">
+    <path d="M 1105 420 C 1105 460, 913 460, 913 420" marker-end="url(#arrow-loop)"/>
+  </g>
+  <text x="1009" y="478" text-anchor="middle" font-size="11" fill="#fb7185" font-style="italic">self-revision loop</text>
+
+  <!-- Mode lanes section -->
+  <g transform="translate(60, 530)">
+    <text x="0" y="0" font-size="13" font-weight="600" letter-spacing="2" fill="#a1a1aa">MODE PATHS</text>
+    <line x1="0" y1="14" x2="120" y2="14" stroke="#27272a"/>
+  </g>
+
+  <!-- text mode path -->
+  <g transform="translate(60, 562)">
+    <rect x="-4" y="-14" width="64" height="22" rx="11" fill="#1e293b"/>
+    <text x="28" y="0" font-size="11" font-weight="700" fill="#94a3b8" text-anchor="middle">text</text>
+    <text x="78" y="2" font-size="12" fill="#a1a1aa">Router → Retriever → Planner → Author. Critic + Refiner skipped (no JS to verify).</text>
+  </g>
+
+  <g transform="translate(60, 594)">
+    <rect x="-4" y="-14" width="86" height="22" rx="11" fill="#312e81"/>
+    <text x="38" y="0" font-size="11" font-weight="700" fill="#c7d2fe" text-anchor="middle">visual_html</text>
+    <text x="100" y="2" font-size="12" fill="#a1a1aa">Full pipeline. Streaming partials populate the iframe; Critic gates revision.</text>
+  </g>
+
+  <g transform="translate(60, 626)">
+    <rect x="-4" y="-14" width="98" height="22" rx="11" fill="#3b0764"/>
+    <text x="44" y="0" font-size="11" font-weight="700" fill="#ddd6fe" text-anchor="middle">video_manim</text>
+    <text x="112" y="2" font-size="12" fill="#a1a1aa">Stops after Planner; manim pipeline takes over (worker, gTTS narration, render).</text>
+  </g>
+
+  <!-- Footer band: cross-cutting properties -->
+  <g transform="translate(60, 670)">
+    <rect x="-12" y="-22" width="1130" height="38" rx="10" fill="#0e0e15" stroke="#1f2937" stroke-width="1"/>
+    <text x="6" y="2" font-size="11" font-weight="600" letter-spacing="1.5" fill="#71717a">CROSS-CUTTING</text>
+    <text x="170" y="2" font-size="12" fill="#a1a1aa">Forced tool-use · Server-Sent Events · Prompt caching (cache_control: ephemeral) · Cross-lesson memory · Hash-based result cache</text>
+  </g>
+</svg>

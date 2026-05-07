@@ -1,6 +1,14 @@
 # Architecture
 
-## High-level shape
+![Multi-agent lesson generation pipeline](figures/agent-pipeline.svg)
+
+> **Figure 1.** A six-agent pipeline for generating an interactive lesson from a single user highlight. Each agent has a structured tool input, a dedicated model, and emits live Server-Sent Events that surface in the trace panel inside the app. Self-revision (Refiner ↻ Critic) runs only when the Critic flags a concrete issue. Mode-specific paths short-circuit unused steps — `text` mode skips Critic and Refiner; `video_manim` hands off to the Manim render pipeline after Planner.
+
+![System overview · four layers · two streams](figures/system-overview.svg)
+
+> **Figure 2.** Layered runtime view. The Browser issues a single SSE request and consumes three event types in return (`agent_step`, `partial`, `complete`). The Server hosts the agent orchestrator, a per-document BM25 index, a hash-keyed result cache, and an in-memory job queue for long-running renders. Anthropic's Messages API is used in two flavors — Sonnet 4.6 for reasoning-heavy steps (Planner, visual Author, Refiner), Haiku 4.5 for the lightweight ones (Router, Critic, Summary, Quiz). Manim renders happen out of band in a long-lived Python worker that pre-imports `manim` and `manim_voiceover` at boot to skip the cold-start cost.
+
+## High-level shape (mermaid source-of-truth)
 
 ```mermaid
 flowchart LR
