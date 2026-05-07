@@ -54,9 +54,14 @@ export function FramePanel() {
   }, [focusedId, setFocused, inline]);
 
   const [runtimeErr, setRuntimeErr] = useState<string | null>(null);
+  const [iframeReady, setIframeReady] = useState(false);
 
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
+      if (e.data?.type === 'frame-ready') {
+        setIframeReady(true);
+        return;
+      }
       if (e.data?.type === 'frame-runtime-error') {
         setRuntimeErr(String(e.data.message || 'Unknown error'));
         return;
@@ -88,7 +93,16 @@ export function FramePanel() {
     setAskQuestion('');
     setRuntimeErr(null);
     setViewOverride(null);
+    setIframeReady(false);
   }, [focusedId]);
+
+  // Reset the ready signal whenever the iframe's source actually changes
+  // (e.g. retry after error, or a different cached lesson loaded). The
+  // iframe will fire frame-ready again once the new source has executed.
+  const contentKey = node?.data?.content?.html ?? null;
+  useEffect(() => {
+    setIframeReady(false);
+  }, [contentKey]);
 
   if (!node) return null;
   const data = node.data;
@@ -302,10 +316,15 @@ export function FramePanel() {
               sandbox={LESSON_SANDBOX}
               className="h-full w-full border-0"
             />
-            {data.loading && (
-              <div className="absolute right-3 top-3 z-30 flex items-center gap-2 rounded-md border border-indigo-500/30 bg-indigo-500/10 px-2 py-1 text-[10px] font-mono uppercase tracking-[0.12em] text-indigo-300 backdrop-blur-md">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-indigo-400" />
-                streaming
+            {!iframeReady && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#0a0a0d] transition-opacity duration-200">
+                <div className="flex flex-col items-center gap-3 text-neutral-400">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-800 border-t-indigo-500" />
+                  <div className="text-sm font-medium text-neutral-200">{data.title || 'Loading lesson…'}</div>
+                  <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-neutral-500">
+                    fetching libs · running script
+                  </div>
+                </div>
               </div>
             )}
             {runtimeErr && (
