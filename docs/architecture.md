@@ -306,7 +306,7 @@ flowchart TB
     end
 
     subgraph St["src/store/"]
-        graph["graphStore.ts<br/>nodes · edges · focus<br/>(persisted)"]
+        graphSt["graphStore.ts<br/>nodes · edges · focus<br/>(persisted)"]
         doc["documentStore.ts<br/>doc · summary · highlights<br/>(highlights persisted)"]
     end
 
@@ -316,7 +316,7 @@ flowchart TB
         sel_pop["PdfViewer/SelectionPopover.tsx"]
         hl_overlay["PdfViewer/HighlightOverlays.tsx"]
         canvas["Canvas/Canvas.tsx<br/>(ReactFlow)"]
-        node["Frame/FrameNode.tsx<br/>(card preview)"]
+        nodeCard["Frame/FrameNode.tsx<br/>(card preview)"]
         panel["Frame/FramePanel.tsx<br/>(focus mode)"]
         vid_pl["Frame/VideoFramePlayer.tsx"]
     end
@@ -331,19 +331,19 @@ flowchart TB
     worker_ts --> worker_py
 
     flow --> tutor
-    flow --> graph
+    flow --> graphSt
     pdf_view --> sel_hook
     pdf_view --> sel_pop
     pdf_view --> hl_overlay
     pdf_view --> flow
     pdf_view --> doc
-    canvas --> node
+    canvas --> nodeCard
     panel --> flow
     panel --> vid_pl
     panel --> shell
-    node --> shell
+    nodeCard --> shell
     hl_overlay --> doc
-    hl_overlay --> graph
+    hl_overlay --> graphSt
 ```
 
 ## Choices worth knowing
