@@ -151,19 +151,18 @@ function runLesson(id: string, opts: StartLessonOpts) {
         updateFrame(id, { trace: next });
       },
       onPartial: (p) => {
+        // Only stream metadata (title, summary, mode, prerequisites) into
+        // the frame. Skip html/css/js — re-creating the iframe on every
+        // partial cancels in-flight CDN script loads, so the final
+        // iframe sometimes mounts before Plotly/D3 finish loading and
+        // user code crashes with 'Plotly is not defined'. The trace
+        // panel is the loading view; the iframe mounts once on complete
+        // with all scripts ready.
         const patch: Record<string, unknown> = {};
         if (p.title) patch.title = p.title;
         if (p.summary) patch.summary = p.summary;
         if (p.mode) patch.mode = p.mode;
         if (p.prerequisites) patch.prerequisites = p.prerequisites;
-        // Show in-progress HTML / CSS / JS so the iframe can render progressively.
-        if (p.mode !== 'video_manim' && (p.html || p.css || p.js)) {
-          patch.content = {
-            html: p.html || '',
-            css: p.css || '',
-            js: '', // skip JS until final to avoid running half-written scripts
-          };
-        }
         if (Object.keys(patch).length) updateFrame(id, patch);
       },
       onComplete: (res) => {
