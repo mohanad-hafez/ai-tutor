@@ -136,4 +136,6 @@ Built for a hackathon. Code paths exist for everything in the figures; the per-g
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE).
+**Copyright © 2026 Mohanad Hafez. All rights reserved.**
+
+Source available for review. No license is granted for reuse, redistribution, or derivative works. If you're interested in using this code, reach out.
