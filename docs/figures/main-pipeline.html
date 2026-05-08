@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=1600,initial-scale=1"/>
+<title>ViT · Main Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"/>
+<style>
+  :root {
+    --bg-1: #0b1220;
+    --bg-2: #080e1a;
+    --card-1: #121a2a;
+    --card-2: #0e1626;
+    --border: #1e293b;
+    --text: #ffffff;
+    --muted: #cbd5e1;
+    --faint: #94a3b8;
+    --dim: #64748b;
+    --mint: #00e5a0;
+    --amber: #fbbf24;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: #050913;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body { display: flex; align-items: flex-start; justify-content: center; padding: 24px; }
+  .canvas {
+    position: relative;
+    flex-shrink: 0;
+    width: 1600px;
+    height: 900px;
+    background:
+      radial-gradient(rgba(148,163,184,0.04) 1px, transparent 1px) 0 0 / 24px 24px,
+      linear-gradient(to bottom, var(--bg-1), var(--bg-2));
+    overflow: hidden;
+    border-radius: 6px;
+  }
+
+  /* ─── HEADER ─── */
+  .header { position: absolute; top: 50px; left: 80px; right: 80px; }
+  .header .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 3px; color: var(--mint); text-transform: uppercase; }
+  .header h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.4px; margin-top: 14px; }
+  .header p { font-size: 14px; color: var(--faint); margin-top: 12px; max-width: 1240px; line-height: 1.5; }
+
+  /* ─── CARD BASE ─── */
+  .card {
+    position: absolute;
+    background: linear-gradient(to bottom, var(--card-1), var(--card-2));
+    border: 1.2px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    padding: 18px;
+    overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3.5px; background: var(--mint);
+  }
+  .card .icon {
+    position: absolute; top: 16px; right: 16px;
+    width: 22px; height: 22px; color: var(--mint);
+  }
+  .card h3 { font-size: 16px; font-weight: 700; line-height: 1.2; }
+  .card .label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.6px;
+    color: var(--mint); text-transform: uppercase; margin-top: 14px;
+  }
+  .card .desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 8px; }
+  .card .meta {
+    position: absolute; bottom: 10px; right: 16px;
+    font-size: 10px; font-family: 'JetBrains Mono', ui-monospace, monospace;
+    color: var(--faint);
+  }
+
+  .card.mint { border: 1.8px solid var(--mint); }
+  .card.amber { border: 1.6px solid var(--amber); }
+  .card.amber::before { background: var(--amber); }
+  .card.amber .label { color: var(--amber); }
+  .card.amber .icon { color: var(--amber); }
+
+  /* ─── DESTINATION (user iframe) ─── */
+  .iframe-dest {
+    position: absolute;
+    background: linear-gradient(to bottom, #0e1626, #0a121f);
+    border: 1.8px solid var(--mint);
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(0,229,160,0.18), 0 6px 20px rgba(0,0,0,0.4);
+    padding: 16px 18px;
+    overflow: hidden;
+  }
+  .iframe-dest::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3.5px; background: var(--mint);
+  }
+  .iframe-dest .topline { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .iframe-dest .play {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(0,229,160,0.18);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--mint);
+  }
+  .iframe-dest h3 { font-size: 17px; font-weight: 700; }
+  .iframe-dest .label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.6px;
+    color: var(--mint); text-transform: uppercase; margin-top: 12px;
+  }
+  .iframe-dest .desc { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+
+  /* ─── CACHE HIT BANNER + LINE ─── */
+  .cache-hit-label {
+    position: absolute;
+    color: var(--mint); font-weight: 700;
+    letter-spacing: 2.4px; font-size: 13px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .cache-hit-sub {
+    position: absolute;
+    color: var(--faint); font-style: italic;
+    font-size: 11px; font-family: 'JetBrains Mono', ui-monospace, monospace;
+    text-align: center;
+  }
+
+  /* ─── LOOP REGION INDICATOR (subtle) ─── */
+  .loop-region {
+    position: absolute;
+    border: 1.5px dashed rgba(0,229,160,0.16);
+    border-radius: 28px;
+    background: rgba(0,229,160,0.022);
+    pointer-events: none;
+  }
+  .loop-region-tag {
+    position: absolute;
+    background: var(--bg-1);
+    color: var(--mint);
+    font-size: 10px; font-weight: 700; letter-spacing: 2.4px;
+    padding: 0 12px;
+    text-transform: uppercase;
+  }
+
+  /* ─── ARROW LABELS ─── */
+  .arrow-label {
+    position: absolute;
+    font-size: 12px; font-weight: 700;
+    pointer-events: none;
+    text-align: center;
+  }
+  .arrow-sub {
+    position: absolute;
+    font-size: 10px; font-style: italic;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    pointer-events: none;
+    text-align: center;
+  }
+  .json-tag {
+    position: absolute;
+    font-size: 11px; font-weight: 600;
+    color: var(--mint);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    pointer-events: none;
+    letter-spacing: -0.2px;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    position: absolute;
+    left: 80px; right: 80px; bottom: 16px;
+    background: var(--card-1);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 18px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .footer .tag {
+    color: var(--mint); font-weight: 700;
+    letter-spacing: 1.6px; font-size: 11px;
+    white-space: nowrap;
+  }
+  .footer .text { color: var(--muted); font-size: 12px; }
+  .footer .arrow { color: var(--mint); font-weight: 700; }
+  .footer .em { color: var(--text); font-weight: 600; }
+
+  /* ─── MODES section ─── */
+  .mode-chip {
+    position: absolute;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 2.4px; color: var(--mint);
+    text-transform: uppercase;
+  }
+
+  /* compact chain cell for video_manim */
+  .chain-cell {
+    position: absolute;
+    background: linear-gradient(to bottom, var(--card-1), var(--card-2));
+    border: 1.2px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  }
+  .chain-cell::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--mint);
+  }
+  .chain-cell .icon { width: 20px; height: 20px; color: var(--mint); flex-shrink: 0; }
+  .chain-cell .name { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
+  .chain-cell .meta {
+    font-size: 10px; font-family: 'JetBrains Mono', ui-monospace, monospace;
+    color: var(--faint);
+  }
+
+  /* ─── visual_html bigger box ─── */
+  .visual-html-box {
+    position: absolute;
+    background: linear-gradient(to bottom, var(--card-1), var(--card-2));
+    border: 1.2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  }
+  .visual-html-box::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--mint);
+  }
+  .visual-html-box .icon-tr {
+    position: absolute; top: 14px; right: 14px;
+    width: 20px; height: 20px; color: var(--mint);
+  }
+  .visual-html-box h3 { font-size: 14px; font-weight: 700; }
+  .visual-html-box .sub { font-size: 11px; color: var(--faint); margin-top: 3px; }
+  .visual-html-box .divider { border-top: 1px solid var(--border); margin: 8px 0 6px; }
+  .visual-html-box .seclabel {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.6px;
+    color: var(--mint); text-transform: uppercase;
+  }
+  .visual-html-box .secline { font-size: 11px; color: var(--text); margin-top: 3px; }
+  .visual-html-box .secsub { font-size: 10px; color: var(--faint); margin-top: 1px; }
+
+  /* ─── WHY RAG callout ─── */
+  .callout {
+    position: absolute;
+    background: var(--card-1);
+    border: 1px solid rgba(0,229,160,0.55);
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+  .callout .label {
+    font-size: 11px; color: var(--mint);
+    font-weight: 700; letter-spacing: 1.6px;
+  }
+  .callout .item {
+    font-size: 12px; color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* ─── ARROW OVERLAY (single SVG covers everything) ─── */
+  .arrows {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ─── HEADER ─── -->
+  <div class="header">
+    <div class="eyebrow">Figure · Main Pipeline</div>
+    <h1>Five agents · structured JSON · grounded self-repair loop</h1>
+    <p>Memory checks cache on the plan, not the noisy raw query. Author ships optimistically. Verifier listens to the live iframe and loops back on real runtime errors — Reflexion grounded in the browser.</p>
+  </div>
+
+  <!-- ─── TOP ROW · cache fast path ─── -->
+
+  <!-- Retriever -->
+  <div class="card" style="left:80px; top:200px; width:200px; height:120px;">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="13" height="17" rx="1.5"/>
+      <line x1="6" y1="8" x2="13" y2="8"/>
+      <line x1="6" y1="12" x2="13" y2="12"/>
+      <circle cx="17" cy="16" r="4"/>
+      <line x1="20" y1="19" x2="22.5" y2="21.5"/>
+    </svg>
+    <h3>Retriever</h3>
+    <div class="label">RAG · BM25</div>
+    <div class="desc">Top-K chunks from indexed PDF</div>
+    <div class="meta">local · BM25</div>
+  </div>
+
+  <!-- Planner -->
+  <div class="card" style="left:320px; top:200px; width:200px; height:120px;">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="3.5" cy="6" r="1.5" fill="currentColor"/>
+      <line x1="7" y1="6" x2="22" y2="6"/>
+      <circle cx="3.5" cy="12" r="1.5" fill="currentColor"/>
+      <line x1="7" y1="12" x2="22" y2="12"/>
+      <circle cx="3.5" cy="18" r="1.5" fill="currentColor"/>
+      <line x1="7" y1="18" x2="22" y2="18"/>
+    </svg>
+    <h3>Planner</h3>
+    <div class="label">Pedagogy</div>
+    <div class="desc">Decomposes concept into 2–4 beats (JSON)</div>
+    <div class="meta">Sonnet</div>
+  </div>
+
+  <!-- Memory · cache decision point -->
+  <div class="card mint" style="left:560px; top:200px; width:200px; height:120px;">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="3" width="20" height="4" rx="1"/>
+      <rect x="5" y="10" width="14" height="4" rx="1"/>
+      <rect x="8" y="17" width="8" height="4" rx="1"/>
+    </svg>
+    <h3>Memory</h3>
+    <div class="label">Cache Lookup · on plan</div>
+    <div class="desc">Embed plan · cosine vs lesson cache</div>
+    <div class="meta">MiniLM-L6</div>
+  </div>
+
+  <!-- ─── DESTINATION · user iframe (top-right) ─── -->
+  <div class="iframe-dest" style="left:1000px; top:200px; width:300px; height:120px;">
+    <div class="topline">
+      <div class="play">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,2 13,8 3,14"/></svg>
+      </div>
+      <h3>user iframe</h3>
+    </div>
+    <div class="label">Live · re-renders on fix</div>
+    <div class="desc">Sandboxed iframe · postMessage bridge</div>
+  </div>
+
+  <!-- JSON tags ABOVE top-row arrows (between cards horizontally, just above y=200) -->
+  <div class="json-tag" style="left:300px; top:182px;">chunks[]</div>
+  <div class="json-tag" style="left:540px; top:182px;">plan{}</div>
+
+  <!-- Cache-hit text labels (in gap between Memory and iframe, above arrow at y=260) -->
+  <div class="cache-hit-label" style="left:760px; top:226px; width:240px; letter-spacing:1.4px; font-size:11px;">CACHE HIT · SKIP AUTHOR</div>
+  <div class="cache-hit-sub" style="left:760px; top:280px; width:240px; font-size:10px;">~50 ms · cosine ≥ 0.55</div>
+
+  <!-- ─── LOOP REGION accent (behind triangle) ─── -->
+  <div class="loop-region" style="left:780px; top:170px; width:680px; height:410px;"></div>
+  <div class="loop-region-tag" style="left:1090px; top:163px;">grounded reflexion loop</div>
+
+  <!-- ─── BOTTOM TIER · Author + Verifier ─── -->
+
+  <!-- Author -->
+  <div class="card mint" style="left:820px; top:440px; width:200px; height:120px;">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 3l5 5L8 21H3v-5z"/>
+      <line x1="13" y1="6" x2="18" y2="11"/>
+    </svg>
+    <h3>Author</h3>
+    <div class="label">Streaming · Branches</div>
+    <div class="desc">Writes interactive lesson OR animation</div>
+    <div class="meta">Sonnet</div>
+  </div>
+
+  <!-- Verifier -->
+  <div class="card amber" style="left:1180px; top:440px; width:240px; height:120px;">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M8 12l3 3 5-6"/>
+    </svg>
+    <h3>Verifier</h3>
+    <div class="label" style="color:var(--amber);">Browser · runtime check</div>
+    <div class="desc">Listens to live iframe, judges real errors</div>
+    <div class="meta">Haiku</div>
+  </div>
+
+  <!-- Memory miss label (LEFT of diagonal arrow, below Memory left half) -->
+  <div class="arrow-sub" style="left:560px; top:340px; width:130px; color:var(--muted); text-align:left;">cache miss</div>
+  <div class="arrow-sub" style="left:560px; top:358px; width:130px; color:var(--dim); text-align:left;">plan + chunks</div>
+
+  <!-- Triangle arrow labels -->
+  <!-- (1) Author → iframe : ship (LEFT of curve, above Author card) -->
+  <div class="arrow-label" style="left:870px; top:380px; width:150px; color:var(--mint); text-align:right;">ship · streaming</div>
+  <div class="arrow-sub" style="left:870px; top:400px; width:150px; color:var(--faint); text-align:right;">user reads it now</div>
+
+  <!-- (2) iframe → Verifier : runtime errors -->
+  <div class="arrow-label" style="left:1330px; top:355px; width:160px; color:var(--muted); font-weight:600;">runtime errors</div>
+  <div class="arrow-sub" style="left:1330px; top:375px; width:160px; color:var(--faint);">postMessage bridge</div>
+
+  <!-- (3) Verifier → Author : regen on err -->
+  <div class="arrow-label" style="left:1020px; top:586px; width:200px; color:var(--amber);">regen on err</div>
+  <div class="arrow-sub" style="left:1020px; top:606px; width:200px; color:var(--amber);">fix{message, line, code}</div>
+
+  <!-- ─── BRANCHING (modes) ─── -->
+  <div class="mode-chip" style="left:330px; top:618px; width:120px; text-align:center;">visual_html</div>
+  <div class="mode-chip" style="left:1320px; top:618px; width:120px; text-align:center;">video_manim</div>
+
+  <!-- visual_html box -->
+  <div class="visual-html-box" style="left:170px; top:642px; width:340px; height:180px;">
+    <svg class="icon-tr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 4 L1 12 L8 20"/>
+      <path d="M22 4 L29 12 L22 20" transform="translate(-7,0)"/>
+      <line x1="14" y1="2" x2="9" y2="22"/>
+    </svg>
+    <h3>HTML / CSS / JS</h3>
+    <div class="sub">body fragment + styles + script</div>
+    <div class="divider"></div>
+    <div class="seclabel">Ships to</div>
+    <div class="secline">Sandboxed iframe</div>
+    <div class="secsub">D3 · KaTeX · p5 · Plotly</div>
+    <div class="divider"></div>
+    <div class="seclabel">Retrieves via RAG</div>
+    <div class="secline">top-K skills · our growing JS lib</div>
+    <div class="secsub">embedding match · Voyager-style</div>
+  </div>
+
+  <!-- video_manim chain · 4 cells -->
+  <div class="chain-cell" style="left:1180px; top:642px; width:320px; height:42px;">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 4c5 0 8 2 8 6v3H5c-3 0-3 2-3 5"/>
+      <path d="M16 8c-5 0-8 2-8 6v3h8c3 0 3-2 3-5"/>
+    </svg>
+    <div class="name">Manim Python</div>
+    <div class="meta">Sonnet</div>
+  </div>
+  <div class="chain-cell" style="left:1180px; top:692px; width:320px; height:42px;">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 4v16c0-1 2-2 4-2h13V4H7C5 4 3 5 3 5z"/>
+      <line x1="7" y1="4" x2="7" y2="18"/>
+    </svg>
+    <div class="name">RAG over Manim docs</div>
+    <div class="meta">555-page corpus</div>
+  </div>
+  <div class="chain-cell" style="left:1180px; top:742px; width:320px; height:42px;">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3l-9 3v6c0 5 4 8 9 10 5-2 9-5 9-10V6z"/>
+    </svg>
+    <div class="name">AST sandbox</div>
+    <div class="meta">whitelist imports</div>
+  </div>
+  <div class="chain-cell" style="left:1180px; top:792px; width:320px; height:42px;">
+    <svg class="icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">
+      <polygon points="5,3 21,12 5,21" fill-opacity="0.18"/>
+    </svg>
+    <div class="name">Warm Python worker → mp4</div>
+    <div class="meta">manim_worker.py</div>
+  </div>
+
+  <!-- WHY RAG callout · between visual_html and video_manim -->
+  <div class="callout" style="left:580px; top:680px; width:280px; height:80px;">
+    <div class="label">Why RAG · not fine-tuning</div>
+    <div class="item">→ keeps Sonnet's reasoning intact</div>
+    <div class="item">→ verifiable grounding · cite the chunk</div>
+  </div>
+
+  <!-- Manim self-repair label (right of chain) -->
+  <div class="arrow-sub" style="left:1510px; top:716px; width:90px; color:var(--amber); font-weight:600; text-align:left;">manim<br/>self-repair</div>
+
+  <!-- ─── ARROW OVERLAY ─── -->
+  <svg class="arrows" viewBox="0 0 1600 900" preserveAspectRatio="none">
+    <defs>
+      <marker id="arr-grey" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8"/>
+      </marker>
+      <marker id="arr-mint" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 Z" fill="#00e5a0"/>
+      </marker>
+      <marker id="arr-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 Z" fill="#fbbf24"/>
+      </marker>
+    </defs>
+
+    <!-- Top row forward arrows -->
+    <g stroke="#94a3b8" stroke-width="2" fill="none">
+      <line x1="282" y1="260" x2="316" y2="260" marker-end="url(#arr-grey)"/>
+      <line x1="522" y1="260" x2="556" y2="260" marker-end="url(#arr-grey)"/>
+    </g>
+
+    <!-- Cache hit straight line · Memory → user iframe (mint dashed) -->
+    <line x1="762" y1="260" x2="996" y2="260" stroke="#00e5a0" stroke-width="2.4" stroke-dasharray="7 5" fill="none" marker-end="url(#arr-mint)"/>
+
+    <!-- Memory miss → Author : straight diagonal -->
+    <line x1="660" y1="322" x2="858" y2="436" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arr-grey)"/>
+
+    <!-- ╔═══════ TRIANGLE LOOP (Author → iframe → Verifier → Author) ═══════╗ -->
+
+    <!-- (1) AUTHOR → IFRAME : mint solid, sweeps up-right -->
+    <path d="M 1020 460 C 1080 400, 1100 360, 1100 322" stroke="#00e5a0" stroke-width="2.4" fill="none" marker-end="url(#arr-mint)"/>
+
+    <!-- (2) IFRAME → VERIFIER : dashed grey, sweeps down-right -->
+    <path d="M 1280 322 C 1280 380, 1300 410, 1300 436" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5 4" fill="none" opacity="0.85" marker-end="url(#arr-grey)"/>
+
+    <!-- (3) VERIFIER → AUTHOR : amber dashed, sweeps DOWN through bottom (closes the loop visually) -->
+    <path d="M 1180 510 C 1140 575, 1064 575, 1024 510" stroke="#fbbf24" stroke-width="2.2" stroke-dasharray="6 4" fill="none" marker-end="url(#arr-amber)"/>
+
+    <!-- ╚═══════ end triangle ═══════╝ -->
+
+    <!-- BRANCHING from Author bottom (y=560) -->
+    <g stroke="#00e5a0" stroke-width="2" fill="none">
+      <line x1="920" y1="560" x2="920" y2="582"/>
+      <line x1="380" y1="582" x2="1380" y2="582"/>
+      <line x1="380" y1="582" x2="380" y2="610" marker-end="url(#arr-mint)"/>
+      <line x1="1380" y1="582" x2="1380" y2="610" marker-end="url(#arr-mint)"/>
+    </g>
+
+    <!-- Forward arrows in manim chain -->
+    <g stroke="#94a3b8" stroke-width="1.6" fill="none">
+      <line x1="1340" y1="685" x2="1340" y2="691" marker-end="url(#arr-grey)"/>
+      <line x1="1340" y1="735" x2="1340" y2="741" marker-end="url(#arr-grey)"/>
+      <line x1="1340" y1="785" x2="1340" y2="791" marker-end="url(#arr-grey)"/>
+    </g>
+
+    <!-- Manim self-repair amber loop -->
+    <path d="M 1500 814 C 1540 814, 1540 663, 1500 663" stroke="#fbbf24" stroke-width="1.6" stroke-dasharray="5 4" fill="none" opacity="0.9" marker-end="url(#arr-amber)"/>
+  </svg>
+
+  <!-- ─── FOOTER ─── -->
+  <div class="footer">
+    <div class="tag">Reflexion · Shinn et al. 2023</div>
+    <div class="text">
+      <em style="font-style:italic;">Agent acts → environment returns real signal → agent reflects → retries.</em>
+      <span class="arrow">&nbsp;→&nbsp;</span>
+      <span class="em">Browser is the environment · runtime errors are the signal.</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

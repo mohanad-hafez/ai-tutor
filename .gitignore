@@ -22,6 +22,10 @@ server/cache/
 public/videos/
 docs/manim/
 
+# internal pitch / deck — not meant for the public repo
+presentation/
+docs/figures/svg-preview.html
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

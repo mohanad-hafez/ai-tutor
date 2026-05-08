@@ -1,0 +1,330 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" font-family="Inter, system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#080e1a"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#121a2a"/>
+      <stop offset="1" stop-color="#0e1626"/>
+    </linearGradient>
+    <linearGradient id="iframeBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0e1626"/>
+      <stop offset="1" stop-color="#0a121f"/>
+    </linearGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1" fill="#94a3b8" fill-opacity="0.04"/>
+    </pattern>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#94a3b8"/>
+    </marker>
+    <marker id="arr-mint" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#00e5a0"/>
+    </marker>
+    <marker id="arr-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#fbbf24"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dy="4"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.35"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="iframeGlow" x="-10%" y="-10%" width="120%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+      <feOffset dy="4"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.4"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#dots)"/>
+
+  <!-- ─── HEADER ─── -->
+  <text x="80" y="63" font-size="13" font-weight="600" letter-spacing="3" fill="#00e5a0">FIGURE · MAIN PIPELINE</text>
+  <text x="80" y="105" font-size="32" font-weight="700" fill="#ffffff" letter-spacing="-0.4">Five agents · structured JSON · grounded self-repair loop</text>
+  <text x="80" y="135" font-size="14" fill="#94a3b8">Memory checks cache on the plan, not the noisy raw query. Author ships optimistically. Verifier listens to the live iframe and loops back on real runtime errors — Reflexion grounded in the browser.</text>
+
+  <!-- ─── LOOP REGION (subtle dashed rounded rect behind triangle) ─── -->
+  <rect x="780" y="170" width="680" height="410" rx="28" fill="rgba(0,229,160,0.022)" stroke="#00e5a0" stroke-opacity="0.16" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <!-- Loop region tag with bg cut into top edge -->
+  <rect x="1080" y="160" width="180" height="14" fill="#0b1220"/>
+  <text x="1170" y="171" font-size="10" font-weight="700" letter-spacing="2.4" fill="#00e5a0" text-anchor="middle">GROUNDED REFLEXION LOOP</text>
+
+  <!-- ============================================ -->
+  <!-- TOP ROW · cache fast path                    -->
+  <!-- ============================================ -->
+
+  <!-- Retriever -->
+  <g filter="url(#shadow)">
+    <rect x="80" y="200" width="200" height="120" rx="12" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="80" y="200" width="200" height="3.5" fill="#00e5a0"/>
+    <g transform="translate(246, 216)" stroke="#00e5a0" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="0" y="0" width="13" height="17" rx="1.5"/>
+      <line x1="3" y1="5" x2="10" y2="5"/>
+      <line x1="3" y1="9" x2="10" y2="9"/>
+      <circle cx="14" cy="13" r="4"/>
+      <line x1="17" y1="16" x2="19.5" y2="18.5"/>
+    </g>
+    <text x="98" y="240" font-size="16" font-weight="700" fill="#ffffff">Retriever</text>
+    <text x="98" y="266" font-size="10" font-weight="700" letter-spacing="1.6" fill="#00e5a0">RAG · BM25</text>
+    <text x="98" y="288" font-size="12" fill="#cbd5e1">Top-K chunks from indexed</text>
+    <text x="98" y="304" font-size="12" fill="#cbd5e1">PDF</text>
+    <text x="266" y="312" font-size="10" font-family="JetBrains Mono, ui-monospace, monospace" fill="#94a3b8" text-anchor="end">local · BM25</text>
+  </g>
+
+  <!-- Planner -->
+  <g filter="url(#shadow)">
+    <rect x="320" y="200" width="200" height="120" rx="12" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="320" y="200" width="200" height="3.5" fill="#00e5a0"/>
+    <g transform="translate(486, 218)" stroke="#00e5a0" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="2" cy="3" r="1.5" fill="#00e5a0"/>
+      <line x1="6" y1="3" x2="20" y2="3"/>
+      <circle cx="2" cy="10" r="1.5" fill="#00e5a0"/>
+      <line x1="6" y1="10" x2="20" y2="10"/>
+      <circle cx="2" cy="17" r="1.5" fill="#00e5a0"/>
+      <line x1="6" y1="17" x2="20" y2="17"/>
+    </g>
+    <text x="338" y="240" font-size="16" font-weight="700" fill="#ffffff">Planner</text>
+    <text x="338" y="266" font-size="10" font-weight="700" letter-spacing="1.6" fill="#00e5a0">PEDAGOGY</text>
+    <text x="338" y="288" font-size="12" fill="#cbd5e1">Decomposes concept into</text>
+    <text x="338" y="304" font-size="12" fill="#cbd5e1">2–4 beats (JSON)</text>
+    <text x="506" y="312" font-size="10" font-family="JetBrains Mono, ui-monospace, monospace" fill="#94a3b8" text-anchor="end">Sonnet</text>
+  </g>
+
+  <!-- Memory · mint border (cache decision) -->
+  <g filter="url(#shadow)">
+    <rect x="560" y="200" width="200" height="120" rx="12" fill="url(#card)" stroke="#00e5a0" stroke-width="1.8"/>
+    <rect x="560" y="200" width="200" height="3.5" fill="#00e5a0"/>
+    <g transform="translate(726, 218)" stroke="#00e5a0" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="0" y="0" width="20" height="4" rx="1"/>
+      <rect x="3" y="6" width="14" height="4" rx="1"/>
+      <rect x="6" y="12" width="8" height="4" rx="1"/>
+    </g>
+    <text x="578" y="240" font-size="16" font-weight="700" fill="#ffffff">Memory</text>
+    <text x="578" y="266" font-size="10" font-weight="700" letter-spacing="1.6" fill="#00e5a0">CACHE LOOKUP · ON PLAN</text>
+    <text x="578" y="288" font-size="12" fill="#cbd5e1">Embed plan · cosine vs</text>
+    <text x="578" y="304" font-size="12" fill="#cbd5e1">lesson cache</text>
+    <text x="746" y="312" font-size="10" font-family="JetBrains Mono, ui-monospace, monospace" fill="#94a3b8" text-anchor="end">MiniLM-L6</text>
+  </g>
+
+  <!-- iframe destination (top-right) -->
+  <g filter="url(#iframeGlow)">
+    <rect x="1000" y="200" width="300" height="120" rx="12" fill="url(#iframeBg)" stroke="#00e5a0" stroke-width="1.8"/>
+    <rect x="1000" y="200" width="300" height="3.5" fill="#00e5a0"/>
+    <!-- play icon in mint circle -->
+    <circle cx="1030" cy="240" r="13" fill="#00e5a0" fill-opacity="0.18"/>
+    <polygon points="1026,234 1037,240 1026,246" fill="#00e5a0"/>
+    <text x="1052" y="246" font-size="17" font-weight="700" fill="#ffffff">user iframe</text>
+    <text x="1018" y="276" font-size="10" font-weight="700" letter-spacing="1.6" fill="#00e5a0">LIVE · RE-RENDERS ON FIX</text>
+    <text x="1018" y="296" font-size="12" fill="#cbd5e1">Sandboxed iframe · postMessage bridge</text>
+  </g>
+
+  <!-- Forward arrows top row · y=260 -->
+  <g stroke="#94a3b8" stroke-width="2" fill="none">
+    <line x1="282" y1="260" x2="316" y2="260" marker-end="url(#arr)"/>
+    <line x1="522" y1="260" x2="556" y2="260" marker-end="url(#arr)"/>
+  </g>
+
+  <!-- JSON tags above arrows (between cards horizontally) -->
+  <g font-size="11" font-family="JetBrains Mono, ui-monospace, monospace" fill="#00e5a0" font-weight="600" text-anchor="middle">
+    <text x="300" y="194">chunks[]</text>
+    <text x="540" y="194">plan{}</text>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- CACHE HIT line + labels                      -->
+  <!-- ============================================ -->
+
+  <!-- Main label (above arrow) -->
+  <text x="880" y="240" font-size="11" font-weight="700" letter-spacing="1.4" fill="#00e5a0" text-anchor="middle">CACHE HIT · SKIP AUTHOR</text>
+  <!-- Sub label (below arrow) -->
+  <text x="880" y="294" font-size="10" font-style="italic" font-family="JetBrains Mono, ui-monospace, monospace" fill="#94a3b8" text-anchor="middle">~50 ms · cosine ≥ 0.55</text>
+  <!-- Cache hit dashed mint line (Memory right edge → iframe left edge) -->
+  <line x1="762" y1="260" x2="996" y2="260" stroke="#00e5a0" stroke-width="2.4" stroke-dasharray="7 5" fill="none" marker-end="url(#arr-mint)"/>
+
+  <!-- ============================================ -->
+  <!-- WORK PATH · Author + Verifier                -->
+  <!-- ============================================ -->
+
+  <!-- Memory miss diagonal arrow -->
+  <line x1="660" y1="322" x2="858" y2="436" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+  <!-- Cache miss labels (LEFT of arrow, below Memory left half) -->
+  <text x="560" y="354" font-size="11" font-style="italic" font-family="JetBrains Mono, ui-monospace, monospace" fill="#cbd5e1">cache miss</text>
+  <text x="560" y="372" font-size="10" font-style="italic" font-family="JetBrains Mono, ui-monospace, monospace" fill="#64748b">plan + chunks</text>
+
+  <!-- Author · mint border (branch point) -->
+  <g filter="url(#shadow)">
+    <rect x="820" y="440" width="200" height="120" rx="12" fill="url(#card)" stroke="#00e5a0" stroke-width="1.8"/>
+    <rect x="820" y="440" width="200" height="3.5" fill="#00e5a0"/>
+    <g transform="translate(986, 456)" stroke="#00e5a0" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 16 3 L 21 8 L 8 21 L 3 21 L 3 16 Z"/>
+      <line x1="13" y1="6" x2="18" y2="11"/>
+    </g>
+    <text x="838" y="480" font-size="16" font-weight="700" fill="#ffffff">Author</text>
+    <text x="838" y="506" font-size="10" font-weight="700" letter-spacing="1.6" fill="#00e5a0">STREAMING · BRANCHES</text>
+    <text x="838" y="528" font-size="12" fill="#cbd5e1">Writes interactive lesson</text>
+    <text x="838" y="544" font-size="12" fill="#cbd5e1">OR animation</text>
+    <text x="1006" y="552" font-size="10" font-family="JetBrains Mono, ui-monospace, monospace" fill="#94a3b8" text-anchor="end">Sonnet</text>
+  </g>
+
+  <!-- Verifier · amber border -->
+  <g filter="url(#shadow)">
+    <rect x="1180" y="440" width="240" height="120" rx="12" fill="url(#card)" stroke="#fbbf24" stroke-width="1.6" stroke-opacity="0.85"/>
+    <rect x="1180" y="440" width="240" height="3.5" fill="#fbbf24"/>
+    <g transform="translate(1386, 456)" stroke="#fbbf24" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M 8 12 L 11 15 L 16 9"/>
+    </g>
+    <text x="1198" y="480" font-size="16" font-weight="700" fill="#ffffff">Verifier</text>
+    <text x="1198" y="506" font-size="10" font-weight="700" letter-spacing="1.6" fill="#fbbf24">BROWSER · RUNTIME CHECK</text>
+    <text x="1198" y="528" font-size="12" fill="#cbd5e1">Listens to live iframe,</text>
+    <text x="1198" y="544" font-size="12" fill="#cbd5e1">judges real errors</text>
+    <text x="1406" y="552" font-size="10" font-family="JetBrains Mono, ui-monospace, monospace" fill="#94a3b8" text-anchor="end">Haiku</text>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- TRIANGLE LOOP arrows                         -->
+  <!-- ============================================ -->
+
+  <!-- (1) AUTHOR → IFRAME : mint solid (sweeps up-right) -->
+  <path d="M 1020 460 C 1080 400, 1100 360, 1100 322" stroke="#00e5a0" stroke-width="2.4" fill="none" marker-end="url(#arr-mint)"/>
+  <!-- ship label (LEFT of curve, right-aligned, above Author) -->
+  <text x="1020" y="394" font-size="12" font-weight="700" fill="#00e5a0" text-anchor="end">ship · streaming</text>
+  <text x="1020" y="412" font-size="10" font-style="italic" font-family="JetBrains Mono, ui-monospace, monospace" fill="#94a3b8" text-anchor="end">user reads it now</text>
+
+  <!-- (2) IFRAME → VERIFIER : dashed grey (sweeps down-right) -->
+  <path d="M 1280 322 C 1280 380, 1300 410, 1300 436" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5 4" opacity="0.85" fill="none" marker-end="url(#arr)"/>
+  <!-- runtime errors label (RIGHT of curve) -->
+  <text x="1410" y="368" font-size="12" font-weight="600" fill="#cbd5e1" text-anchor="middle">runtime errors</text>
+  <text x="1410" y="386" font-size="10" font-style="italic" font-family="JetBrains Mono, ui-monospace, monospace" fill="#94a3b8" text-anchor="middle">postMessage bridge</text>
+
+  <!-- (3) VERIFIER → AUTHOR : amber dashed (closes the loop through the bottom) -->
+  <path d="M 1180 510 C 1140 575, 1064 575, 1024 510" stroke="#fbbf24" stroke-width="2.2" stroke-dasharray="6 4" fill="none" marker-end="url(#arr-amber)"/>
+  <!-- regen label (BELOW arc) -->
+  <text x="1120" y="598" font-size="12" font-weight="700" fill="#fbbf24" text-anchor="middle">regen on err</text>
+  <text x="1120" y="616" font-size="10" font-style="italic" font-family="JetBrains Mono, ui-monospace, monospace" fill="#fbbf24" text-anchor="middle">fix{message, line, code}</text>
+
+  <!-- ============================================ -->
+  <!-- BRANCHING from Author bottom into modes      -->
+  <!-- ============================================ -->
+
+  <g stroke="#00e5a0" stroke-width="2" fill="none">
+    <line x1="920" y1="560" x2="920" y2="582"/>
+    <line x1="380" y1="582" x2="1380" y2="582"/>
+    <line x1="380" y1="582" x2="380" y2="610" marker-end="url(#arr-mint)"/>
+    <line x1="1380" y1="582" x2="1380" y2="610" marker-end="url(#arr-mint)"/>
+  </g>
+
+  <text x="380" y="630" font-size="11" font-weight="700" letter-spacing="2.4" fill="#00e5a0" text-anchor="middle">VISUAL_HTML</text>
+  <text x="1380" y="630" font-size="11" font-weight="700" letter-spacing="2.4" fill="#00e5a0" text-anchor="middle">VIDEO_MANIM</text>
+
+  <!-- ============================================ -->
+  <!-- visual_html box                              -->
+  <!-- ============================================ -->
+  <g filter="url(#shadow)">
+    <rect x="170" y="642" width="340" height="180" rx="12" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="170" y="642" width="340" height="3" fill="#00e5a0"/>
+    <!-- Brackets icon top-right -->
+    <g transform="translate(478, 658)" stroke="#00e5a0" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 6 2 L 1 10 L 6 18"/>
+      <path d="M 14 2 L 19 10 L 14 18"/>
+      <line x1="13" y1="0" x2="7" y2="20"/>
+    </g>
+    <text x="186" y="676" font-size="14" font-weight="700" fill="#ffffff">HTML / CSS / JS</text>
+    <text x="186" y="691" font-size="11" fill="#94a3b8">body fragment + styles + script</text>
+    <line x1="186" y1="703" x2="494" y2="703" stroke="#1e293b"/>
+    <text x="186" y="719" font-size="10" font-weight="700" letter-spacing="1.6" fill="#00e5a0">SHIPS TO</text>
+    <text x="186" y="734" font-size="11" fill="#ffffff">Sandboxed iframe</text>
+    <text x="186" y="747" font-size="10" fill="#94a3b8">D3 · KaTeX · p5 · Plotly</text>
+    <line x1="186" y1="757" x2="494" y2="757" stroke="#1e293b"/>
+    <text x="186" y="773" font-size="10" font-weight="700" letter-spacing="1.6" fill="#00e5a0">RETRIEVES VIA RAG</text>
+    <text x="186" y="788" font-size="11" fill="#ffffff">top-K skills · our growing JS lib</text>
+    <text x="186" y="801" font-size="10" fill="#94a3b8">embedding match · Voyager-style</text>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- video_manim chain · 4 cells                  -->
+  <!-- ============================================ -->
+
+  <!-- Cell 1: Manim Python -->
+  <g filter="url(#shadow)">
+    <rect x="1180" y="642" width="320" height="42" rx="10" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="1180" y="642" width="320" height="3" fill="#00e5a0"/>
+    <g transform="translate(1196, 653)" stroke="#00e5a0" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 5 4 C 9 4 11 6 11 9 L 11 12 L 4 12 C 1 12 0 13 0 16 C 0 18 1 19 4 19"/>
+      <path d="M 14 5 C 10 5 7 7 7 11 L 7 14 L 14 14 C 17 14 18 13 18 10 C 18 7 17 6 14 6"/>
+    </g>
+    <text x="1228" y="670" font-size="13" font-weight="700" fill="#ffffff">Manim Python</text>
+    <text x="1486" y="670" font-size="10" font-family="JetBrains Mono, ui-monospace, monospace" fill="#94a3b8" text-anchor="end">Sonnet</text>
+  </g>
+
+  <!-- Cell 2: RAG over Manim docs -->
+  <g filter="url(#shadow)">
+    <rect x="1180" y="692" width="320" height="42" rx="10" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="1180" y="692" width="320" height="3" fill="#00e5a0"/>
+    <g transform="translate(1196, 703)" stroke="#00e5a0" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 1 3 L 1 19 C 1 18 3 17 6 17 L 16 17 L 16 3 L 6 3 C 3 3 1 4 1 5 Z"/>
+      <line x1="6" y1="3" x2="6" y2="17"/>
+    </g>
+    <text x="1228" y="720" font-size="13" font-weight="700" fill="#ffffff">RAG over Manim docs</text>
+    <text x="1486" y="720" font-size="10" font-family="JetBrains Mono, ui-monospace, monospace" fill="#94a3b8" text-anchor="end">555-page corpus</text>
+  </g>
+
+  <!-- Cell 3: AST sandbox -->
+  <g filter="url(#shadow)">
+    <rect x="1180" y="742" width="320" height="42" rx="10" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="1180" y="742" width="320" height="3" fill="#00e5a0"/>
+    <g transform="translate(1196, 753)" stroke="#00e5a0" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 10 2 L 1 5 L 1 12 C 1 16 4 19 10 21 C 16 19 19 16 19 12 L 19 5 Z"/>
+    </g>
+    <text x="1228" y="770" font-size="13" font-weight="700" fill="#ffffff">AST sandbox</text>
+    <text x="1486" y="770" font-size="10" font-family="JetBrains Mono, ui-monospace, monospace" fill="#94a3b8" text-anchor="end">whitelist imports</text>
+  </g>
+
+  <!-- Cell 4: Warm Python worker -->
+  <g filter="url(#shadow)">
+    <rect x="1180" y="792" width="320" height="42" rx="10" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="1180" y="792" width="320" height="3" fill="#00e5a0"/>
+    <polygon points="1199,797 1213,805 1199,813" fill="#00e5a0" fill-opacity="0.18" stroke="#00e5a0" stroke-width="1.6" stroke-linejoin="round"/>
+    <text x="1228" y="820" font-size="13" font-weight="700" fill="#ffffff">Warm Python worker → mp4</text>
+    <text x="1486" y="820" font-size="10" font-family="JetBrains Mono, ui-monospace, monospace" fill="#94a3b8" text-anchor="end">manim_worker.py</text>
+  </g>
+
+  <!-- Forward arrows in chain (in gaps between cells) -->
+  <g stroke="#94a3b8" stroke-width="1.6" fill="none">
+    <line x1="1340" y1="685" x2="1340" y2="691" marker-end="url(#arr)"/>
+    <line x1="1340" y1="735" x2="1340" y2="741" marker-end="url(#arr)"/>
+    <line x1="1340" y1="785" x2="1340" y2="791" marker-end="url(#arr)"/>
+  </g>
+
+  <!-- Manim self-repair loop (amber dashed, right side) -->
+  <path d="M 1500 814 C 1540 814, 1540 663, 1500 663" stroke="#fbbf24" stroke-width="1.6" stroke-dasharray="5 4" fill="none" opacity="0.9" marker-end="url(#arr-amber)"/>
+  <text x="1510" y="730" font-size="11" font-style="italic" font-weight="600" fill="#fbbf24">manim</text>
+  <text x="1510" y="745" font-size="11" font-style="italic" font-weight="600" fill="#fbbf24">self-repair</text>
+
+  <!-- ============================================ -->
+  <!-- WHY RAG callout                              -->
+  <!-- ============================================ -->
+  <g>
+    <rect x="580" y="680" width="280" height="80" rx="10" fill="#121a2a" stroke="#00e5a0" stroke-width="1" stroke-opacity="0.55"/>
+    <text x="598" y="704" font-size="11" font-weight="700" letter-spacing="1.6" fill="#00e5a0">WHY RAG · NOT FINE-TUNING</text>
+    <text x="598" y="726" font-size="12" fill="#cbd5e1">→ keeps Sonnet's reasoning intact</text>
+    <text x="598" y="744" font-size="12" fill="#cbd5e1">→ verifiable grounding · cite the chunk</text>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- FOOTER                                       -->
+  <!-- ============================================ -->
+  <g>
+    <rect x="80" y="845" width="1440" height="39" rx="10" fill="#121a2a" stroke="#1e293b" stroke-width="1"/>
+    <text x="98" y="869" font-size="11" font-weight="700" letter-spacing="1.6" fill="#00e5a0">REFLEXION · SHINN ET AL. 2023</text>
+    <text x="328" y="869" font-size="12" fill="#cbd5e1">
+      <tspan font-style="italic">Agent acts → environment returns real signal → agent reflects → retries.</tspan>
+      <tspan dx="10" font-weight="700" fill="#00e5a0">→</tspan>
+      <tspan dx="6" font-weight="600" fill="#ffffff">Browser is the environment · runtime errors are the signal.</tspan>
+    </text>
+  </g>
+</svg>
