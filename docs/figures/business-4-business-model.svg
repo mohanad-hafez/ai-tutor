@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="Inter, system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#080e1a"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#121a2a"/>
+      <stop offset="1" stop-color="#0e1626"/>
+    </linearGradient>
+    <linearGradient id="cardMint" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#00e5a0" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#00e5a0" stop-opacity="0.04"/>
+    </linearGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1" fill="#94a3b8" fill-opacity="0.04"/>
+    </pattern>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dy="3"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.35"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#dots)"/>
+
+  <!-- Header -->
+  <text x="80" y="64" font-size="14" font-weight="600" letter-spacing="3" fill="#00e5a0">BUSINESS MODEL</text>
+  <text x="80" y="116" font-size="38" font-weight="700" fill="#ffffff" letter-spacing="-0.4">Three tiers · margin expands with usage</text>
+  <text x="80" y="148" font-size="16" fill="#94a3b8">Free for virality · Pro for individuals · Edu for institutions. The library moat does the heavy lifting on unit economics.</text>
+
+  <!-- 3 tier cards · w=560, gap=40, x=80 -->
+
+  <!-- FREE tier -->
+  <g filter="url(#shadow)">
+    <rect x="80" y="200" width="560" height="700" rx="14" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="80" y="200" width="560" height="3" fill="#94a3b8"/>
+    <text x="120" y="240" font-size="13" font-weight="700" letter-spacing="2.4" fill="#94a3b8">TIER 1 · FREE</text>
+    <text x="120" y="296" font-size="64" font-weight="700" fill="#ffffff" letter-spacing="-1">$0</text>
+    <text x="120" y="328" font-size="14" font-style="italic" fill="#94a3b8">forever, no card</text>
+    <line x1="120" y1="356" x2="600" y2="356" stroke="#1e293b"/>
+
+    <g transform="translate(120, 386)" font-size="15">
+      <g transform="translate(0, 0)">
+        <circle cx="6" cy="8" r="4" fill="#94a3b8" fill-opacity="0.4"/>
+        <text x="22" y="12" fill="#cbd5e1">5 generated lessons / month</text>
+      </g>
+      <g transform="translate(0, 36)">
+        <circle cx="6" cy="8" r="4" fill="#94a3b8" fill-opacity="0.4"/>
+        <text x="22" y="12" fill="#cbd5e1">Public knowledge graph</text>
+      </g>
+      <g transform="translate(0, 72)">
+        <circle cx="6" cy="8" r="4" fill="#94a3b8" fill-opacity="0.4"/>
+        <text x="22" y="12" fill="#cbd5e1">Shareable lesson permalinks</text>
+      </g>
+      <g transform="translate(0, 108)">
+        <circle cx="6" cy="8" r="4" fill="#94a3b8" fill-opacity="0.4"/>
+        <text x="22" y="12" fill="#cbd5e1">Manim video export (watermarked)</text>
+      </g>
+      <g transform="translate(0, 144)">
+        <text x="0" y="12" fill="#475569" font-style="italic">— priority queue</text>
+      </g>
+      <g transform="translate(0, 174)">
+        <text x="0" y="12" fill="#475569" font-style="italic">— offline / mobile</text>
+      </g>
+    </g>
+
+    <!-- Purpose tag -->
+    <g transform="translate(120, 740)">
+      <text x="0" y="0" font-size="13" font-weight="700" letter-spacing="2.4" fill="#94a3b8">PURPOSE</text>
+      <text x="0" y="28" font-size="14" font-style="italic" fill="#94a3b8">virality · onboarding · feeds the library</text>
+    </g>
+  </g>
+
+  <!-- PRO tier (highlighted, mint) -->
+  <g filter="url(#shadow)">
+    <rect x="680" y="180" width="560" height="740" rx="14" fill="url(#card)" stroke="#00e5a0" stroke-width="2.4"/>
+    <rect x="680" y="180" width="560" height="4" fill="#00e5a0"/>
+    <!-- Recommended pill -->
+    <g transform="translate(680, 168)">
+      <rect x="200" y="0" width="160" height="28" rx="14" fill="#00e5a0"/>
+      <text x="280" y="18" font-size="11" font-weight="700" letter-spacing="2.4" fill="#0b1220" text-anchor="middle">MOST POPULAR</text>
+    </g>
+    <text x="720" y="232" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">TIER 2 · PRO</text>
+    <text x="720" y="296" font-size="76" font-weight="700" fill="#ffffff" letter-spacing="-1">$12<tspan font-size="22" fill="#94a3b8">/mo</tspan></text>
+    <text x="720" y="328" font-size="14" font-style="italic" fill="#94a3b8">individual · billed monthly · cancel anytime</text>
+    <line x1="720" y1="356" x2="1200" y2="356" stroke="#1e293b"/>
+
+    <g transform="translate(720, 386)" font-size="15">
+      <g transform="translate(0, 0)">
+        <path d="M 0 8 L 6 14 L 14 4" stroke="#00e5a0" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="22" y="12" fill="#ffffff" font-weight="600">Unlimited generations</text>
+      </g>
+      <g transform="translate(0, 36)">
+        <path d="M 0 8 L 6 14 L 14 4" stroke="#00e5a0" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="22" y="12" fill="#ffffff" font-weight="600">Private knowledge graph + cloud sync</text>
+      </g>
+      <g transform="translate(0, 72)">
+        <path d="M 0 8 L 6 14 L 14 4" stroke="#00e5a0" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="22" y="12" fill="#ffffff" font-weight="600">Priority queue · faster Manim renders</text>
+      </g>
+      <g transform="translate(0, 108)">
+        <path d="M 0 8 L 6 14 L 14 4" stroke="#00e5a0" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="22" y="12" fill="#ffffff" font-weight="600">Mobile · offline · no watermark</text>
+      </g>
+      <g transform="translate(0, 144)">
+        <path d="M 0 8 L 6 14 L 14 4" stroke="#00e5a0" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="22" y="12" fill="#ffffff" font-weight="600">Quiz generation per node</text>
+      </g>
+      <g transform="translate(0, 180)">
+        <path d="M 0 8 L 6 14 L 14 4" stroke="#00e5a0" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="22" y="12" fill="#ffffff" font-weight="600">Zotero / Notion import</text>
+      </g>
+    </g>
+
+    <g transform="translate(720, 760)">
+      <text x="0" y="0" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">PURPOSE</text>
+      <text x="0" y="28" font-size="14" font-style="italic" fill="#cbd5e1">primary revenue · target user converts at $12 anchor</text>
+    </g>
+  </g>
+
+  <!-- EDU tier -->
+  <g filter="url(#shadow)">
+    <rect x="1280" y="200" width="560" height="700" rx="14" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="1280" y="200" width="560" height="3" fill="#94a3b8"/>
+    <text x="1320" y="240" font-size="13" font-weight="700" letter-spacing="2.4" fill="#94a3b8">TIER 3 · EDU</text>
+    <text x="1320" y="296" font-size="64" font-weight="700" fill="#ffffff" letter-spacing="-1">$4<tspan font-size="20" fill="#94a3b8">/student/mo</tspan></text>
+    <text x="1320" y="328" font-size="14" font-style="italic" fill="#94a3b8">institutional · annual contract · volume tiers</text>
+    <line x1="1320" y1="356" x2="1800" y2="356" stroke="#1e293b"/>
+
+    <g transform="translate(1320, 386)" font-size="15">
+      <g transform="translate(0, 0)">
+        <circle cx="6" cy="8" r="4" fill="#94a3b8" fill-opacity="0.4"/>
+        <text x="22" y="12" fill="#cbd5e1">Everything in Pro for every enrolled student</text>
+      </g>
+      <g transform="translate(0, 36)">
+        <circle cx="6" cy="8" r="4" fill="#94a3b8" fill-opacity="0.4"/>
+        <text x="22" y="12" fill="#cbd5e1">Class dashboards · cohort analytics</text>
+      </g>
+      <g transform="translate(0, 72)">
+        <circle cx="6" cy="8" r="4" fill="#94a3b8" fill-opacity="0.4"/>
+        <text x="22" y="12" fill="#cbd5e1">Professor templates · curriculum mapping</text>
+      </g>
+      <g transform="translate(0, 108)">
+        <circle cx="6" cy="8" r="4" fill="#94a3b8" fill-opacity="0.4"/>
+        <text x="22" y="12" fill="#cbd5e1">FERPA / GDPR clean · SSO · audit logs</text>
+      </g>
+      <g transform="translate(0, 144)">
+        <circle cx="6" cy="8" r="4" fill="#94a3b8" fill-opacity="0.4"/>
+        <text x="22" y="12" fill="#cbd5e1">Custom skill library per department</text>
+      </g>
+      <g transform="translate(0, 180)">
+        <circle cx="6" cy="8" r="4" fill="#94a3b8" fill-opacity="0.4"/>
+        <text x="22" y="12" fill="#cbd5e1">Dedicated support</text>
+      </g>
+    </g>
+
+    <g transform="translate(1320, 740)">
+      <text x="0" y="0" font-size="13" font-weight="700" letter-spacing="2.4" fill="#94a3b8">PURPOSE</text>
+      <text x="0" y="28" font-size="14" font-style="italic" fill="#94a3b8">large contracts · annual revenue · sticky distribution</text>
+    </g>
+  </g>
+
+  <!-- Footer · margin-expansion callout -->
+  <g transform="translate(80, 940)">
+    <rect x="0" y="0" width="1760" height="80" rx="12" fill="#121a2a" stroke="#00e5a0" stroke-width="1.4" stroke-opacity="0.6"/>
+    <text x="30" y="34" font-size="14" font-weight="700" letter-spacing="2.4" fill="#00e5a0">THE MOAT · UNIT ECONOMICS</text>
+    <text x="30" y="64" font-size="17" fill="#cbd5e1">
+      Every Pro generation feeds the library. <tspan font-weight="700" fill="#ffffff">Marginal cost trends down · margin expands as usage grows.</tspan>
+      <tspan dx="14" font-style="italic" fill="#94a3b8">Already proven 9.8% in 2 weeks → see cost-economics figure.</tspan>
+    </text>
+  </g>
+</svg>

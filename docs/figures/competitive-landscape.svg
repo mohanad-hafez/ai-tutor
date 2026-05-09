@@ -1,0 +1,312 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="Inter, system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#080e1a"/>
+    </linearGradient>
+    <linearGradient id="vitCol" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#00e5a0" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#00e5a0" stop-opacity="0.04"/>
+    </linearGradient>
+    <radialGradient id="vitGlow" cx="0.5" cy="0.5" r="0.7">
+      <stop offset="0" stop-color="#00e5a0" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#00e5a0" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1" fill="#94a3b8" fill-opacity="0.04"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#dots)"/>
+
+  <!-- HEADER -->
+  <text x="80" y="64" font-size="14" font-weight="600" letter-spacing="3" fill="#00e5a0">FIGURE · COMPETITIVE LANDSCAPE</text>
+  <text x="80" y="116" font-size="38" font-weight="700" fill="#ffffff" letter-spacing="-0.4">Different tools, different problems</text>
+  <text x="80" y="148" font-size="16" fill="#94a3b8">NotebookLM, Khanmigo, ChatGPT Study, Anki — each excels at what it sets out to do. None of them turn a highlighted PDF concept into an interactive widget.</text>
+
+  <!-- ViT column highlight (background tint) -->
+  <ellipse cx="1660" cy="540" rx="240" ry="320" fill="url(#vitGlow)"/>
+  <rect x="1480" y="200" width="360" height="660" rx="14" fill="url(#vitCol)" stroke="#00e5a0" stroke-width="2.2"/>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- TABLE HEADER ROW                                                   -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <text x="98" y="246" font-size="13" font-weight="700" letter-spacing="2.4" fill="#64748b">DIMENSION</text>
+
+  <!-- 1. NotebookLM -->
+  <g transform="translate(420, 218)">
+    <g stroke="#94a3b8" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="0" y="0" width="22" height="28" rx="2"/>
+      <line x1="5" y1="7" x2="17" y2="7"/>
+      <line x1="5" y1="13" x2="17" y2="13"/>
+      <line x1="5" y1="19" x2="13" y2="19"/>
+    </g>
+    <text x="38" y="20" font-size="20" font-weight="700" fill="#ffffff">NotebookLM</text>
+    <text x="38" y="42" font-size="11" font-style="italic" fill="#64748b">Google · podcasts, mindmaps, FAQ</text>
+  </g>
+
+  <!-- 2. Khanmigo -->
+  <g transform="translate(690, 218)">
+    <g stroke="#94a3b8" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 2 3 L 22 3 L 22 19 L 14 19 L 8 25 L 8 19 L 2 19 Z"/>
+      <circle cx="9" cy="11" r="1" fill="#94a3b8"/>
+      <circle cx="14" cy="11" r="1" fill="#94a3b8"/>
+      <circle cx="19" cy="11" r="1" fill="#94a3b8"/>
+    </g>
+    <text x="38" y="20" font-size="20" font-weight="700" fill="#ffffff">Khanmigo</text>
+    <text x="38" y="42" font-size="11" font-style="italic" fill="#64748b">Khan Academy · adaptive K-12 tutor</text>
+  </g>
+
+  <!-- 3. ChatGPT Study -->
+  <g transform="translate(960, 218)">
+    <g stroke="#94a3b8" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="13" cy="13" r="11"/>
+      <path d="M 7 13 L 19 13 M 13 7 L 13 19" stroke-width="1.2" opacity="0.6"/>
+    </g>
+    <text x="38" y="20" font-size="20" font-weight="700" fill="#ffffff">ChatGPT Study</text>
+    <text x="38" y="42" font-size="11" font-style="italic" fill="#64748b">OpenAI · chat + canvas writing</text>
+  </g>
+
+  <!-- 4. Anki -->
+  <g transform="translate(1230, 218)">
+    <g stroke="#94a3b8" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="2" width="18" height="22" rx="2" transform="rotate(-6 15 13)"/>
+      <rect x="2" y="4" width="18" height="22" rx="2"/>
+    </g>
+    <text x="38" y="20" font-size="20" font-weight="700" fill="#ffffff">Anki</text>
+    <text x="38" y="42" font-size="11" font-style="italic" fill="#64748b">spaced-repetition recall (gold standard)</text>
+  </g>
+
+  <!-- 5. ViT -->
+  <g transform="translate(1502, 218)">
+    <g stroke="#00e5a0" stroke-width="1.8" fill="#00e5a0" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="6" y1="6" x2="22" y2="14" stroke-width="1.4"/>
+      <line x1="22" y1="14" x2="14" y2="26" stroke-width="1.4"/>
+      <line x1="14" y1="26" x2="6" y2="6" stroke-width="1.4"/>
+      <circle cx="6" cy="6" r="3.5"/>
+      <circle cx="22" cy="14" r="3.5"/>
+      <circle cx="14" cy="26" r="3.5"/>
+    </g>
+    <text x="38" y="20" font-size="22" font-weight="700" fill="#00e5a0">ViT</text>
+    <text x="38" y="42" font-size="11" font-style="italic" fill="#94a3b8">our system</text>
+  </g>
+
+  <line x1="80" y1="290" x2="1840" y2="290" stroke="#1e293b" stroke-width="1.5"/>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ROW 1 · BEYOND SCROLL & CHAT?                                      -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <text x="98" y="338" font-size="11" font-weight="700" letter-spacing="2.4" fill="#00e5a0">DIMENSION 1</text>
+  <text x="98" y="372" font-size="22" font-weight="700" fill="#ffffff">Beyond scroll &amp; chat?</text>
+  <text x="98" y="396" font-size="13" fill="#94a3b8">Can you see your understanding</text>
+  <text x="98" y="414" font-size="13" fill="#94a3b8">structurally — or only scroll back?</text>
+
+  <!-- NotebookLM -->
+  <g transform="translate(420, 326)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">notebook + chat thread</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">grouped sources, but flat list</text>
+  </g>
+
+  <!-- Khanmigo -->
+  <g transform="translate(690, 326)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">linear chat thread</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">scroll up to find anything</text>
+  </g>
+
+  <!-- ChatGPT Study -->
+  <g transform="translate(960, 326)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">chat + single canvas</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">one document at a time</text>
+  </g>
+
+  <!-- Anki -->
+  <g transform="translate(1230, 326)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">card deck</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">flat list, no relationships</text>
+  </g>
+
+  <!-- ViT -->
+  <g transform="translate(1502, 326)">
+    <circle cx="14" cy="14" r="14" fill="#00e5a0" fill-opacity="0.18" stroke="#00e5a0" stroke-width="1.8"/>
+    <path d="M 7 14 L 12 19 L 21 9" stroke="#00e5a0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="40" y="14" font-size="14" font-weight="700" fill="#ffffff">knowledge graph</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#00e5a0">zoom out → see your structure</text>
+  </g>
+
+  <line x1="80" y1="450" x2="1480" y2="450" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ROW 2 · TRULY INTERACTIVE?                                         -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <text x="98" y="498" font-size="11" font-weight="700" letter-spacing="2.4" fill="#00e5a0">DIMENSION 2</text>
+  <text x="98" y="532" font-size="22" font-weight="700" fill="#ffffff">Truly interactive?</text>
+  <text x="98" y="556" font-size="13" fill="#94a3b8">Can you drag, scrub, manipulate</text>
+  <text x="98" y="574" font-size="13" fill="#94a3b8">— or just watch and read?</text>
+
+  <!-- NotebookLM -->
+  <g transform="translate(420, 486)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">not interactive</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">podcast + mindmap, all watch-only</text>
+  </g>
+
+  <!-- Khanmigo -->
+  <g transform="translate(690, 486)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">not interactive</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">strong tutor, but text-shaped</text>
+  </g>
+
+  <!-- ChatGPT Study -->
+  <g transform="translate(960, 486)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">not interactive</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">canvas markup, no widgets</text>
+  </g>
+
+  <!-- Anki -->
+  <g transform="translate(1230, 486)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">not interactive</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">flip cards, no manipulation</text>
+  </g>
+
+  <!-- ViT -->
+  <g transform="translate(1502, 486)">
+    <circle cx="14" cy="14" r="14" fill="#00e5a0" fill-opacity="0.18" stroke="#00e5a0" stroke-width="1.8"/>
+    <path d="M 7 14 L 12 19 L 21 9" stroke="#00e5a0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="40" y="14" font-size="14" font-weight="700" fill="#ffffff">interactive</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#00e5a0">live HTML widgets per concept</text>
+  </g>
+
+  <line x1="80" y1="610" x2="1480" y2="610" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ROW 3 · GENERATION                                                 -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <text x="98" y="658" font-size="11" font-weight="700" letter-spacing="2.4" fill="#00e5a0">DIMENSION 3</text>
+  <text x="98" y="692" font-size="22" font-weight="700" fill="#ffffff">How content is made</text>
+  <text x="98" y="716" font-size="13" fill="#94a3b8">Pre-rendered, hand-authored,</text>
+  <text x="98" y="734" font-size="13" fill="#94a3b8">or generated on demand?</text>
+
+  <!-- NotebookLM -->
+  <g transform="translate(420, 646)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">LLM text + audio + diagrams</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">prose &amp; static, not runnable code</text>
+  </g>
+
+  <!-- Khanmigo -->
+  <g transform="translate(690, 646)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">LLM text only</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">explanations, not artifacts</text>
+  </g>
+
+  <!-- ChatGPT Study -->
+  <g transform="translate(960, 646)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">LLM text + diagrams</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">no executable output</text>
+  </g>
+
+  <!-- Anki -->
+  <g transform="translate(1230, 646)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">manually authored</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">you write every card</text>
+  </g>
+
+  <!-- ViT -->
+  <g transform="translate(1502, 646)">
+    <circle cx="14" cy="14" r="14" fill="#00e5a0" fill-opacity="0.18" stroke="#00e5a0" stroke-width="1.8"/>
+    <path d="M 7 14 L 12 19 L 21 9" stroke="#00e5a0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="40" y="14" font-size="14" font-weight="700" fill="#ffffff">LLM-generated code</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#00e5a0">HTML + Manim, runnable</text>
+  </g>
+
+  <line x1="80" y1="770" x2="1480" y2="770" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ROW 4 · ECONOMICS                                                  -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <text x="98" y="818" font-size="11" font-weight="700" letter-spacing="2.4" fill="#00e5a0">DIMENSION 4</text>
+  <text x="98" y="852" font-size="22" font-weight="700" fill="#ffffff">Does cost compound down?</text>
+  <text x="98" y="876" font-size="13" fill="#94a3b8">Marginal cost per generation</text>
+  <text x="98" y="894" font-size="13" fill="#94a3b8">over time as users grow.</text>
+
+  <!-- NotebookLM -->
+  <g transform="translate(420, 806)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">flat per-query</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">no cross-session compounding</text>
+  </g>
+
+  <!-- Khanmigo -->
+  <g transform="translate(690, 806)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">flat per-query</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">scales linearly with users</text>
+  </g>
+
+  <!-- ChatGPT Study -->
+  <g transform="translate(960, 806)">
+    <circle cx="14" cy="14" r="14" fill="#fb7185" fill-opacity="0.12" stroke="#fb7185" stroke-width="1.6"/>
+    <path d="M 7 7 L 21 21 M 21 7 L 7 21" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">flat per-query</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">re-derives every time</text>
+  </g>
+
+  <!-- Anki -->
+  <g transform="translate(1230, 806)">
+    <circle cx="14" cy="14" r="14" fill="#475569" fill-opacity="0.18" stroke="#475569" stroke-width="1.6"/>
+    <text x="14" y="20" font-size="20" font-weight="700" fill="#475569" text-anchor="middle">—</text>
+    <text x="40" y="14" font-size="14" font-weight="600" fill="#cfdcec">no inference cost</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#64748b">but no generation either</text>
+  </g>
+
+  <!-- ViT -->
+  <g transform="translate(1502, 806)">
+    <circle cx="14" cy="14" r="14" fill="#00e5a0" fill-opacity="0.18" stroke="#00e5a0" stroke-width="1.8"/>
+    <path d="M 7 14 L 12 19 L 21 9" stroke="#00e5a0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="40" y="14" font-size="14" font-weight="700" fill="#ffffff">cost trends down</text>
+    <text x="40" y="32" font-size="11" font-style="italic" fill="#00e5a0">library compounds, 9.8% so far</text>
+  </g>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- BOTTOM SUMMARY (acknowledges them, then states the gap)            -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <g transform="translate(80, 970)">
+    <rect x="0" y="0" width="1760" height="80" rx="12" fill="#121a2a" stroke="#00e5a0" stroke-width="1.4" stroke-opacity="0.6"/>
+    <text x="30" y="34" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">THE GAP</text>
+    <text x="30" y="62" font-size="15" fill="#cbd5e1">
+      <tspan font-style="italic">Each tool is excellent at its actual job — multi-source synthesis, adaptive tutoring, study writing, recall.</tspan>
+      <tspan dx="14" font-weight="700" fill="#00e5a0">None of them turn a highlighted concept into an interactive widget you can manipulate.</tspan>
+    </text>
+  </g>
+</svg>

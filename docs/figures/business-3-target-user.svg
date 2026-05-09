@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="Inter, system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#080e1a"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#121a2a"/>
+      <stop offset="1" stop-color="#0e1626"/>
+    </linearGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1" fill="#94a3b8" fill-opacity="0.04"/>
+    </pattern>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dy="3"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.35"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#dots)"/>
+
+  <!-- Header -->
+  <text x="80" y="64" font-size="14" font-weight="600" letter-spacing="3" fill="#00e5a0">TARGET USER · WEDGE</text>
+  <text x="80" y="116" font-size="38" font-weight="700" fill="#ffffff" letter-spacing="-0.4">The first 100 users</text>
+  <text x="80" y="148" font-size="16" fill="#94a3b8">Specific persona, not "anyone learning anything." High pain, novelty tolerance, network effects.</text>
+
+  <!-- LEFT card: Persona · x=80-960 -->
+  <g filter="url(#shadow)">
+    <rect x="80" y="200" width="880" height="700" rx="14" fill="url(#card)" stroke="#00e5a0" stroke-width="1.8"/>
+    <rect x="80" y="200" width="880" height="3" fill="#00e5a0"/>
+    <text x="120" y="240" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">PERSONA · WHO SHIPS FIRST</text>
+
+    <!-- Avatar circle + initial -->
+    <circle cx="200" cy="350" r="60" fill="#00e5a0" fill-opacity="0.12" stroke="#00e5a0" stroke-width="2.5"/>
+    <text x="200" y="370" font-size="44" font-weight="700" fill="#00e5a0" text-anchor="middle">CS</text>
+
+    <text x="290" y="328" font-size="32" font-weight="700" fill="#ffffff" letter-spacing="-0.3">Mahmoud, 21</text>
+    <text x="290" y="362" font-size="17" fill="#cbd5e1">CS/ML undergrad · 3rd year</text>
+    <text x="290" y="386" font-size="14" fill="#94a3b8">reads textbooks, papers, course notes daily</text>
+
+    <line x1="120" y1="450" x2="920" y2="450" stroke="#1e293b"/>
+
+    <!-- Pain bullets -->
+    <g transform="translate(120, 484)">
+      <text x="0" y="0" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">PAIN</text>
+      <g transform="translate(0, 22)">
+        <circle cx="6" cy="8" r="3" fill="#fb7185"/>
+        <text x="22" y="12" font-size="15" fill="#cbd5e1">Visual concepts (gradient descent, hash tables, FFT) can't</text>
+        <text x="22" y="34" font-size="15" fill="#cbd5e1">be understood from text — but every tool gives him more text.</text>
+      </g>
+      <g transform="translate(0, 90)">
+        <circle cx="6" cy="8" r="3" fill="#fb7185"/>
+        <text x="22" y="12" font-size="15" fill="#cbd5e1">Office hours don't scale. YouTube videos are static.</text>
+        <text x="22" y="34" font-size="15" fill="#cbd5e1">Anki only helps after he understands.</text>
+      </g>
+      <g transform="translate(0, 158)">
+        <circle cx="6" cy="8" r="3" fill="#fb7185"/>
+        <text x="22" y="12" font-size="15" fill="#cbd5e1">Pays for ChatGPT Plus already. Willing to pay $10–15/mo</text>
+        <text x="22" y="34" font-size="15" fill="#cbd5e1">for something that actually clicks.</text>
+      </g>
+    </g>
+
+    <line x1="120" y1="740" x2="920" y2="740" stroke="#1e293b"/>
+
+    <!-- Why this user first -->
+    <g transform="translate(120, 774)">
+      <text x="0" y="0" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">WHY THIS USER FIRST</text>
+      <text x="0" y="28" font-size="14" fill="#cbd5e1">→ comfortable installing new tools · novelty tolerance is high</text>
+      <text x="0" y="52" font-size="14" fill="#cbd5e1">→ study groups create network effects · one user pulls 5 friends</text>
+      <text x="0" y="76" font-size="14" fill="#cbd5e1">→ shareable lesson permalinks turn study sessions into distribution</text>
+    </g>
+  </g>
+
+  <!-- RIGHT card: Channels · x=980-1840 -->
+  <g filter="url(#shadow)">
+    <rect x="980" y="200" width="860" height="700" rx="14" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="980" y="200" width="860" height="3" fill="#00e5a0"/>
+    <text x="1020" y="240" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">CHANNELS · WHERE TO FIND THEM</text>
+
+    <!-- Channel 1 -->
+    <g transform="translate(1020, 280)">
+      <rect x="0" y="0" width="780" height="80" rx="10" fill="#0a1322" stroke="#1e293b"/>
+      <g transform="translate(20, 24)" stroke="#00e5a0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="16" cy="16" r="14"/>
+        <path d="M 8 16 L 24 16 M 16 8 L 16 24" stroke-width="1.6" opacity="0.6"/>
+      </g>
+      <text x="80" y="34" font-size="17" font-weight="700" fill="#ffffff">Reddit</text>
+      <text x="80" y="56" font-size="13" fill="#94a3b8">r/learnmachinelearning · r/cs50 · r/MachineLearning · r/learnmath</text>
+      <text x="760" y="44" font-size="12" font-family="JetBrains Mono, ui-monospace, monospace" fill="#00e5a0" text-anchor="end">organic + AMA</text>
+    </g>
+
+    <!-- Channel 2 -->
+    <g transform="translate(1020, 376)">
+      <rect x="0" y="0" width="780" height="80" rx="10" fill="#0a1322" stroke="#1e293b"/>
+      <g transform="translate(20, 24)" stroke="#00e5a0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M 4 8 L 28 8 L 28 24 L 18 24 L 12 30 L 12 24 L 4 24 Z"/>
+      </g>
+      <text x="80" y="34" font-size="17" font-weight="700" fill="#ffffff">University Discords + Slack</text>
+      <text x="80" y="56" font-size="13" fill="#94a3b8">CS major group chats · TA channels · campus tech orgs</text>
+      <text x="760" y="44" font-size="12" font-family="JetBrains Mono, ui-monospace, monospace" fill="#00e5a0" text-anchor="end">peer-to-peer</text>
+    </g>
+
+    <!-- Channel 3 -->
+    <g transform="translate(1020, 472)">
+      <rect x="0" y="0" width="780" height="80" rx="10" fill="#0a1322" stroke="#1e293b"/>
+      <g transform="translate(20, 24)" stroke="#00e5a0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="2,4 30,4 30,28 2,28" fill="none"/>
+        <polygon points="11,11 22,16 11,21" fill="#00e5a0"/>
+      </g>
+      <text x="80" y="34" font-size="17" font-weight="700" fill="#ffffff">YouTube comment + creator outreach</text>
+      <text x="80" y="56" font-size="13" fill="#94a3b8">3Blue1Brown audience · fast.ai · StatQuest · Two Minute Papers</text>
+      <text x="760" y="44" font-size="12" font-family="JetBrains Mono, ui-monospace, monospace" fill="#00e5a0" text-anchor="end">aligned audience</text>
+    </g>
+
+    <!-- Channel 4 -->
+    <g transform="translate(1020, 568)">
+      <rect x="0" y="0" width="780" height="80" rx="10" fill="#0a1322" stroke="#1e293b"/>
+      <g transform="translate(20, 24)" stroke="#00e5a0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M 16 4 L 28 12 L 28 24 L 16 30 L 4 24 L 4 12 Z"/>
+        <path d="M 12 16 L 16 20 L 22 14"/>
+      </g>
+      <text x="80" y="34" font-size="17" font-weight="700" fill="#ffffff">University TA / Professor outreach</text>
+      <text x="80" y="56" font-size="13" fill="#94a3b8">CS229 (Stanford) · 6.034 (MIT) · Andrew Ng's Coursera cohorts</text>
+      <text x="760" y="44" font-size="12" font-family="JetBrains Mono, ui-monospace, monospace" fill="#00e5a0" text-anchor="end">institutional pilot</text>
+    </g>
+
+    <!-- Channel 5 -->
+    <g transform="translate(1020, 664)">
+      <rect x="0" y="0" width="780" height="80" rx="10" fill="#0a1322" stroke="#1e293b"/>
+      <g transform="translate(20, 24)" stroke="#00e5a0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M 4 14 L 28 14 M 16 6 L 16 22"/>
+        <circle cx="16" cy="14" r="14"/>
+      </g>
+      <text x="80" y="34" font-size="17" font-weight="700" fill="#ffffff">SEO + content moats</text>
+      <text x="80" y="56" font-size="13" fill="#94a3b8">"explain [concept] visually" · indexed lesson permalinks</text>
+      <text x="760" y="44" font-size="12" font-family="JetBrains Mono, ui-monospace, monospace" fill="#00e5a0" text-anchor="end">long-tail</text>
+    </g>
+
+    <!-- Conversion hook -->
+    <g transform="translate(1020, 776)">
+      <rect x="0" y="0" width="780" height="80" rx="10" fill="#00e5a0" fill-opacity="0.10" stroke="#00e5a0" stroke-width="1.4"/>
+      <text x="20" y="32" font-size="13" font-weight="700" letter-spacing="2" fill="#00e5a0">CONVERSION HOOK</text>
+      <text x="20" y="60" font-size="15" fill="#cbd5e1">5 free lessons/month · then $12/mo Pro · friction-free</text>
+    </g>
+  </g>
+
+  <!-- Footer -->
+  <g transform="translate(80, 940)">
+    <rect x="0" y="0" width="1760" height="80" rx="12" fill="#121a2a" stroke="#00e5a0" stroke-width="1.4" stroke-opacity="0.6"/>
+    <text x="30" y="34" font-size="14" font-weight="700" letter-spacing="2.4" fill="#00e5a0">THE WEDGE</text>
+    <text x="30" y="64" font-size="17" fill="#cbd5e1">
+      Specific user · specific pain · specific channels.
+      <tspan dx="14" font-weight="700" fill="#00e5a0">Not "any learner anywhere" — that's how startups die.</tspan>
+    </text>
+  </g>
+</svg>

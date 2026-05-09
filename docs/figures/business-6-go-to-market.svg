@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="Inter, system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#080e1a"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#121a2a"/>
+      <stop offset="1" stop-color="#0e1626"/>
+    </linearGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1" fill="#94a3b8" fill-opacity="0.04"/>
+    </pattern>
+    <marker id="arr-mint" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#00e5a0"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dy="3"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.35"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#dots)"/>
+
+  <!-- Header -->
+  <text x="80" y="64" font-size="14" font-weight="600" letter-spacing="3" fill="#00e5a0">GO-TO-MARKET · 90 DAYS</text>
+  <text x="80" y="116" font-size="38" font-weight="700" fill="#ffffff" letter-spacing="-0.4">Concrete moves, real targets</text>
+  <text x="80" y="148" font-size="16" fill="#94a3b8">Not "expand globally." Three milestones, each with a measurable outcome.</text>
+
+  <!-- Timeline line -->
+  <g>
+    <line x1="180" y1="280" x2="1740" y2="280" stroke="#475569" stroke-width="2.5"/>
+    <!-- 3 dots -->
+    <circle cx="300" cy="280" r="14" fill="#0b1220" stroke="#00e5a0" stroke-width="3"/>
+    <text x="300" y="288" font-size="14" font-weight="700" fill="#00e5a0" text-anchor="middle">1</text>
+    <circle cx="960" cy="280" r="14" fill="#0b1220" stroke="#00e5a0" stroke-width="3"/>
+    <text x="960" y="288" font-size="14" font-weight="700" fill="#00e5a0" text-anchor="middle">2</text>
+    <circle cx="1620" cy="280" r="14" fill="#0b1220" stroke="#00e5a0" stroke-width="3"/>
+    <text x="1620" y="288" font-size="14" font-weight="700" fill="#00e5a0" text-anchor="middle">3</text>
+    <!-- arrow at end -->
+    <line x1="1734" y1="280" x2="1740" y2="280" marker-end="url(#arr-mint)" stroke="#475569" stroke-width="2.5"/>
+  </g>
+
+  <!-- 3 milestone cards -->
+
+  <!-- 30 days -->
+  <g filter="url(#shadow)">
+    <rect x="100" y="320" width="560" height="600" rx="14" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="100" y="320" width="560" height="3" fill="#00e5a0"/>
+    <text x="140" y="362" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">DAYS 1–30</text>
+    <text x="140" y="412" font-size="42" font-weight="700" fill="#ffffff" letter-spacing="-0.5">Public launch</text>
+    <text x="140" y="442" font-size="16" fill="#94a3b8">Get the right users in front of it</text>
+    <line x1="140" y1="478" x2="620" y2="478" stroke="#1e293b"/>
+
+    <g transform="translate(140, 510)" font-size="14">
+      <g transform="translate(0, 0)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Harden Verifier loop end-to-end · zero crash demos</text>
+      </g>
+      <g transform="translate(0, 36)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Polish 5 hero demo cases (gradient descent, hash table,</text>
+        <text x="22" y="34" fill="#cbd5e1">FFT, Bayes' theorem, attention mechanism)</text>
+      </g>
+      <g transform="translate(0, 92)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Launch on r/learnmachinelearning + r/cs50</text>
+      </g>
+      <g transform="translate(0, 128)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Ship lesson permalinks · embeddable iframes</text>
+      </g>
+      <g transform="translate(0, 164)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Founder DMs to top 50 ML / CS YouTubers</text>
+      </g>
+    </g>
+
+    <!-- target metric -->
+    <g transform="translate(140, 800)">
+      <rect x="0" y="0" width="480" height="80" rx="10" fill="#00e5a0" fill-opacity="0.10" stroke="#00e5a0" stroke-width="1.4"/>
+      <text x="20" y="32" font-size="13" font-weight="700" letter-spacing="2" fill="#00e5a0">TARGET</text>
+      <text x="20" y="60" font-size="16" fill="#cbd5e1"><tspan font-weight="700" fill="#ffffff">1,000 waitlist signups</tspan> · 100 active weekly users</text>
+    </g>
+  </g>
+
+  <!-- 60 days -->
+  <g filter="url(#shadow)">
+    <rect x="680" y="320" width="560" height="600" rx="14" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="680" y="320" width="560" height="3" fill="#00e5a0"/>
+    <text x="720" y="362" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">DAYS 31–60</text>
+    <text x="720" y="412" font-size="42" font-weight="700" fill="#ffffff" letter-spacing="-0.5">Viral hooks</text>
+    <text x="720" y="442" font-size="16" fill="#94a3b8">Make sharing the lesson the marketing</text>
+    <line x1="720" y1="478" x2="1200" y2="478" stroke="#1e293b"/>
+
+    <g transform="translate(720, 510)" font-size="14">
+      <g transform="translate(0, 0)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Collaborative graphs — share canvas with study group</text>
+      </g>
+      <g transform="translate(0, 36)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Auto-generated quiz nodes from any concept</text>
+      </g>
+      <g transform="translate(0, 72)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Pro tier launch · Stripe checkout · $12/mo</text>
+      </g>
+      <g transform="translate(0, 108)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Public skill library page · "made with ViT" attribution</text>
+      </g>
+      <g transform="translate(0, 144)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">SEO seed: 100 indexed lesson pages on hot CS topics</text>
+      </g>
+      <g transform="translate(0, 180)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">First creator partnership (1 ML YouTuber gets free Edu)</text>
+      </g>
+    </g>
+
+    <g transform="translate(720, 800)">
+      <rect x="0" y="0" width="480" height="80" rx="10" fill="#00e5a0" fill-opacity="0.10" stroke="#00e5a0" stroke-width="1.4"/>
+      <text x="20" y="32" font-size="13" font-weight="700" letter-spacing="2" fill="#00e5a0">TARGET</text>
+      <text x="20" y="60" font-size="16" fill="#cbd5e1"><tspan font-weight="700" fill="#ffffff">200 paying Pro users</tspan> · viral coefficient k &gt; 0.4</text>
+    </g>
+  </g>
+
+  <!-- 90 days -->
+  <g filter="url(#shadow)">
+    <rect x="1260" y="320" width="560" height="600" rx="14" fill="url(#card)" stroke="#00e5a0" stroke-width="1.8"/>
+    <rect x="1260" y="320" width="560" height="3" fill="#00e5a0"/>
+    <text x="1300" y="362" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">DAYS 61–90</text>
+    <text x="1300" y="412" font-size="42" font-weight="700" fill="#ffffff" letter-spacing="-0.5">Institutional pilot</text>
+    <text x="1300" y="442" font-size="16" fill="#94a3b8">First Edu contract · sticky distribution</text>
+    <line x1="1300" y1="478" x2="1780" y2="478" stroke="#1e293b"/>
+
+    <g transform="translate(1300, 510)" font-size="14">
+      <g transform="translate(0, 0)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Mobile PDF support · iOS / Android web app</text>
+      </g>
+      <g transform="translate(0, 36)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Voice annotations on iframes · explain-this-step</text>
+      </g>
+      <g transform="translate(0, 72)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Zotero / Notion integration for paper highlighting</text>
+      </g>
+      <g transform="translate(0, 108)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Pilot pitch to 1 university CS course</text>
+      </g>
+      <g transform="translate(0, 144)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">Targets: Stanford CS229 · MIT 6.034 · Berkeley CS189</text>
+      </g>
+      <g transform="translate(0, 180)">
+        <circle cx="6" cy="8" r="3" fill="#00e5a0"/>
+        <text x="22" y="12" fill="#cbd5e1">FERPA-clean Edu tier · SSO · annual contracts</text>
+      </g>
+    </g>
+
+    <g transform="translate(1300, 800)">
+      <rect x="0" y="0" width="480" height="80" rx="10" fill="#00e5a0" fill-opacity="0.10" stroke="#00e5a0" stroke-width="1.4"/>
+      <text x="20" y="32" font-size="13" font-weight="700" letter-spacing="2" fill="#00e5a0">TARGET</text>
+      <text x="20" y="60" font-size="16" fill="#cbd5e1"><tspan font-weight="700" fill="#ffffff">1 signed Edu pilot</tspan> · 500 paying Pro users</text>
+    </g>
+  </g>
+
+  <!-- Footer -->
+  <g transform="translate(80, 940)">
+    <rect x="0" y="0" width="1760" height="80" rx="12" fill="#121a2a" stroke="#00e5a0" stroke-width="1.4" stroke-opacity="0.6"/>
+    <text x="30" y="34" font-size="14" font-weight="700" letter-spacing="2.4" fill="#00e5a0">DISTRIBUTION</text>
+    <text x="30" y="64" font-size="17" fill="#cbd5e1">
+      <tspan font-style="italic">Bottom-up: students bring it home.</tspan>
+      <tspan dx="14" font-weight="700" fill="#ffffff">Top-down: pilot validates institutional contract motion.</tspan>
+      <tspan dx="14" font-weight="700" fill="#00e5a0">Both moves run in parallel.</tspan>
+    </text>
+  </g>
+</svg>

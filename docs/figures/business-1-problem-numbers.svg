@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="Inter, system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#080e1a"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#121a2a"/>
+      <stop offset="1" stop-color="#0e1626"/>
+    </linearGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1" fill="#94a3b8" fill-opacity="0.04"/>
+    </pattern>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dy="3"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.35"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#dots)"/>
+
+  <!-- Header -->
+  <text x="80" y="64" font-size="14" font-weight="600" letter-spacing="3" fill="#00e5a0">PROBLEM · IN NUMBERS</text>
+  <text x="80" y="116" font-size="38" font-weight="700" fill="#ffffff" letter-spacing="-0.4">The market exists. The interactive niche is empty.</text>
+  <text x="80" y="148" font-size="16" fill="#94a3b8">People pay for AI study tools. None of them turn highlighted concepts into manipulable widgets.</text>
+
+  <!-- 2x2 grid of big numbers · cells 880x340, gap 0, x=80, y=200 -->
+
+  <!-- TL: 100M+ STEM students -->
+  <g filter="url(#shadow)">
+    <rect x="80" y="200" width="880" height="340" rx="14" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="80" y="200" width="880" height="3" fill="#00e5a0"/>
+    <text x="120" y="240" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">MARKET SIZE</text>
+    <text x="120" y="380" font-size="140" font-weight="700" fill="#ffffff" letter-spacing="-3">100M+</text>
+    <text x="120" y="430" font-size="22" font-weight="600" fill="#cbd5e1">STEM students worldwide</text>
+    <text x="120" y="458" font-size="14" font-style="italic" fill="#94a3b8">tertiary enrollment in STEM fields, growing ~5% annually</text>
+    <text x="120" y="510" font-size="12" font-family="JetBrains Mono, ui-monospace, monospace" fill="#64748b">source: UNESCO Institute for Statistics, 2023</text>
+  </g>
+
+  <!-- TR: 5M+ NotebookLM MAU -->
+  <g filter="url(#shadow)">
+    <rect x="980" y="200" width="860" height="340" rx="14" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="980" y="200" width="860" height="3" fill="#00e5a0"/>
+    <text x="1020" y="240" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">DEMAND VALIDATION</text>
+    <text x="1020" y="380" font-size="140" font-weight="700" fill="#ffffff" letter-spacing="-3">5M+</text>
+    <text x="1020" y="430" font-size="22" font-weight="600" fill="#cbd5e1">NotebookLM MAU in &lt;12 months</text>
+    <text x="1020" y="458" font-size="14" font-style="italic" fill="#94a3b8">people will pay for AI study tools — the question is which one wins</text>
+    <text x="1020" y="510" font-size="12" font-family="JetBrains Mono, ui-monospace, monospace" fill="#64748b">source: Google, 2024</text>
+  </g>
+
+  <!-- BL: $340B ed-tech -->
+  <g filter="url(#shadow)">
+    <rect x="80" y="560" width="880" height="340" rx="14" fill="url(#card)" stroke="#1e293b" stroke-width="1.2"/>
+    <rect x="80" y="560" width="880" height="3" fill="#00e5a0"/>
+    <text x="120" y="600" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">SPEND POOL</text>
+    <text x="120" y="740" font-size="140" font-weight="700" fill="#ffffff" letter-spacing="-3">$340B</text>
+    <text x="120" y="790" font-size="22" font-weight="600" fill="#cbd5e1">global ed-tech market</text>
+    <text x="120" y="818" font-size="14" font-style="italic" fill="#94a3b8">expanding ~16% CAGR · AI tutoring is the fastest-growing slice</text>
+    <text x="120" y="870" font-size="12" font-family="JetBrains Mono, ui-monospace, monospace" fill="#64748b">source: HolonIQ market sizing, 2024</text>
+  </g>
+
+  <!-- BR: two-part edge — interactive widgets + cost compounds down -->
+  <g filter="url(#shadow)">
+    <rect x="980" y="560" width="860" height="340" rx="14" fill="url(#card)" stroke="#00e5a0" stroke-width="1.8"/>
+    <rect x="980" y="560" width="860" height="3" fill="#00e5a0"/>
+    <text x="1020" y="600" font-size="13" font-weight="700" letter-spacing="2.4" fill="#00e5a0">OUR EDGE · TWO-PART</text>
+    <g transform="translate(1020, 654)">
+      <circle cx="9" cy="9" r="9" fill="#00e5a0"/>
+      <text x="30" y="14" font-size="22" font-weight="700" fill="#ffffff">Interactive widgets per concept</text>
+      <text x="30" y="38" font-size="13" fill="#94a3b8">code-generated HTML / Manim · drag, scrub, manipulate</text>
+    </g>
+    <g transform="translate(1020, 730)">
+      <circle cx="9" cy="9" r="9" fill="#00e5a0"/>
+      <text x="30" y="14" font-size="22" font-weight="700" fill="#ffffff">Token cost trends DOWN with usage</text>
+      <text x="30" y="38" font-size="13" fill="#94a3b8">measured −9.8% in 2 weeks · skill library compounds</text>
+    </g>
+    <text x="1020" y="858" font-size="12" font-family="JetBrains Mono, ui-monospace, monospace" fill="#64748b">interactivity raises the bar · library lowers the cost over time</text>
+  </g>
+
+  <!-- Footer -->
+  <g transform="translate(80, 940)">
+    <rect x="0" y="0" width="1760" height="80" rx="12" fill="#121a2a" stroke="#00e5a0" stroke-width="1.4" stroke-opacity="0.6"/>
+    <text x="30" y="34" font-size="14" font-weight="700" letter-spacing="2.4" fill="#00e5a0">THE OPENING</text>
+    <text x="30" y="64" font-size="17" fill="#cbd5e1">
+      Big market · validated demand · <tspan font-weight="700" fill="#ffffff">cost trends down with usage while everyone else pays flat.</tspan>
+      <tspan dx="14" font-weight="700" fill="#00e5a0">That's our edge.</tspan>
+    </text>
+  </g>
+</svg>

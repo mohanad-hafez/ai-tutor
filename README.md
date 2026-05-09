@@ -4,6 +4,8 @@
 
 ViT turns static technical reading into a generated, interactive curriculum. Highlight any passage and a multi-agent pipeline produces a runnable HTML widget or a Manim animation tailored to that exact concept. Every lesson becomes a node on a graph; highlight inside a lesson and a child node spawns. Zoom out and you see the structure of your understanding.
 
+> 📑 **Hackathon judges:** the full business pitch is here → [**`docs/business-deck.pdf`**](docs/business-deck.pdf) (7 slides · problem · why-now · target user · model · traction · GTM · team)
+
 ---
 
 ## At a glance
