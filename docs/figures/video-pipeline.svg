@@ -32,70 +32,79 @@
   <rect width="1240" height="660" fill="url(#bg3)"/>
   <rect width="1240" height="660" fill="url(#grid3)" opacity="0.04"/>
 
-  <!-- Header — ends at y≈135, all cards start at y=165+ -->
+  <!-- Header -->
   <text x="60" y="50" font-size="13" font-weight="500" letter-spacing="3" fill="#6366f1">FIGURE 3</text>
   <text x="60" y="88" font-size="32" font-weight="700" fill="#f5f5f7" letter-spacing="-0.5">Video pipeline · state machine</text>
   <text x="60" y="114" font-size="15" font-weight="400" fill="#a1a1aa">Manim renders run as a background job. Stage transitions stream over SSE with a live ETA. Cache short-circuits</text>
   <text x="60" y="132" font-size="15" font-weight="400" fill="#a1a1aa">on identical requests. Render failures trigger one self-repair pass before erroring out.</text>
 
-  <!-- repair card — sits above the rendering card, y=165 so it clears the header -->
-  <g transform="translate(510, 165)">
-    <rect width="210" height="74" rx="12" fill="url(#card3)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4 4"/>
-    <rect width="210" height="3" rx="1.5" fill="#fbbf24"/>
-    <text x="105" y="32" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">repair</text>
-    <text x="105" y="50" font-size="10" letter-spacing="1.5" fill="#fbbf24" text-anchor="middle">CONDITIONAL</text>
-    <text x="105" y="64" font-size="10" fill="#a1a1aa" text-anchor="middle">stderr → regen script · 1× retry</text>
+  <!--
+    LAYOUT PLAN (viewBox 1240 × 660):
+    Main row y=290, card height=80  → mid y=330, bottom y=370
+    repair card above rendering: y=170, height=74  → bottom y=244
+    "cache hit" card: same y=290 as main row, placed at x=1060 (rightmost, in row)
+
+    Main row x positions (gap=22 between cards):
+      queued:     x=60,   w=130  → right=190
+      planning:   x=212,  w=130  → right=342
+      generating: x=364,  w=150  → right=514
+      rendering:  x=536,  w=200  → right=736  (centre x=636)
+      done:       x=758,  w=140  → right=898  (centre x=828)
+      error:      x=920,  w=140  → right=1060 (centre x=990)
+      cache hit:  x=1082, w=138  → right=1220 (centre x=1151)
+
+    repair card above rendering: x=536, w=200 → centre x=636
+  -->
+
+  <!-- repair card — above rendering card -->
+  <g transform="translate(536, 170)">
+    <rect width="200" height="74" rx="12" fill="url(#card3)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4 4"/>
+    <rect width="200" height="3" rx="1.5" fill="#fbbf24"/>
+    <text x="100" y="32" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">repair</text>
+    <text x="100" y="50" font-size="10" letter-spacing="1.5" fill="#fbbf24" text-anchor="middle">CONDITIONAL</text>
+    <text x="100" y="64" font-size="10" fill="#a1a1aa" text-anchor="middle">stderr → regen script · 1× retry</text>
   </g>
 
-  <!-- cache hit card — top right, y=165 -->
-  <g transform="translate(1055, 165)">
-    <rect width="160" height="80" rx="12" fill="url(#cache-glow)" stroke="#34d399" stroke-width="1.5"/>
-    <rect width="160" height="3" rx="1.5" fill="#34d399"/>
-    <text x="80" y="32" font-size="13" font-weight="700" fill="#bbf7d0" text-anchor="middle">cache hit</text>
-    <text x="80" y="50" font-size="10" letter-spacing="1.5" fill="#34d399" text-anchor="middle">SHORTCUT</text>
-    <text x="80" y="64" font-size="10" fill="#a1a1aa" text-anchor="middle">SHA256 keyed</text>
-    <text x="80" y="76" font-size="10" fill="#a1a1aa" text-anchor="middle">~30 ms vs ~30 s</text>
-  </g>
+  <!-- ═══════════════ MAIN STAGE ROW (y=290) ═══════════════ -->
 
-  <!-- Main stage cards row — y=295, clears the repair/cache cards above -->
   <!-- queued -->
-  <g transform="translate(60, 295)">
-    <rect width="140" height="80" rx="12" fill="url(#card3)" stroke="#52525b" stroke-width="1"/>
-    <rect width="140" height="3" rx="1.5" fill="#a1a1aa"/>
-    <text x="70" y="34" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">queued</text>
-    <text x="70" y="56" font-size="10" letter-spacing="1.5" fill="#71717a" text-anchor="middle">0%</text>
-    <text x="70" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">job created</text>
+  <g transform="translate(60, 290)">
+    <rect width="130" height="80" rx="12" fill="url(#card3)" stroke="#52525b" stroke-width="1"/>
+    <rect width="130" height="3" rx="1.5" fill="#a1a1aa"/>
+    <text x="65" y="34" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">queued</text>
+    <text x="65" y="56" font-size="10" letter-spacing="1.5" fill="#71717a" text-anchor="middle">0%</text>
+    <text x="65" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">job created</text>
   </g>
 
   <!-- planning -->
-  <g transform="translate(222, 295)">
-    <rect width="140" height="80" rx="12" fill="url(#card3)" stroke="#818cf8" stroke-width="1"/>
-    <rect width="140" height="3" rx="1.5" fill="#818cf8"/>
-    <text x="70" y="34" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">planning</text>
-    <text x="70" y="56" font-size="10" letter-spacing="1.5" fill="#818cf8" text-anchor="middle">5%</text>
-    <text x="70" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">emit_manim · sonnet</text>
+  <g transform="translate(212, 290)">
+    <rect width="130" height="80" rx="12" fill="url(#card3)" stroke="#818cf8" stroke-width="1"/>
+    <rect width="130" height="3" rx="1.5" fill="#818cf8"/>
+    <text x="65" y="34" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">planning</text>
+    <text x="65" y="56" font-size="10" letter-spacing="1.5" fill="#818cf8" text-anchor="middle">5%</text>
+    <text x="65" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">emit_manim · sonnet</text>
   </g>
 
   <!-- generating -->
-  <g transform="translate(384, 295)">
-    <rect width="140" height="80" rx="12" fill="url(#card3)" stroke="#34d399" stroke-width="1"/>
-    <rect width="140" height="3" rx="1.5" fill="#34d399"/>
-    <text x="70" y="34" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">generating</text>
-    <text x="70" y="56" font-size="10" letter-spacing="1.5" fill="#34d399" text-anchor="middle">25%</text>
-    <text x="70" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">Regex sandboxCheck</text>
+  <g transform="translate(364, 290)">
+    <rect width="150" height="80" rx="12" fill="url(#card3)" stroke="#34d399" stroke-width="1"/>
+    <rect width="150" height="3" rx="1.5" fill="#34d399"/>
+    <text x="75" y="34" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">generating</text>
+    <text x="75" y="56" font-size="10" letter-spacing="1.5" fill="#34d399" text-anchor="middle">25%</text>
+    <text x="75" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">Regex sandboxCheck</text>
   </g>
 
-  <!-- rendering (wider, matches x=510 of repair card above) -->
-  <g transform="translate(546, 295)">
-    <rect width="210" height="80" rx="12" fill="url(#card3)" stroke="#a78bfa" stroke-width="1"/>
-    <rect width="210" height="3" rx="1.5" fill="#a78bfa"/>
-    <text x="105" y="34" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">rendering</text>
-    <text x="105" y="56" font-size="10" letter-spacing="1.5" fill="#a78bfa" text-anchor="middle">40%</text>
-    <text x="105" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">manim_worker.py · ETA streams every 2 s</text>
+  <!-- rendering (wider, aligned with repair card above) -->
+  <g transform="translate(536, 290)">
+    <rect width="200" height="80" rx="12" fill="url(#card3)" stroke="#a78bfa" stroke-width="1"/>
+    <rect width="200" height="3" rx="1.5" fill="#a78bfa"/>
+    <text x="100" y="34" font-size="13" font-weight="700" fill="#f5f5f7" text-anchor="middle">rendering</text>
+    <text x="100" y="56" font-size="10" letter-spacing="1.5" fill="#a78bfa" text-anchor="middle">40%</text>
+    <text x="100" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">manim_worker.py · ETA streams every 2 s</text>
   </g>
 
   <!-- done -->
-  <g transform="translate(778, 295)">
+  <g transform="translate(758, 290)">
     <rect width="140" height="80" rx="12" fill="url(#card3)" stroke="#34d399" stroke-width="1.5"/>
     <rect width="140" height="3" rx="1.5" fill="#34d399"/>
     <text x="70" y="34" font-size="13" font-weight="700" fill="#bbf7d0" text-anchor="middle">done</text>
@@ -104,7 +113,7 @@
   </g>
 
   <!-- error -->
-  <g transform="translate(940, 295)">
+  <g transform="translate(920, 290)">
     <rect width="140" height="80" rx="12" fill="url(#card3)" stroke="#fb7185" stroke-width="1.5"/>
     <rect width="140" height="3" rx="1.5" fill="#fb7185"/>
     <text x="70" y="34" font-size="13" font-weight="700" fill="#fecdd3" text-anchor="middle">error</text>
@@ -112,51 +121,68 @@
     <text x="70" y="70" font-size="10" fill="#a1a1aa" text-anchor="middle">terminal · SSE closes</text>
   </g>
 
-  <!-- Forward arrows between stage cards (mid y=335) -->
-  <g stroke="#a78bfa" stroke-width="2" fill="none">
-    <line x1="200" y1="335" x2="222" y2="335" marker-end="url(#arr3)"/>
-    <line x1="362" y1="335" x2="384" y2="335" marker-end="url(#arr3)"/>
-    <line x1="524" y1="335" x2="546" y2="335" marker-end="url(#arr3)"/>
-    <line x1="756" y1="335" x2="778" y2="335" marker-end="url(#arr3)"/>
+  <!-- cache hit — IN the main row, rightmost -->
+  <g transform="translate(1082, 290)">
+    <rect width="138" height="80" rx="12" fill="url(#cache-glow)" stroke="#34d399" stroke-width="1.5"/>
+    <rect width="138" height="3" rx="1.5" fill="#34d399"/>
+    <text x="69" y="30" font-size="13" font-weight="700" fill="#bbf7d0" text-anchor="middle">cache hit</text>
+    <text x="69" y="46" font-size="10" letter-spacing="1.5" fill="#34d399" text-anchor="middle">SHORTCUT</text>
+    <text x="69" y="60" font-size="10" fill="#a1a1aa" text-anchor="middle">SHA256 keyed</text>
+    <text x="69" y="74" font-size="10" fill="#a1a1aa" text-anchor="middle">~30 ms vs ~30 s</text>
   </g>
 
-  <!-- rendering → repair (up: rendering top=295, repair bottom=239) -->
-  <g stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
-    <path d="M 615 295 C 615 272, 615 252, 615 239" marker-end="url(#arr3-loop)"/>
+  <!-- ═══════════════ FORWARD ARROWS (mid y=330) ═══════════════ -->
+  <g stroke="#a78bfa" stroke-width="2" fill="none">
+    <!-- queued → planning -->
+    <line x1="190" y1="330" x2="212" y2="330" marker-end="url(#arr3)"/>
+    <!-- planning → generating -->
+    <line x1="342" y1="330" x2="364" y2="330" marker-end="url(#arr3)"/>
+    <!-- generating → rendering -->
+    <line x1="514" y1="330" x2="536" y2="330" marker-end="url(#arr3)"/>
+    <!-- rendering → done -->
+    <line x1="736" y1="330" x2="758" y2="330" marker-end="url(#arr3)"/>
   </g>
-  <text x="625" y="274" font-size="10" fill="#fbbf24" font-style="italic">render exit &#x2260; 0</text>
+
+  <!-- ═══════════════ REPAIR LOOP ARROWS ═══════════════ -->
+  <!-- rendering → repair (up: rendering top=290, repair bottom=244) -->
+  <g stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
+    <path d="M 606 290 C 606 268, 606 248, 606 244" marker-end="url(#arr3-loop)"/>
+  </g>
+  <text x="618" y="272" font-size="10" fill="#fbbf24" font-style="italic">render exit ≠ 0</text>
 
   <!-- repair → rendering (back down) -->
   <g stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
-    <path d="M 685 239 C 685 258, 685 278, 685 295" marker-end="url(#arr3-loop)"/>
+    <path d="M 666 244 C 666 262, 666 276, 666 290" marker-end="url(#arr3-loop)"/>
   </g>
-  <text x="697" y="274" font-size="10" fill="#fbbf24">retry once</text>
+  <text x="678" y="272" font-size="10" fill="#fbbf24">retry once</text>
 
+  <!-- ═══════════════ ERROR ARROWS ═══════════════ -->
   <!-- generating → error (sandbox reject, arc below cards) -->
   <g stroke="#fb7185" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
-    <path d="M 454 375 C 454 430, 1010 430, 1010 375" marker-end="url(#arr3-err)"/>
+    <path d="M 439 370 C 439 430, 990 430, 990 370" marker-end="url(#arr3-err)"/>
   </g>
-  <text x="732" y="448" text-anchor="middle" font-size="11" fill="#fb7185" font-style="italic">sandbox reject · forbidden import or pattern</text>
+  <text x="715" y="448" text-anchor="middle" font-size="11" fill="#fb7185" font-style="italic">sandbox reject · forbidden import or pattern</text>
 
-  <!-- rendering → error (cancelled) -->
+  <!-- rendering → error (cancelled, arc deeper below) -->
   <g stroke="#fb7185" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
-    <path d="M 651 375 C 651 478, 1010 478, 1010 375" marker-end="url(#arr3-err)"/>
+    <path d="M 636 370 C 636 476, 990 476, 990 370" marker-end="url(#arr3-err)"/>
   </g>
-  <text x="830" y="496" text-anchor="middle" font-size="11" fill="#fb7185" font-style="italic">cancel · DELETE /api/video/:id (SIGTERM)</text>
+  <text x="813" y="494" text-anchor="middle" font-size="11" fill="#fb7185" font-style="italic">cancel · DELETE /api/video/:id (SIGTERM)</text>
 
-  <!-- repair → error (failed twice) -->
+  <!-- repair → error (failed twice, arc above repair card) -->
   <g stroke="#fb7185" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
-    <path d="M 720 205 C 860 205, 1010 248, 1010 295" marker-end="url(#arr3-err)"/>
+    <path d="M 736 207 C 836 207, 990 240, 990 290" marker-end="url(#arr3-err)"/>
   </g>
-  <text x="888" y="222" font-size="10" fill="#fb7185">failed twice</text>
+  <text x="892" y="224" font-size="10" fill="#fb7185" text-anchor="middle">failed twice</text>
 
-  <!-- queued → cache hit (cache shortcut arc, peak y=152 — clear of header at y=132) -->
+  <!-- ═══════════════ CACHE HIT ARROW ═══════════════ -->
+  <!-- queued → cache hit: arc ABOVE the repair card (peak y=148) -->
   <g stroke="#34d399" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
-    <path d="M 130 295 C 130 152, 1135 152, 1135 245" marker-end="url(#arr3-cache)"/>
+    <path d="M 125 290 C 125 148, 1151 148, 1151 290" marker-end="url(#arr3-cache)"/>
   </g>
-  <text x="632" y="144" text-anchor="middle" font-size="11" fill="#34d399" font-style="italic">if cached: copy mp4, emit done immediately</text>
+  <text x="638" y="140" text-anchor="middle" font-size="11" fill="#34d399" font-style="italic">if cached: copy mp4, emit done immediately</text>
 
-  <!-- SSE events panel -->
+  <!-- ═══════════════ SSE EVENTS PANEL ═══════════════ -->
   <g transform="translate(60, 520)">
     <text x="0" y="0" font-size="13" font-weight="600" letter-spacing="2" fill="#a1a1aa">SSE EVENTS</text>
     <line x1="0" y1="14" x2="120" y2="14" stroke="#27272a"/>

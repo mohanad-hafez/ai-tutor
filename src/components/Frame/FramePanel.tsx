@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useGraphStore } from '../../store/graphStore';
 import { useDocumentStore } from '../../store/documentStore';
-import { quiz as quizApi } from '../../agent/tutor';
 import { startLesson, startPrereqLesson, startVideoDirect } from '../../lib/lessonFlow';
+import { LINEAR_REGRESSION_QUIZ_DEMO } from '../../lib/demoLessons';
 import type { FrameContent } from '../../types';
 import { buildLessonHtml, LESSON_SANDBOX } from '../../lib/lessonShell';
 import { AgentTracePanel } from './AgentTracePanel';
@@ -27,6 +27,7 @@ export function FramePanel() {
   const [inline, setInline] = useState<InlineSel | null>(null);
   const [askQuestion, setAskQuestion] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const parents = useMemo(
     () => edges.filter((e) => e.target === focusedId).map((e) => e.source),
@@ -58,6 +59,10 @@ export function FramePanel() {
 
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
+      // Ignore messages from canvas-preview iframes — those have their
+      // own popover handler in FrameNode. We only react to the panel's
+      // own iframe.
+      if (!iframeRef.current || e.source !== iframeRef.current.contentWindow) return;
       if (e.data?.type === 'frame-ready') {
         setIframeReady(true);
         return;
@@ -73,10 +78,9 @@ export function FramePanel() {
         return;
       }
       const rect = e.data.rect || { x: 40, y: 40 };
-      const iframe = containerRef.current?.querySelector('iframe');
-      const ifRect = iframe?.getBoundingClientRect();
+      const ifRect = iframeRef.current.getBoundingClientRect();
       const baseRect = containerRef.current?.getBoundingClientRect();
-      if (!ifRect || !baseRect) return;
+      if (!baseRect) return;
       setInline({
         text,
         x: ifRect.left - baseRect.left + rect.x,
@@ -134,13 +138,16 @@ export function FramePanel() {
   };
 
   const generateQuiz = async () => {
+    // Demo branch: the agent pipeline is disabled, so the quiz button
+    // resolves to the canned interactive quiz instead of calling the API.
+    const demo = LINEAR_REGRESSION_QUIZ_DEMO;
     const id = crypto.randomUUID();
     addFrame(
       {
         id,
         type: 'quiz',
         title: `Quiz: ${data.title}`,
-        summary: 'Generating quiz…',
+        summary: 'Building interactive quiz…',
         parentIds: [node.id],
         childIds: [],
         loading: true,
@@ -148,27 +155,14 @@ export function FramePanel() {
       node.id
     );
     setFocused(id);
-    try {
-      const res = await quizApi({
-        title: data.title,
-        summary: data.summary,
-        sourceText: data.sourceText,
-        docSummary: docSummary || undefined,
-      });
-      if (res.mode === 'text' || res.mode === 'visual_html') {
-        updateFrame(id, {
-          title: res.title,
-          summary: res.summary,
-          content: res.content,
-          loading: false,
-        });
-      }
-    } catch (err) {
-      updateFrame(id, {
-        summary: 'Error: ' + (err as Error).message,
-        loading: false,
-      });
-    }
+    await new Promise((r) => setTimeout(r, 450));
+    updateFrame(id, {
+      title: demo.title,
+      summary: demo.summary,
+      content: demo.content,
+      mode: 'visual_html',
+      loading: false,
+    });
   };
 
   const animateThis = () => {
@@ -311,6 +305,7 @@ export function FramePanel() {
         ) : data.content?.html ? (
           <>
             <iframe
+              ref={iframeRef}
               title={data.title}
               srcDoc={buildLessonHtml(data.content)}
               sandbox={LESSON_SANDBOX}

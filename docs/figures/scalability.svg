@@ -1,0 +1,200 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 760" font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0a10"/>
+      <stop offset="1" stop-color="#06060c"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10101a"/>
+      <stop offset="1" stop-color="#0a0a13"/>
+    </linearGradient>
+    <linearGradient id="hub" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#312e81"/>
+      <stop offset="1" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="codeStream" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#818cf8" stop-opacity="0.0"/>
+      <stop offset="0.18" stop-color="#818cf8" stop-opacity="0.55"/>
+      <stop offset="0.82" stop-color="#a78bfa" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#a78bfa" stop-opacity="0.0"/>
+    </linearGradient>
+    <linearGradient id="lessonAccent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="1.4" cy="1.4" r="0.9" fill="#1f1f24"/>
+    </pattern>
+    <marker id="arr" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#a78bfa"/>
+    </marker>
+    <marker id="arrDim" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#52525b"/>
+    </marker>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1240" height="760" fill="url(#bg)"/>
+  <rect width="1240" height="760" fill="url(#dots)" opacity="0.45"/>
+
+  <!-- Header -->
+  <g transform="translate(60, 56)">
+    <text font-size="13" font-family="ui-monospace, monospace" fill="#71717a" letter-spacing="3" text-anchor="start">SCALABLE BY DESIGN</text>
+    <text y="38" font-size="34" font-weight="700" fill="#e0e7ff" letter-spacing="-0.5">One pipeline. Any code-driven learning artifact.</text>
+    <text y="68" font-size="15" fill="#a1a1aa">Because the model writes <tspan fill="#c4b5fd" font-weight="600">code</tspan>, anything you can express in code becomes a lesson — interactive widgets, narrated animations, visual quizzes, and whatever comes next.</text>
+  </g>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Left column — prompt input                                  -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <g transform="translate(60, 200)">
+    <rect width="240" height="120" rx="16" fill="url(#card)" stroke="#1f1f24"/>
+    <text x="18" y="30" font-size="10" font-family="ui-monospace, monospace" fill="#71717a" letter-spacing="2">USER PROMPT</text>
+    <foreignObject x="18" y="42" width="204" height="70">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="font: 13px/1.45 ui-sans-serif, system-ui; color:#d4d4d8;">
+        “Explain <span style="color:#c4b5fd; font-weight:600">linear regression</span> with an interactive plot, then quiz me.”
+      </div>
+    </foreignObject>
+  </g>
+
+  <!-- arrow prompt → hub -->
+  <path d="M 300 260 L 380 260" stroke="#52525b" stroke-width="1.4" fill="none" marker-end="url(#arrDim)"/>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Center — AI codegen hub                                     -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <g transform="translate(380, 200)">
+    <rect width="240" height="120" rx="18" fill="url(#hub)" stroke="#4338ca" stroke-opacity="0.55"/>
+    <rect x="2" y="2" width="236" height="116" rx="16" fill="none" stroke="#818cf8" stroke-opacity="0.18"/>
+    <!-- node icon -->
+    <g transform="translate(28, 30)">
+      <circle cx="0" cy="20" r="14" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.4"/>
+      <circle cx="-4" cy="16" r="2.2" fill="#a78bfa"/>
+      <circle cx="4" cy="16" r="2.2" fill="#a78bfa"/>
+      <path d="M -5 24 Q 0 28 5 24" stroke="#a78bfa" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    </g>
+    <text x="60" y="42" font-size="10" font-family="ui-monospace, monospace" fill="#a5b4fc" letter-spacing="2">AI CODEGEN</text>
+    <text x="60" y="64" font-size="18" font-weight="700" fill="#e0e7ff">Claude writes code</text>
+    <text x="60" y="84" font-size="12" fill="#a1a1aa">html · css · js · python · svg</text>
+
+    <!-- shimmering output line (token stream) -->
+    <line x1="240" y1="60" x2="320" y2="60" stroke="url(#codeStream)" stroke-width="3" opacity="0.95"/>
+  </g>
+
+  <!-- arrow hub → fanout point -->
+  <path d="M 620 260 L 700 260" stroke="#a78bfa" stroke-width="1.4" fill="none" marker-end="url(#arr)" filter="url(#glow)"/>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Fan-out spine                                               -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <g>
+    <!-- vertical spine -->
+    <line x1="700" y1="160" x2="700" y2="640" stroke="#27272a" stroke-width="1" stroke-dasharray="2 4"/>
+    <!-- spokes -->
+    <path d="M 700 200 L 800 200" stroke="#3f3f46" stroke-width="1.2" fill="none" marker-end="url(#arrDim)"/>
+    <path d="M 700 340 L 800 340" stroke="#3f3f46" stroke-width="1.2" fill="none" marker-end="url(#arrDim)"/>
+    <path d="M 700 480 L 800 480" stroke="#3f3f46" stroke-width="1.2" fill="none" marker-end="url(#arrDim)"/>
+    <path d="M 700 620 L 800 620" stroke="#3f3f46" stroke-width="1.2" fill="none" marker-end="url(#arrDim)"/>
+  </g>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Output 1 — Interactive lesson                               -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <g transform="translate(800, 150)">
+    <rect width="380" height="110" rx="14" fill="url(#card)" stroke="#1f1f24"/>
+    <rect width="3" height="110" fill="#6366f1" rx="1.5"/>
+    <text x="20" y="28" font-size="10" font-family="ui-monospace, monospace" fill="#a5b4fc" letter-spacing="2">RENDERS IN BROWSER</text>
+    <text x="20" y="52" font-size="17" font-weight="700" fill="#e0e7ff">Interactive lesson</text>
+    <text x="20" y="72" font-size="12" fill="#a1a1aa">Live charts · sliders · click-through walkthroughs.</text>
+    <text x="20" y="92" font-size="11" font-family="ui-monospace, monospace" fill="#67e8f9">html + css + js  →  &lt;iframe&gt;</text>
+    <!-- mini scatter -->
+    <g transform="translate(286, 22)">
+      <rect width="80" height="74" rx="6" fill="#0a0a0d" stroke="#27272a"/>
+      <line x1="8" y1="62" x2="74" y2="62" stroke="#27272a" stroke-width="0.8"/>
+      <line x1="8" y1="10" x2="8" y2="62" stroke="#27272a" stroke-width="0.8"/>
+      <circle cx="18" cy="54" r="2" fill="#fbbf24"/>
+      <circle cx="28" cy="48" r="2" fill="#fbbf24"/>
+      <circle cx="38" cy="40" r="2" fill="#fbbf24"/>
+      <circle cx="48" cy="32" r="2" fill="#fbbf24"/>
+      <circle cx="58" cy="28" r="2" fill="#fbbf24"/>
+      <circle cx="68" cy="18" r="2" fill="#fbbf24"/>
+      <line x1="10" y1="58" x2="72" y2="14" stroke="url(#lessonAccent)" stroke-width="1.6"/>
+    </g>
+  </g>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Output 2 — Animated video                                   -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <g transform="translate(800, 290)">
+    <rect width="380" height="110" rx="14" fill="url(#card)" stroke="#1f1f24"/>
+    <rect width="3" height="110" fill="#a78bfa" rx="1.5"/>
+    <text x="20" y="28" font-size="10" font-family="ui-monospace, monospace" fill="#c4b5fd" letter-spacing="2">RENDERS WITH MANIM</text>
+    <text x="20" y="52" font-size="17" font-weight="700" fill="#e0e7ff">Animated video</text>
+    <text x="20" y="72" font-size="12" fill="#a1a1aa">3blue1brown-style scenes — narrated math, smooth tweens.</text>
+    <text x="20" y="92" font-size="11" font-family="ui-monospace, monospace" fill="#c4b5fd">python  →  ffmpeg  →  mp4</text>
+    <!-- mini film strip with play -->
+    <g transform="translate(286, 22)">
+      <rect width="80" height="74" rx="6" fill="#0a0a0d" stroke="#27272a"/>
+      <rect x="8"  y="10" width="14" height="54" rx="2" fill="#15151b" stroke="#27272a"/>
+      <rect x="26" y="10" width="14" height="54" rx="2" fill="#15151b" stroke="#27272a"/>
+      <rect x="44" y="10" width="14" height="54" rx="2" fill="#15151b" stroke="#27272a"/>
+      <rect x="62" y="10" width="10" height="54" rx="2" fill="#15151b" stroke="#27272a"/>
+      <circle cx="40" cy="37" r="13" fill="#a78bfa" filter="url(#glow)"/>
+      <path d="M 36 30 L 47 37 L 36 44 Z" fill="#0a0a13"/>
+    </g>
+  </g>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Output 3 — Visual quiz                                      -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <g transform="translate(800, 430)">
+    <rect width="380" height="110" rx="14" fill="url(#card)" stroke="#1f1f24"/>
+    <rect width="3" height="110" fill="#22d3ee" rx="1.5"/>
+    <text x="20" y="28" font-size="10" font-family="ui-monospace, monospace" fill="#67e8f9" letter-spacing="2">RENDERS IN BROWSER</text>
+    <text x="20" y="52" font-size="17" font-weight="700" fill="#e0e7ff">Visual quiz</text>
+    <text x="20" y="72" font-size="12" fill="#a1a1aa">Click the right line · pick the largest residual · tune SSE under target.</text>
+    <text x="20" y="92" font-size="11" font-family="ui-monospace, monospace" fill="#67e8f9">html + svg + js  →  &lt;iframe&gt;</text>
+    <!-- mini quiz ui -->
+    <g transform="translate(286, 22)">
+      <rect width="80" height="74" rx="6" fill="#0a0a0d" stroke="#27272a"/>
+      <rect x="8"  y="12" width="64" height="14" rx="3" fill="#15151b" stroke="#34d399" stroke-opacity="0.6"/>
+      <circle cx="16" cy="19" r="3.5" fill="#34d399"/>
+      <path d="M 14 19 L 16 21 L 19 17" stroke="#0a0a0d" stroke-width="1.2" fill="none"/>
+      <rect x="8"  y="32" width="64" height="14" rx="3" fill="#15151b" stroke="#27272a"/>
+      <circle cx="16" cy="39" r="3.5" fill="none" stroke="#52525b" stroke-width="1.2"/>
+      <rect x="8"  y="52" width="64" height="14" rx="3" fill="#15151b" stroke="#27272a"/>
+      <circle cx="16" cy="59" r="3.5" fill="none" stroke="#52525b" stroke-width="1.2"/>
+    </g>
+  </g>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Output 4 — "anything else"                                  -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <g transform="translate(800, 570)">
+    <rect width="380" height="110" rx="14" fill="url(#card)" stroke="#3f3f46" stroke-dasharray="3 5"/>
+    <rect width="3" height="110" fill="#71717a" rx="1.5" opacity="0.8"/>
+    <text x="20" y="28" font-size="10" font-family="ui-monospace, monospace" fill="#a1a1aa" letter-spacing="2">EXTENSIBLE SLOT</text>
+    <text x="20" y="52" font-size="17" font-weight="700" fill="#e0e7ff">…anything you can code</text>
+    <text x="20" y="72" font-size="12" fill="#a1a1aa">Code playgrounds · physics simulators · drag-drop puzzles · 3D scenes.</text>
+    <text x="20" y="92" font-size="11" font-family="ui-monospace, monospace" fill="#a1a1aa">prompt + new template  →  new artifact type</text>
+    <!-- placeholder grid of "what's next" -->
+    <g transform="translate(286, 22)">
+      <rect width="80" height="74" rx="6" fill="#0a0a0d" stroke="#3f3f46" stroke-dasharray="2 3"/>
+      <text x="40" y="35" text-anchor="middle" font-size="22" fill="#52525b" font-family="ui-monospace, monospace">+</text>
+      <text x="40" y="56" text-anchor="middle" font-size="9" fill="#71717a" letter-spacing="1">SLOT</text>
+    </g>
+  </g>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Footer summary band                                         -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <g transform="translate(60, 690)">
+    <rect width="640" height="46" rx="10" fill="#0e0e12" stroke="#1f1f24"/>
+    <circle cx="22" cy="23" r="5" fill="#22c55e"/>
+    <text x="40" y="20" font-size="12" font-family="ui-monospace, monospace" fill="#86efac" letter-spacing="1.4">SAME PIPELINE</text>
+    <text x="40" y="36" font-size="13" fill="#d4d4d8">Add a new artifact by adding a new prompt template — no new infra, no new model.</text>
+  </g>
+</svg>
